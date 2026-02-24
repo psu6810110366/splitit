@@ -24,8 +24,8 @@ SplitIt คือแอปพลิเคชัน Kivy สำหรับหา
 
 | ชื่อ | รหัสนักศึกษา | หน้าที่ |
 |------|-------------|---------|
-| [ชื่อคนที่ 1] | [รหัส] | Core, Scan Screen, AI Integration, Dashboard |
-| [ชื่อคนที่ 2] | [รหัส] | New Split, Friend Management, Summary, Result Screen |
+| นายมูฮัมหมัดฟาอีฟ ยามา | 6810110498 | Core, Scan Screen, AI Integration, Dashboard |
+| นายสรวิศ จิตณรงค์  | 6810110366 | New Split, Friend Management, Summary, Result Screen |
 
 ---
 
