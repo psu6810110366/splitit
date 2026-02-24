@@ -3,15 +3,137 @@ WindowManager:
     CreateBillScreen:
     SummaryScreen:
 
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
 <HomeScreen>:
     name: "home"
+    
+    # White background for the entire screen
+    canvas.before:
+        Color:
+            rgba: get_color_from_hex('#F9FAFB')
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
     BoxLayout:
         orientation: "vertical"
-        Label:
-            text: "SplitIt - Home Dashboard"
-            font_size: 24
+        padding: 20
+        spacing: 15
+
+        # --- HEADER SECTION ---
+        BoxLayout:
+            size_hint_y: None
+            height: "50dp"
+            
+            Label:
+                text: "SplitIt \U0001F4B8" # Unicode for flying money
+                font_size: "24sp"
+                color: get_color_from_hex('#111827')
+                bold: True
+                text_size: self.size
+                halign: "left"
+                valign: "center"
+            
+            # Placeholder for user profile picture
+            Widget:
+                size_hint_x: None
+                width: "40dp"
+                canvas.before:
+                    Color:
+                        rgba: get_color_from_hex('#D1D5DB')
+                    Ellipse:
+                        pos: self.pos[0], self.pos[1] + 5 # Adjust vertical center
+                        size: 40, 40
+
+        # --- SUMMARY CARDS SECTION ---
+        GridLayout:
+            cols: 2
+            spacing: 15
+            size_hint_y: None
+            height: "90dp"
+
+            # You Owe Card (White)
+            BoxLayout:
+                orientation: "vertical"
+                padding: 15
+                canvas.before:
+                    Color:
+                        rgba: get_color_from_hex('#FFFFFF')
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [15]
+                
+                Label:
+                    text: "You owe"
+                    color: get_color_from_hex('#6B7280')
+                    font_size: "12sp"
+                    text_size: self.size
+                    halign: 'center'
+                Label:
+                    text: "\u0E3F45.00"
+                    color: get_color_from_hex('#111827')
+                    font_size: "20sp"
+                    bold: True
+                    text_size: self.size
+                    halign: 'center'
+                Label:
+                    text: "Pay now"
+                    color: get_color_from_hex('#EF4444') # Red
+                    font_size: "10sp"
+                    text_size: self.size
+                    halign: 'center'
+
+            # You Are Owed Card (Mint Green)
+            BoxLayout:
+                orientation: "vertical"
+                padding: 15
+                canvas.before:
+                    Color:
+                        rgba: get_color_from_hex('#34D399') # Mint Green
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [15]
+                
+                Label:
+                    text: "You are owed"
+                    color: get_color_from_hex('#064E3B')
+                    font_size: "12sp"
+                    text_size: self.size
+                    halign: 'center'
+                Label:
+                    text: "\u0E3F12.50"
+                    color: get_color_from_hex('#111827')
+                    font_size: "20sp"
+                    bold: True
+                    text_size: self.size
+                    halign: 'center'
+                Label:
+                    text: "Remind all"
+                    color: get_color_from_hex('#064E3B')
+                    font_size: "10sp"
+                    text_size: self.size
+                    halign: 'center'
+        
+        # Temp space filler
+        Widget:
+            size_hint_y: 1
+
+        # Create New Bill Button (Temporary location for navigation)
         Button:
-            text: "Create New Bill"
+            text: "+ Create New Bill"
+            size_hint_y: None
+            height: "50dp"
+            background_color: 0, 0, 0, 0
+            canvas.before:
+                Color:
+                    rgba: get_color_from_hex('#34D399')
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [25] # fully rounded
             on_release: app.root.current = "create_bill"
 
 <CreateBillScreen>:
