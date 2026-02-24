@@ -1,0 +1,40 @@
+WindowManager:
+    HomeScreen:
+    CreateBillScreen:
+    SummaryScreen:
+
+<HomeScreen>:
+    name: "home"
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            text: "SplitIt - Home Dashboard"
+            font_size: 24
+        Button:
+            text: "Create New Bill"
+            on_release: app.root.current = "create_bill"
+
+<CreateBillScreen>:
+    name: "create_bill"
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            text: "Enter Bill Details"
+            font_size: 24
+        Button:
+            text: "Calculate (Go to Summary)"
+            on_release: app.root.current = "summary"
+        Button:
+            text: "Back to Home"
+            on_release: app.root.current = "home"
+
+<SummaryScreen>:
+    name: "summary"
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            text: "Split Summary"
+            font_size: 24
+        Button:
+            text: "Back to Home"
+            on_release: app.root.current = "home"
