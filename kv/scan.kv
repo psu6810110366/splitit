@@ -1,0 +1,103 @@
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
+<ScanScreen>:
+    MDFloatLayout:
+        md_bg_color: get_color_from_hex('#1A1A1A') # Black background for camera feel
+
+        # --- CAMERA PREVIEW ---
+        # Note: Kivy's built-in Camera widget. In a real mobile app build, 
+        # this might be replaced by an Android-specific camera intent or library.
+        Camera:
+            id: camera
+            resolution: (1280, 720) # Request HD, fallback to whatever device supports
+            play: True
+            pos_hint: {"center_x": .5, "center_y": .6}
+            size_hint: 1, 0.8
+            allow_stretch: True
+            keep_ratio: True
+
+        # --- TOP HEADER BAR ---
+        MDTopAppBar:
+            title: "Scan Receipt"
+            anchor_title: "center"
+            left_action_items: [["arrow-left", lambda x: root.go_back()]]
+            elevation: 0
+            md_bg_color: 0, 0, 0, 0.4 # Semi-transparent black
+            specific_text_color: 1, 1, 1, 1
+            pos_hint: {"top": 1}
+
+        # --- BOTTOM ACTION BAR ---
+        MDBoxLayout:
+            orientation: "horizontal"
+            size_hint: 1, 0.2
+            pos_hint: {"bottom": 0}
+            md_bg_color: 0, 0, 0, 0.8
+            padding: "20dp"
+            spacing: "20dp"
+
+            # 1. Gallery Button
+            MDIconButton:
+                icon: "image-outline"
+                theme_icon_color: "Custom"
+                icon_color: 1, 1, 1, 1
+                icon_size: "32dp"
+                pos_hint: {"center_y": .5}
+                on_release: root.on_gallery_press()
+                
+            Widget:
+                # spacing setter
+
+            # 2. Main Capture Button (Large circular button)
+            MDFloatingActionButton:
+                icon: "camera"
+                theme_icon_color: "Custom"
+                icon_color: get_color_from_hex('#000000')
+                md_bg_color: get_color_from_hex('#00C853') # SplitIt Primary Green
+                elevation: 2
+                pos_hint: {"center_y": .5}
+                on_release: root.on_scan_press()
+
+            Widget:
+                # spacing setter
+
+            # 3. Manual Entry Button
+            MDIconButton:
+                icon: "keyboard-outline"
+                theme_icon_color: "Custom"
+                icon_color: 1, 1, 1, 1
+                icon_size: "32dp"
+                pos_hint: {"center_y": .5}
+                on_release: root.on_manual_press()
+
+        # --- LOADING OVERLAY (Hidden by default) ---
+        MDBoxLayout:
+            id: loading_overlay
+            orientation: "vertical"
+            md_bg_color: 0, 0, 0, 0.85 # Very dark overlay
+            opacity: 0 # Hidden out of the box
+            pos_hint: {"center_x": .5, "center_y": .5}
+            padding: "40dp"
+            spacing: "20dp"
+            
+            Widget:
+                size_hint_y: 1
+
+            MDSpinner:
+                size_hint: None, None
+                size: "46dp", "46dp"
+                pos_hint: {"center_x": .5}
+                color: get_color_from_hex('#00C853')
+                active: False
+                id: spinner
+
+            MDLabel:
+                id: loading_text
+                text: "กำลังวิเคราะห์ใบเสร็จ..."
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1, 1
+                halign: "center"
+                font_style: "Subtitle1"
+                bold: True
+
+            Widget:
+                size_hint_y: 1
