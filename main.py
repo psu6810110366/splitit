@@ -1,4 +1,9 @@
 import os
+from dotenv import load_dotenv
+
+# โหลด API Key จากไฟล์ .env อัตโนมัติเวลาเปิดแอป
+load_dotenv()
+
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager
