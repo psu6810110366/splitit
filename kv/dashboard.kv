@@ -1,0 +1,148 @@
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
+<DashboardScreen>:
+    # ใช้งาน MDBoxLayout เป็นหลักแทนที่ Kivy BoxLayout (KivyMD Box Layout)
+    MDBoxLayout:
+        orientation: 'vertical'
+        md_bg_color: get_color_from_hex('#F5F5F5') # Card background color from requirement
+        
+        # ส่วนหัว (Header)
+        MDTopAppBar:
+            title: "SplitIt \U0001F4B8"
+            anchor_title: "left"
+            right_action_items: [["account-circle", lambda x: print("User Settings")]]
+            elevation: 0
+            md_bg_color: get_color_from_hex('#F5F5F5')
+            specific_text_color: get_color_from_hex('#1A1A1A')
+
+        MDFloatLayout:
+            
+            # โคล่องสำหรับเนื้อหาเลื่อนได้ (Scrollable Content)
+            MDScrollView:
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    padding: "20dp"
+                    spacing: "20dp"
+                    adaptive_height: True
+
+                    # 1. แถบสรุปยอดหนี้ (Summary Cards: You owe / Owed to you)
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+                        spacing: "15dp"
+                        adaptive_height: True
+                        
+                        # บัตร: คุณต้องจ่าย (You Owe Card - White Background)
+                        MDCard:
+                            orientation: "vertical"
+                            padding: "15dp"
+                            size_hint_y: None
+                            height: "110dp"
+                            radius: [16]
+                            md_bg_color: 1, 1, 1, 1 # White
+                            elevation: 1
+                            
+                            MDLabel:
+                                text: "You owe"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#757575') # Text Secondary
+                                font_style: "Caption"
+                                halign: "center"
+                            MDLabel:
+                                # ใช้ root.total_owed จาก Python
+                                text: f"\u0E3F{root.total_owed:.2f}"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#1A1A1A') # Text Primary
+                                font_style: "H5"
+                                bold: True
+                                halign: "center"
+                            MDLabel:
+                                text: "Pay now"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#FF6B6B') # Secondary Coral/Red
+                                font_style: "Caption"
+                                halign: "center"
+
+                        # บัตร: คนอื่นต้องจ่ายคุณ (You are owed Card - Green Background)
+                        MDCard:
+                            orientation: "vertical"
+                            padding: "15dp"
+                            size_hint_y: None
+                            height: "110dp"
+                            radius: [16]
+                            md_bg_color: get_color_from_hex('#00C853') # Primary Green
+                            elevation: 2
+                            
+                            MDLabel:
+                                text: "You are owed"
+                                theme_text_color: "Custom"
+                                text_color: 1, 1, 1, 1
+                                font_style: "Caption"
+                                halign: "center"
+                            MDLabel:
+                                text: f"\u0E3F{root.total_owe_me:.2f}"
+                                theme_text_color: "Custom"
+                                text_color: 1, 1, 1, 1
+                                font_style: "H5"
+                                bold: True
+                                halign: "center"
+                            MDLabel:
+                                text: "Remind all"
+                                theme_text_color: "Custom"
+                                text_color: 1, 1, 1, 1
+                                font_style: "Caption"
+                                halign: "center"
+                    
+                    # 2. หัวข้อประวัติบิล (Recent Splits Title)
+                    MDLabel:
+                        text: "Recent Splits"
+                        font_style: "Subtitle1"
+                        bold: True
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#1A1A1A')
+                        adaptive_height: True
+                    
+                    # 3. รายการประวัติบิลแบบ Mock data (Mock History List)
+                    MDList:
+                        id: history_list
+                        spacing: "10dp"
+                        
+                        # ไอเทมจำลองตัวที่ 1
+                        TwoLineAvatarIconListItem:
+                            text: "Shabu Buffet"
+                            secondary_text: "Today \u2022 You owe \u0E3F15.00"
+                            bg_color: 1, 1, 1, 1
+                            radius: [12]
+                            
+                            IconLeftWidget:
+                                icon: "food"
+                            
+                            IconRightWidget:
+                                icon: "cash"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#FF6B6B')
+
+                        # ไอเทมจำลองตัวที่ 2
+                        TwoLineAvatarIconListItem:
+                            text: "Pattaya Trip"
+                            secondary_text: "Yesterday \u2022 You paid \u0E3F120.00"
+                            bg_color: 1, 1, 1, 1
+                            radius: [12]
+                            
+                            IconLeftWidget:
+                                icon: "car"
+                                
+                            IconRightWidget:
+                                icon: "check-circle"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#00C853')
+
+            # ปุ่มบวกขนาดใหญ่ตรงกลาง หรือ ขวาล่าง (Floating Action Button)
+            MDFloatingActionButton:
+                icon: "plus"
+                md_bg_color: get_color_from_hex('#00C853') # Primary
+                # ตำแหน่งสำหรับขวาล่าง
+                # pos_hint: {"right": .9, "y": .05}
+                # ตำแหน่งตรงกลางด้านล่างตาม Reference
+                pos_hint: {"center_x": .5, "y": .05}
+                elevation: 3
+                on_release: root.go_to_new_split()
