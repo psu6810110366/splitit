@@ -30,7 +30,7 @@ class SplitItApp(MDApp):
         kv_dir = os.path.join(os.path.dirname(__file__), 'kv')
         Builder.load_file(os.path.join(kv_dir, 'dashboard.kv'))
         # To be loaded in future commits:
-        # Builder.load_file(os.path.join(kv_dir, 'scan.kv'))
+        Builder.load_file(os.path.join(kv_dir, 'scan.kv'))
         # Builder.load_file(os.path.join(kv_dir, 'new_split.kv'))
         # Builder.load_file(os.path.join(kv_dir, 'summary.kv'))
         # Builder.load_file(os.path.join(kv_dir, 'result.kv'))

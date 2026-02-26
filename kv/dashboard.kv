@@ -1,148 +1,361 @@
 #:import get_color_from_hex kivy.utils.get_color_from_hex
 
 <DashboardScreen>:
-    # ใช้งาน MDBoxLayout เป็นหลักแทนที่ Kivy BoxLayout (KivyMD Box Layout)
-    MDBoxLayout:
-        orientation: 'vertical'
-        md_bg_color: get_color_from_hex('#F5F5F5') # Card background color from requirement
+    # Main Base Layout with Light background
+    MDFloatLayout:
+        md_bg_color: get_color_from_hex('#F8F9FA')
         
-        # ส่วนหัว (Header)
-        MDTopAppBar:
-            title: "SplitIt \U0001F4B8"
-            anchor_title: "left"
-            right_action_items: [["account-circle", lambda x: print("User Settings")]]
-            elevation: 0
-            md_bg_color: get_color_from_hex('#F5F5F5')
-            specific_text_color: get_color_from_hex('#1A1A1A')
-
-        MDFloatLayout:
+        # --- SCROLLABLE CONTENT ---
+        MDScrollView:
+            pos_hint: {"top": 1}
+            # Leave space at the bottom for the floating navigation bar
+            size_hint_y: 1
             
-            # โคล่องสำหรับเนื้อหาเลื่อนได้ (Scrollable Content)
-            MDScrollView:
+            MDBoxLayout:
+                orientation: 'vertical'
+                padding: ["20dp", "40dp", "20dp", "100dp"] # Padding bottom 100dp avoids hiding behind nav bar
+                spacing: "24dp"
+                adaptive_height: True
+
+                # 1. HEADER (Title & Profile)
                 MDBoxLayout:
-                    orientation: 'vertical'
-                    padding: "20dp"
-                    spacing: "20dp"
+                    orientation: 'horizontal'
                     adaptive_height: True
-
-                    # 1. แถบสรุปยอดหนี้ (Summary Cards: You owe / Owed to you)
-                    MDBoxLayout:
-                        orientation: 'horizontal'
-                        spacing: "15dp"
-                        adaptive_height: True
-                        
-                        # บัตร: คุณต้องจ่าย (You Owe Card - White Background)
-                        MDCard:
-                            orientation: "vertical"
-                            padding: "15dp"
-                            size_hint_y: None
-                            height: "110dp"
-                            radius: [16]
-                            md_bg_color: 1, 1, 1, 1 # White
-                            elevation: 1
-                            
-                            MDLabel:
-                                text: "You owe"
-                                theme_text_color: "Custom"
-                                text_color: get_color_from_hex('#757575') # Text Secondary
-                                font_style: "Caption"
-                                halign: "center"
-                            MDLabel:
-                                # ใช้ root.total_owed จาก Python
-                                text: f"\u0E3F{root.total_owed:.2f}"
-                                theme_text_color: "Custom"
-                                text_color: get_color_from_hex('#1A1A1A') # Text Primary
-                                font_style: "H5"
-                                bold: True
-                                halign: "center"
-                            MDLabel:
-                                text: "Pay now"
-                                theme_text_color: "Custom"
-                                text_color: get_color_from_hex('#FF6B6B') # Secondary Coral/Red
-                                font_style: "Caption"
-                                halign: "center"
-
-                        # บัตร: คนอื่นต้องจ่ายคุณ (You are owed Card - Green Background)
-                        MDCard:
-                            orientation: "vertical"
-                            padding: "15dp"
-                            size_hint_y: None
-                            height: "110dp"
-                            radius: [16]
-                            md_bg_color: get_color_from_hex('#00C853') # Primary Green
-                            elevation: 2
-                            
-                            MDLabel:
-                                text: "You are owed"
-                                theme_text_color: "Custom"
-                                text_color: 1, 1, 1, 1
-                                font_style: "Caption"
-                                halign: "center"
-                            MDLabel:
-                                text: f"\u0E3F{root.total_owe_me:.2f}"
-                                theme_text_color: "Custom"
-                                text_color: 1, 1, 1, 1
-                                font_style: "H5"
-                                bold: True
-                                halign: "center"
-                            MDLabel:
-                                text: "Remind all"
-                                theme_text_color: "Custom"
-                                text_color: 1, 1, 1, 1
-                                font_style: "Caption"
-                                halign: "center"
                     
-                    # 2. หัวข้อประวัติบิล (Recent Splits Title)
                     MDLabel:
-                        text: "Recent Splits"
-                        font_style: "Subtitle1"
+                        text: "SplitIt \U0001F4B8"
+                        font_style: "H5"
                         bold: True
                         theme_text_color: "Custom"
                         text_color: get_color_from_hex('#1A1A1A')
-                        adaptive_height: True
-                    
-                    # 3. รายการประวัติบิลแบบ Mock data (Mock History List)
-                    MDList:
-                        id: history_list
-                        spacing: "10dp"
+                        valign: "center"
+                        size_hint_y: None
+                        height: "40dp"
                         
-                        # ไอเทมจำลองตัวที่ 1
-                        TwoLineAvatarIconListItem:
-                            text: "Shabu Buffet"
-                            secondary_text: "Today \u2022 You owe \u0E3F15.00"
-                            bg_color: 1, 1, 1, 1
-                            radius: [12]
-                            
-                            IconLeftWidget:
-                                icon: "food"
-                            
-                            IconRightWidget:
-                                icon: "cash"
-                                theme_text_color: "Custom"
-                                text_color: get_color_from_hex('#FF6B6B')
+                    # Profile Picture placeholder
+                    FitImage:
+                        source: "assets/profile.jpg"
+                        size_hint: None, None
+                        size: "40dp", "40dp"
+                        radius: [20, 20, 20, 20]
 
-                        # ไอเทมจำลองตัวที่ 2
-                        TwoLineAvatarIconListItem:
-                            text: "Pattaya Trip"
-                            secondary_text: "Yesterday \u2022 You paid \u0E3F120.00"
-                            bg_color: 1, 1, 1, 1
-                            radius: [12]
+                # 2. MAIN BANNER CARD
+                # Using a dark purple/navy background to simulate the dark gradient card
+                MDCard:
+                    orientation: "vertical"
+                    size_hint_y: None
+                    height: "180dp"
+                    radius: [24, 24, 24, 24]
+                    md_bg_color: get_color_from_hex('#1F1A30')
+                    padding: "20dp"
+                    elevation: 3
+                    
+                    MDLabel:
+                        text: "DASHBOARD"
+                        font_style: "Overline"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#9E9E9E')
+                        adaptive_height: True
+                        
+                    MDLabel:
+                        text: "Ready to split\nthe bill?"
+                        font_style: "H4"
+                        bold: True
+                        theme_text_color: "Custom"
+                        text_color: 1, 1, 1, 1
+                        valign: "center"
+                        
+                    # Orange gradient Button (Custom Card acting as button)
+                    MDCard:
+                        size_hint: None, None
+                        size: "160dp", "45dp"
+                        radius: [22, 22, 22, 22]
+                        md_bg_color: get_color_from_hex('#FF6B00') # Vibrant Orange
+                        elevation: 1
+                        ripple_behavior: True
+                        on_release: root.go_to_new_split()
+                        
+                        MDRelativeLayout:
+                            MDLabel:
+                                text: "Create New Bill"
+                                font_style: "Subtitle2"
+                                bold: True
+                                theme_text_color: "Custom"
+                                text_color: 1, 1, 1, 1
+                                halign: "center"
+                                valign: "center"
+
+                # 3. ACTION BUTTONS (Scan & Add Friend)
+                MDBoxLayout:
+                    orientation: 'horizontal'
+                    spacing: "15dp"
+                    adaptive_height: True
+                    
+                    # Action 1: Scan Receipt
+                    MDCard:
+                        orientation: "vertical"
+                        size_hint_y: None
+                        height: "100dp"
+                        radius: [20, 20, 20, 20]
+                        md_bg_color: 1, 1, 1, 1
+                        padding: "15dp"
+                        elevation: 1
+                        ripple_behavior: True
+                        on_release: root.go_to_scan()
+                        
+                        MDIcon:
+                            icon: "camera-outline"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#1F1A30')
+                            font_size: "32sp"
+                            pos_hint: {"center_x": .5}
                             
-                            IconLeftWidget:
-                                icon: "car"
+                        MDLabel:
+                            text: "Scan\nReceipt"
+                            font_style: "Caption"
+                            bold: True
+                            halign: "center"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#1F1A30')
+                            
+                    # Action 2: Add Friend
+                    MDCard:
+                        orientation: "vertical"
+                        size_hint_y: None
+                        height: "100dp"
+                        radius: [20, 20, 20, 20]
+                        md_bg_color: 1, 1, 1, 1
+                        padding: "15dp"
+                        elevation: 1
+                        ripple_behavior: True
+                        on_release: root.go_to_add_friend()
+                        
+                        MDIcon:
+                            icon: "account-multiple-plus-outline"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#1F1A30')
+                            font_size: "32sp"
+                            pos_hint: {"center_x": .5}
+                            
+                        MDLabel:
+                            text: "Add\nFriend"
+                            font_style: "Caption"
+                            bold: True
+                            halign: "center"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#1F1A30')
+
+                # 4. BALANCE SUMMARY SECION
+                MDLabel:
+                    text: "Balance Summary"
+                    font_style: "Subtitle1"
+                    bold: True
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#1A1A1A')
+                    adaptive_height: True
+                    
+                MDBoxLayout:
+                    orientation: 'horizontal'
+                    spacing: "15dp"
+                    adaptive_height: True
+                    
+                    # YOU OWE (Pinkish)
+                    MDCard:
+                        orientation: "vertical"
+                        padding: "15dp"
+                        size_hint_y: None
+                        height: "90dp"
+                        radius: [16, 16, 16, 16]
+                        md_bg_color: get_color_from_hex('#FFF0F0') # Soft pink
+                        elevation: 0
+                        
+                        MDLabel:
+                            text: "YOU OWE"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#FF5252')
+                            font_style: "Caption"
+                            bold: True
+                        MDLabel:
+                            text: f"\u0E3F{root.total_owed:.2f}"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#1A1A1A')
+                            font_style: "H6"
+                            bold: True
+                            
+                    # OWED TO YOU (Light Blue)
+                    MDCard:
+                        orientation: "vertical"
+                        padding: "15dp"
+                        size_hint_y: None
+                        height: "90dp"
+                        radius: [16, 16, 16, 16]
+                        md_bg_color: get_color_from_hex('#F0F8FF') # Soft blue
+                        elevation: 0
+                        
+                        MDLabel:
+                            text: "OWED TO YOU"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#2196F3')
+                            font_style: "Caption"
+                            bold: True
+                        MDLabel:
+                            text: f"\u0E3F{root.total_owe_me:.2f}"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#1A1A1A')
+                            font_style: "H6"
+                            bold: True
+
+                # 5. RECENT SPLITS TITLE
+                MDLabel:
+                    text: "Recent Splits"
+                    font_style: "Subtitle1"
+                    bold: True
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#1A1A1A')
+                    adaptive_height: True
+                    
+                # RECENT SPLITS ITEMS
+                # Generating static entries based on properties for now
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    spacing: "10dp"
+                    adaptive_height: True
+                    
+                    MDCard:
+                        size_hint_y: None
+                        height: "70dp"
+                        padding: ["15dp", "10dp", "15dp", "10dp"]
+                        radius: [16, 16, 16, 16]
+                        md_bg_color: 1, 1, 1, 1
+                        elevation: 0
+                        
+                        MDBoxLayout:
+                            orientation: "horizontal"
+                            spacing: "15dp"
+                            
+                            # Avatar Icon Box
+                            MDCard:
+                                size_hint: None, None
+                                size: "45dp", "45dp"
+                                radius: [12, 12, 12, 12]
+                                md_bg_color: get_color_from_hex('#FFF0F0')
+                                pos_hint: {"center_y": .5}
                                 
-                            IconRightWidget:
-                                icon: "check-circle"
+                                MDIcon:
+                                    icon: "food"
+                                    theme_text_color: "Custom"
+                                    text_color: get_color_from_hex('#FF5252')
+                                    pos_hint: {"center_x": .5, "center_y": .5}
+                                    
+                            MDBoxLayout:
+                                orientation: "vertical"
+                                pos_hint: {"center_y": .5}
+                                
+                                MDLabel:
+                                    text: "Shabu Buffet"
+                                    font_style: "Subtitle2"
+                                    bold: True
+                                MDLabel:
+                                    text: "Today \u2022 You owe \u0E3F150"
+                                    font_style: "Caption"
+                                    theme_text_color: "Custom"
+                                    text_color: get_color_from_hex('#757575')
+                                    
+                            MDLabel:
+                                text: "-\u0E3F150"
+                                font_style: "Subtitle2"
+                                bold: True
                                 theme_text_color: "Custom"
-                                text_color: get_color_from_hex('#00C853')
+                                text_color: get_color_from_hex('#FF5252')
+                                halign: "right"
+                                pos_hint: {"center_y": .5}
 
-            # ปุ่มบวกขนาดใหญ่ตรงกลาง หรือ ขวาล่าง (Floating Action Button)
-            MDFloatingActionButton:
-                icon: "plus"
-                md_bg_color: get_color_from_hex('#00C853') # Primary
-                # ตำแหน่งสำหรับขวาล่าง
-                # pos_hint: {"right": .9, "y": .05}
-                # ตำแหน่งตรงกลางด้านล่างตาม Reference
-                pos_hint: {"center_x": .5, "y": .05}
-                elevation: 3
-                on_release: root.go_to_new_split()
+                    MDCard:
+                        size_hint_y: None
+                        height: "70dp"
+                        padding: ["15dp", "10dp", "15dp", "10dp"]
+                        radius: [16, 16, 16, 16]
+                        md_bg_color: 1, 1, 1, 1
+                        elevation: 0
+                        
+                        MDBoxLayout:
+                            orientation: "horizontal"
+                            spacing: "15dp"
+                            
+                            # Avatar Icon Box
+                            MDCard:
+                                size_hint: None, None
+                                size: "45dp", "45dp"
+                                radius: [12, 12, 12, 12]
+                                md_bg_color: get_color_from_hex('#F0F8FF')
+                                pos_hint: {"center_y": .5}
+                                
+                                MDIcon:
+                                    icon: "car"
+                                    theme_text_color: "Custom"
+                                    text_color: get_color_from_hex('#2196F3')
+                                    pos_hint: {"center_x": .5, "center_y": .5}
+                                    
+                            MDBoxLayout:
+                                orientation: "vertical"
+                                pos_hint: {"center_y": .5}
+                                
+                                MDLabel:
+                                    text: "Pattaya Trip"
+                                    font_style: "Subtitle2"
+                                    bold: True
+                                MDLabel:
+                                    text: "Yesterday \u2022 You paid \u0E3F1,200"
+                                    font_style: "Caption"
+                                    theme_text_color: "Custom"
+                                    text_color: get_color_from_hex('#757575')
+                                    
+                            MDLabel:
+                                text: "+\u0E3F500"
+                                font_style: "Subtitle2"
+                                bold: True
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#2196F3')
+                                halign: "right"
+                                pos_hint: {"center_y": .5}
+
+        # --- FLOATING BOTTOM NAVBAR PILL ---
+        # Positioned right over the scrolling content
+        MDCard:
+            size_hint: None, None
+            size: "240dp", "60dp"
+            radius: [30, 30, 30, 30]
+            md_bg_color: get_color_from_hex('#1A1A1A') # Black pill
+            pos_hint: {"center_x": .5, "y": .03}
+            elevation: 4
+            padding: "20dp"
+            
+            MDBoxLayout:
+                orientation: 'horizontal'
+                
+                # Nav 1: Dashboard (Active)
+                MDIconButton:
+                    icon: "home"
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#FFFFFF')
+                    pos_hint: {"center_y": .5}
+                    
+                Widget:
+                    
+                # Nav 2: Scan Center (Orange Highlighted)
+                MDIconButton:
+                    icon: "camera-iris"
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#FF6B00')
+                    pos_hint: {"center_y": .5}
+                    icon_size: "32sp"
+                    on_release: root.go_to_scan()
+                    
+                Widget:
+                
+                # Nav 3: Profile/Settings 
+                MDIconButton:
+                    icon: "cog-outline"
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#757575')
+                    pos_hint: {"center_y": .5}

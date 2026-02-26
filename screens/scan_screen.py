@@ -11,6 +11,7 @@ try:
 except ImportError:
     filechooser = None
 
+import platform
 from core.ai_service import scan_receipt
 
 class ScanScreen(Screen):
@@ -26,7 +27,7 @@ class ScanScreen(Screen):
             self.ids.camera.play = False
 
     def go_back(self):
-        self.manager.current = 'dashboard_screen'
+        self.manager.current = 'dashboard' # Fixed from 'dashboard_screen'
 
     def on_scan_press(self):
         """
@@ -44,14 +45,32 @@ class ScanScreen(Screen):
 
     def on_gallery_press(self):
         """
-        Callback 2: Gallery Picker
+        Callback 2: Gallery Picker (Tkinter fallback for Mac/PC)
         """
         print("Action: Open Gallery")
-        if filechooser:
-            filechooser.open_file(on_selection=self.handle_gallery_selection)
-        else:
-            print("Plyer not installed. Cannot open gallery on this device.")
-            # For testing without plyer, hardcode a test image if exists
+        
+        try:
+            import tkinter as tk
+            from tkinter import filedialog
+            
+            # Hide the main tkinter window
+            root = tk.Tk()
+            root.withdraw()
+            
+            # Open file dialog
+            file_path = filedialog.askopenfilename(
+                title="Select Receipt Image",
+                filetypes=[("Image files", "*.jpg *.jpeg *.png")]
+            )
+            
+            if file_path:
+                print(f"Selected: {file_path}")
+                self.start_ai_analysis(file_path)
+            else:
+                print("No file selected.")
+                
+        except Exception as e:
+            print(f"Tkinter file picker failed: {e}")
             if os.path.exists("test_receipt.jpg"):
                 self.start_ai_analysis("test_receipt.jpg")
                 
