@@ -142,11 +142,11 @@ class ScanScreen(Screen):
             return
 
         # ถ้าสำเร็จ ส่งข้อมูลข้ามไปหน้า New Split Screen
-        # (เดี๋ยวเราจะดึง instance ของ new_split_screen ออกมาเตรียมข้อมูล)
         new_split = self.manager.get_screen('new_split_screen')
         
-        # FIXME: ในอนาคต (Phase 3) จะต้องมีฟังก์ชันรับข้อมูลใน NewSplitScreen
-        # new_split.populate_data_from_ai(result)
+        # Phase A: ส่งผลลัพธ์จาก AI ไปยัง New Split Screen
+        if hasattr(new_split, 'populate_data_from_ai'):
+            new_split.populate_data_from_ai(result)
         
         # นำทางไปหน้าถัดไป
         self.manager.current = 'new_split_screen'
