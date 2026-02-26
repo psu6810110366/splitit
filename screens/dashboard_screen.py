@@ -1,16 +1,40 @@
 from kivy.uix.screenmanager import Screen
-from kivy.properties import NumericProperty
+from kivy.properties import NumericProperty, ListProperty
+
+from core.storage import get_recent_bills, get_balance_summary
+
 
 class DashboardScreen(Screen):
-    total_owed = NumericProperty(15.00) # Dummy start data (You owe)
-    total_owe_me = NumericProperty(120.00) # Dummy start data (Owed to you)
-    
+    """
+    หน้าหลักของแอป — แสดง Balance Summary และ Recent Bills
+    Data-flow: on_enter → load_dashboard_data → storage.py → DB → properties → KV binds
+    """
+    total_owed = NumericProperty(0.0)
+    total_owe_me = NumericProperty(0.0)
+    recent_splits = ListProperty([])
+
     def on_enter(self, *args):
-        """Callback เมื่อเข้ามาสู่หน้านี้ (Refresh data when entered)"""
-        # ในอนาคตดึงข้อมูลจาก core.models
-        pass
-        
+        """รีโหลดข้อมูลจาก DB ทุกครั้งที่กลับมาหน้านี้"""
+        self.load_dashboard_data()
+
+    def load_dashboard_data(self):
+        """
+        ดึงข้อมูลจาก DB และอัปเดต properties
+        KV จะ re-render อัตโนมัติเมื่อ properties เปลี่ยน
+        """
+        balance = get_balance_summary()
+        self.total_owed = balance["total_owed"]
+        self.total_owe_me = balance["total_owe_me"]
+        self.recent_splits = get_recent_bills(limit=10)
+
     def go_to_new_split(self):
-        """นำทางไปลุ่ม (Navigate to New Split screen)"""
-        print("Navigate to Scan or New Split screen...")
-        # self.manager.current = 'scan_screen'
+        """นำทางไปหน้าสร้างบิลใหม่"""
+        self.manager.current = 'new_split_screen'
+
+    def go_to_scan(self):
+        """นำทางไปหน้าสแกนใบเสร็จ"""
+        self.manager.current = 'scan_screen'
+
+    def go_to_add_friend(self):
+        """นำทางไปหน้าจัดการเพื่อน (Phase B — ของสรวิศ)"""
+        print("[Dashboard] go_to_add_friend: Phase B not yet implemented")

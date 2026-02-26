@@ -52,7 +52,7 @@ def scan_receipt(image_path: str) -> dict:
         img = Image.open(compressed_image_path)
         
         # 2. เลือกโมเดลที่เร็วและเหมาะกับ Vision (Select Flash model)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         
         # 3. คำสั่งเฉพาะเจาะจงที่เข้มงวด (Strict Prompting)
         prompt = """
