@@ -1,5 +1,66 @@
 #:import get_color_from_hex kivy.utils.get_color_from_hex
 
+# --- BillCardItem: Reusable widget for each bill row in RecycleView ---
+<BillCardItem@MDCard>:
+    title: ""
+    amount_label: ""
+    date_label: ""
+    status_color: "#00C853"
+    is_done: False
+
+    size_hint_y: None
+    height: "70dp"
+    padding: ["15dp", "10dp", "15dp", "10dp"]
+    radius: [16, 16, 16, 16]
+    md_bg_color: 1, 1, 1, 1
+    elevation: 0
+
+    MDBoxLayout:
+        orientation: "horizontal"
+        spacing: "15dp"
+
+        # Status Dot
+        MDCard:
+            size_hint: None, None
+            size: "45dp", "45dp"
+            radius: [12, 12, 12, 12]
+            md_bg_color: get_color_from_hex(root.status_color) if root.is_done else get_color_from_hex('#FFF0F0')
+            pos_hint: {"center_y": .5}
+
+            MDIcon:
+                icon: "check-circle-outline" if root.is_done else "clock-outline"
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex(root.status_color)
+                pos_hint: {"center_x": .5, "center_y": .5}
+
+        # Title + Date
+        MDBoxLayout:
+            orientation: "vertical"
+            pos_hint: {"center_y": .5}
+
+            MDLabel:
+                text: root.title
+                font_style: "Subtitle2"
+                bold: True
+                shorten: True
+                shorten_from: "right"
+
+            MDLabel:
+                text: root.date_label
+                font_style: "Caption"
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#757575')
+
+        # Amount
+        MDLabel:
+            text: root.amount_label
+            font_style: "Subtitle2"
+            bold: True
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex(root.status_color)
+            halign: "right"
+            pos_hint: {"center_y": .5}
+
 <DashboardScreen>:
     # Main Base Layout with Light background
     MDFloatLayout:
@@ -213,111 +274,35 @@
                     theme_text_color: "Custom"
                     text_color: get_color_from_hex('#1A1A1A')
                     adaptive_height: True
-                    
-                # RECENT SPLITS ITEMS
-                # Generating static entries based on properties for now
-                MDBoxLayout:
-                    orientation: 'vertical'
-                    spacing: "10dp"
-                    adaptive_height: True
-                    
-                    MDCard:
-                        size_hint_y: None
-                        height: "70dp"
-                        padding: ["15dp", "10dp", "15dp", "10dp"]
-                        radius: [16, 16, 16, 16]
-                        md_bg_color: 1, 1, 1, 1
-                        elevation: 0
-                        
-                        MDBoxLayout:
-                            orientation: "horizontal"
-                            spacing: "15dp"
-                            
-                            # Avatar Icon Box
-                            MDCard:
-                                size_hint: None, None
-                                size: "45dp", "45dp"
-                                radius: [12, 12, 12, 12]
-                                md_bg_color: get_color_from_hex('#FFF0F0')
-                                pos_hint: {"center_y": .5}
-                                
-                                MDIcon:
-                                    icon: "food"
-                                    theme_text_color: "Custom"
-                                    text_color: get_color_from_hex('#FF5252')
-                                    pos_hint: {"center_x": .5, "center_y": .5}
-                                    
-                            MDBoxLayout:
-                                orientation: "vertical"
-                                pos_hint: {"center_y": .5}
-                                
-                                MDLabel:
-                                    text: "Shabu Buffet"
-                                    font_style: "Subtitle2"
-                                    bold: True
-                                MDLabel:
-                                    text: "Today \u2022 You owe \u0E3F150"
-                                    font_style: "Caption"
-                                    theme_text_color: "Custom"
-                                    text_color: get_color_from_hex('#757575')
-                                    
-                            MDLabel:
-                                text: "-\u0E3F150"
-                                font_style: "Subtitle2"
-                                bold: True
-                                theme_text_color: "Custom"
-                                text_color: get_color_from_hex('#FF5252')
-                                halign: "right"
-                                pos_hint: {"center_y": .5}
 
-                    MDCard:
+                # Empty state — แสดงเมื่อยังไม่มีบิล
+                MDLabel:
+                    text: "ยังไม่มีบิล — กด Scan หรือ Create New Bill เพื่อเริ่ม!"
+                    font_style: "Caption"
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#BDBDBD')
+                    halign: "center"
+                    adaptive_height: True
+                    opacity: 1 if len(root.recent_splits) == 0 else 0
+                    size_hint_y: None
+                    height: "40dp" if len(root.recent_splits) == 0 else "0dp"
+
+                # Dynamic Bill List
+                RecycleView:
+                    id: recent_splits_rv
+                    data: root.recent_splits
+                    viewclass: "BillCardItem"
+                    size_hint_y: None
+                    height: self.minimum_height
+
+                    RecycleBoxLayout:
+                        orientation: "vertical"
+                        spacing: "10dp"
+                        padding: ["0dp", "0dp", "0dp", "0dp"]
+                        default_size: None, "70dp"
+                        default_size_hint: 1, None
                         size_hint_y: None
-                        height: "70dp"
-                        padding: ["15dp", "10dp", "15dp", "10dp"]
-                        radius: [16, 16, 16, 16]
-                        md_bg_color: 1, 1, 1, 1
-                        elevation: 0
-                        
-                        MDBoxLayout:
-                            orientation: "horizontal"
-                            spacing: "15dp"
-                            
-                            # Avatar Icon Box
-                            MDCard:
-                                size_hint: None, None
-                                size: "45dp", "45dp"
-                                radius: [12, 12, 12, 12]
-                                md_bg_color: get_color_from_hex('#F0F8FF')
-                                pos_hint: {"center_y": .5}
-                                
-                                MDIcon:
-                                    icon: "car"
-                                    theme_text_color: "Custom"
-                                    text_color: get_color_from_hex('#2196F3')
-                                    pos_hint: {"center_x": .5, "center_y": .5}
-                                    
-                            MDBoxLayout:
-                                orientation: "vertical"
-                                pos_hint: {"center_y": .5}
-                                
-                                MDLabel:
-                                    text: "Pattaya Trip"
-                                    font_style: "Subtitle2"
-                                    bold: True
-                                MDLabel:
-                                    text: "Yesterday \u2022 You paid \u0E3F1,200"
-                                    font_style: "Caption"
-                                    theme_text_color: "Custom"
-                                    text_color: get_color_from_hex('#757575')
-                                    
-                            MDLabel:
-                                text: "+\u0E3F500"
-                                font_style: "Subtitle2"
-                                bold: True
-                                theme_text_color: "Custom"
-                                text_color: get_color_from_hex('#2196F3')
-                                halign: "right"
-                                pos_hint: {"center_y": .5}
+                        height: self.minimum_height
 
         # --- FLOATING BOTTOM NAVBAR PILL ---
         # Positioned right over the scrolling content
