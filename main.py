@@ -18,6 +18,8 @@ from components.add_friend_dialog import AddFriendDialog  # noqa: F401
 from components.add_item_dialog import AddItemDialog  # noqa: F401
 from components.item_row import ItemRow  # noqa: F401
 from components.person_row import PersonRow  # noqa: F401
+from components.assign_item_dialog import AssignItemDialog  # noqa: F401
+from components.person_toggle_row import PersonToggleRow  # noqa: F401
 from screens.scan_screen import ScanScreen
 from screens.new_split_screen import NewSplitScreen
 from screens.summary_screen import SummaryScreen
@@ -41,6 +43,8 @@ class SplitItApp(MDApp):
         Builder.load_file(os.path.join(components_dir, 'add_item_dialog.kv'))
         Builder.load_file(os.path.join(components_dir, 'item_row.kv'))
         Builder.load_file(os.path.join(components_dir, 'person_row.kv'))
+        Builder.load_file(os.path.join(components_dir, 'person_toggle_row.kv'))
+        Builder.load_file(os.path.join(components_dir, 'assign_item_dialog.kv'))
         Builder.load_file(os.path.join(kv_dir, 'dashboard.kv'))
         Builder.load_file(os.path.join(kv_dir, 'new_split.kv'))
         Builder.load_file(os.path.join(kv_dir, 'summary.kv'))
