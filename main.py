@@ -13,6 +13,7 @@ from core.models import initialize_db
 
 # นำเข้าหน้าจอต่างๆ (Import screens)
 from screens.dashboard_screen import DashboardScreen
+from components.bottom_nav import BottomNav  # noqa: F401
 from screens.scan_screen import ScanScreen
 from screens.new_split_screen import NewSplitScreen
 from screens.summary_screen import SummaryScreen
@@ -28,6 +29,8 @@ class SplitItApp(MDApp):
         
         # 2. โหลดไฟล์ UI ทั้งหมด (.kv files)
         kv_dir = os.path.join(os.path.dirname(__file__), 'kv')
+        components_dir = os.path.join(os.path.dirname(__file__), 'components')
+        Builder.load_file(os.path.join(components_dir, 'bottom_nav.kv'))
         Builder.load_file(os.path.join(kv_dir, 'dashboard.kv'))
         
         # 3. สร้างระบบนำทางหน้าจอ (ScreenManager)

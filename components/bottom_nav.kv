@@ -1,0 +1,33 @@
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
+<BottomNav>:
+    size_hint: None, None
+    size: "400dp", "64dp"
+    radius: [32, 32, 32, 32]
+    md_bg_color: get_color_from_hex('#FFFFFF')
+    opacity: 0.95
+    pos_hint: {"center_x": .5, "y": .02}
+    elevation: 8
+    padding: ["25dp", "13dp", "25dp", "13dp"]
+
+    MDBoxLayout:
+        orientation: 'horizontal'
+
+        MDIcon:
+            icon: "home"
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex('#F45925')
+
+        Widget:
+
+        MDIcon:
+            icon: "account-group-outline"
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex('#94A3B8')
+
+        Widget:
+
+        MDIcon:
+            icon: "cog-outline"
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex('#94A3B8')
