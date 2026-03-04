@@ -9,18 +9,26 @@
     
     # We will bind these in Python code
     item_name: item_name_input.text
+    item_qty: item_qty_input.text
     item_price: item_price_input.text
 
     MDTextField:
         id: item_name_input
         hint_text: "Item Name"
-        size_hint_x: 0.6
+        size_hint_x: 0.5
+
+    MDTextField:
+        id: item_qty_input
+        hint_text: "Qty"
+        input_filter: "int"
+        text: "1"
+        size_hint_x: 0.15
 
     MDTextField:
         id: item_price_input
         hint_text: "Price"
         input_filter: "float"
-        size_hint_x: 0.3
+        size_hint_x: 0.25
 
     MDIconButton:
         icon: "trash-can-outline"
@@ -80,6 +88,49 @@
                     adaptive_height: True
                     padding: ["0dp", "20dp", "0dp", "0dp"]
                     spacing: "10dp"
+
+                    MDTextField:
+                        id: notes_input
+                        hint_text: "Add a note or special instructions..."
+                        mode: "rectangle"
+                        multiline: True
+                        font_size: "14sp"
+                        size_hint_y: None
+                        height: "80dp"
+
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+                        spacing: "10dp"
+                        MDFillRoundFlatButton:
+                            id: btn_split_equal
+                            text: "Split Equally"
+                            size_hint_x: 0.5
+                            md_bg_color: get_color_from_hex("#00C853")
+                            on_release: root.set_split_mode('equal')
+                        MDRoundFlatButton:
+                            id: btn_split_custom
+                            text: "Custom Amount"
+                            size_hint_x: 0.5
+                            text_color: get_color_from_hex("#757575")
+                            on_release: root.set_split_mode('custom')
+
+                    MDLabel:
+                        text: "Who's paying?"
+                        font_style: "H6"
+                        bold: True
+                        theme_text_color: "Primary"
+
+                    MDRoundFlatIconButton:
+                        icon: "account-plus"
+                        text: "Add Friend"
+                        pos_hint: {"center_x": .5}
+                        on_release: root.on_add_friend()
+
+                    MDBoxLayout:
+                        id: participants_list
+                        orientation: 'vertical'
+                        adaptive_height: True
+                        spacing: "5dp"
 
                     MDBoxLayout:
                         orientation: 'horizontal'

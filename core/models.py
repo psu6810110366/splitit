@@ -25,6 +25,8 @@ class Bill(BaseModel):
     title = CharField()
     total = FloatField(default=0.0)
     is_done = BooleanField(default=False)
+    notes = TextField(null=True)
+    promptpay = CharField(null=True)
     created_at = DateTimeField(default=datetime.datetime.now)
 
 class BillItem(BaseModel):
@@ -32,6 +34,7 @@ class BillItem(BaseModel):
     bill = ForeignKeyField(Bill, backref='items', on_delete='CASCADE')
     name = CharField()
     price = FloatField()
+    quantity = IntegerField(default=1)
 
 class BillParticipant(BaseModel):
     """ตารางผู้เข้าร่วมในบิลและการหารเงิน (Bill Participant Model)"""

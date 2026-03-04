@@ -6,12 +6,16 @@ from kivy.properties import StringProperty
 # Custom widget for the bill items
 class EditableBillItem(MDBoxLayout):
     item_name = StringProperty()
+    item_qty = StringProperty("1")
     item_price = StringProperty()
 
 class NewSplitScreen(Screen):
+    split_mode = StringProperty('equal')
+    
     def on_enter(self, *args):
         # We can trigger initial calculate here just in case
         self.recalculate_total()
+        self.set_split_mode('equal')
 
     def go_back(self):
         """Navigate back to the scan screen"""
@@ -37,19 +41,21 @@ class NewSplitScreen(Screen):
             
         self.recalculate_total()
 
-    def add_item_row(self, name="", price=""):
+    def add_item_row(self, name="", price="", qty="1"):
         """Add a new item row to the list"""
         row = EditableBillItem()
         row.ids.item_name_input.text = name
+        row.ids.item_qty_input.text = str(qty)
         row.ids.item_price_input.text = price
         
-        # Bind price change to recalculate total
-        row.ids.item_price_input.bind(text=self._on_price_changed)
+        # Bind text change to recalculate total
+        row.ids.item_qty_input.bind(text=self._on_input_changed)
+        row.ids.item_price_input.bind(text=self._on_input_changed)
         
         self.ids.items_list.add_widget(row)
         self.recalculate_total()
 
-    def _on_price_changed(self, instance, value):
+    def _on_input_changed(self, instance, value):
         self.recalculate_total()
 
     def on_delete_item_widget(self, widget):
@@ -59,7 +65,7 @@ class NewSplitScreen(Screen):
 
     def on_add_item(self):
         """Manually add an empty item row"""
-        self.add_item_row("", "0")
+        self.add_item_row("", "0", "1")
 
     def recalculate_total(self, *args):
         """Calculate subtotal and grand total dynamically"""
@@ -68,11 +74,14 @@ class NewSplitScreen(Screen):
         for child in self.ids.items_list.children:
             if isinstance(child, EditableBillItem):
                 price_text = child.ids.item_price_input.text
-                if price_text:
-                    try:
-                        subtotal += float(price_text)
-                    except ValueError:
-                        pass
+                qty_text = child.ids.item_qty_input.text
+                
+                try:
+                    price = float(price_text) if price_text else 0.0
+                    qty = int(qty_text) if qty_text else 1
+                    subtotal += (price * qty)
+                except ValueError:
+                    pass
                         
         tax_text = self.ids.tax_input.text
         tax = 0.0
@@ -87,6 +96,26 @@ class NewSplitScreen(Screen):
         if 'subtotal_label' in self.ids:
             self.ids.subtotal_label.text = f"${subtotal:,.2f}"
             self.ids.grand_total_label.text = f"${grand_total:,.2f}"
+
+    def set_split_mode(self, mode):
+        """Toggle between equal or custom split mode"""
+        from kivy.utils import get_color_from_hex
+        self.split_mode = mode
+        
+        if mode == 'equal':
+            self.ids.btn_split_equal.md_bg_color = get_color_from_hex("#00C853")
+            self.ids.btn_split_equal.text_color = get_color_from_hex("#FFFFFF")
+            self.ids.btn_split_custom.md_bg_color = get_color_from_hex("#E0E0E0")
+            self.ids.btn_split_custom.text_color = get_color_from_hex("#757575")
+        else:
+            self.ids.btn_split_custom.md_bg_color = get_color_from_hex("#00C853")
+            self.ids.btn_split_custom.text_color = get_color_from_hex("#FFFFFF")
+            self.ids.btn_split_equal.md_bg_color = get_color_from_hex("#E0E0E0")
+            self.ids.btn_split_equal.text_color = get_color_from_hex("#757575")
+
+    def on_add_friend(self):
+        """Open friend selection modal (to be implemented)"""
+        print("Add Friend clicked")
 
     def on_calculate(self):
         """Advance to Summary Screen along with bill data"""
