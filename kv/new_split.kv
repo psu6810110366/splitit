@@ -13,12 +13,12 @@
 
     MDTextField:
         id: item_name_input
-        hint_text: "ชื่อรายการ"
+        hint_text: "Item Name"
         size_hint_x: 0.6
 
     MDTextField:
         id: item_price_input
-        hint_text: "ราคา"
+        hint_text: "Price"
         input_filter: "float"
         size_hint_x: 0.3
 
@@ -38,9 +38,9 @@
         md_bg_color: get_color_from_hex('#F5F5F5')
 
         MDTopAppBar:
-            title: "รายการบิล"
+            title: "New Bill"
             anchor_title: "center"
-            left_action_items: [["arrow-left", lambda x: root.manager.current == 'scan_screen']]
+            left_action_items: [["arrow-left", lambda x: root.go_back()]]
             elevation: 1
 
         ScrollView:
@@ -52,12 +52,12 @@
 
                 MDTextField:
                     id: bill_title
-                    hint_text: "ชื่อบิล (ร้านอาหาร, ทริป)"
+                    hint_text: "Bill Title (e.g. Dinner, Trip)"
                     font_size: "20sp"
                     mode: "rectangle"
 
                 MDLabel:
-                    text: "รายการที่สั่ง"
+                    text: "Bill Items"
                     font_style: "H6"
                     bold: True
                     theme_text_color: "Primary"
@@ -71,7 +71,7 @@
 
                 MDRoundFlatIconButton:
                     icon: "plus"
-                    text: "เพิ่มรายการใหม่"
+                    text: "Add New Item"
                     pos_hint: {"center_x": .5}
                     on_release: root.on_add_item()
 
@@ -84,16 +84,16 @@
                     MDBoxLayout:
                         orientation: 'horizontal'
                         MDLabel:
-                            text: "ยอดรวมรายการ (Subtotal):"
+                            text: "Subtotal:"
                         MDLabel:
                             id: subtotal_label
-                            text: "฿0.00"
+                            text: "$0.00"
                             halign: "right"
                     
                     MDBoxLayout:
                         orientation: 'horizontal'
                         MDLabel:
-                            text: "ภาษี/Service Charge:"
+                            text: "Tax / Service Charge:"
                         MDTextField:
                             id: tax_input
                             hint_text: "0.00"
@@ -113,19 +113,19 @@
             MDBoxLayout:
                 orientation: 'vertical'
                 MDLabel:
-                    text: "ยอดสุทธิ (Total)"
+                    text: "Grand Total"
                     font_style: "Caption"
                     theme_text_color: "Secondary"
                 MDLabel:
                     id: grand_total_label
-                    text: "฿0.00"
+                    text: "$0.00"
                     font_style: "H5"
                     bold: True
                     theme_text_color: "Custom"
                     text_color: get_color_from_hex("#00C853")
 
             MDFillRoundFlatButton:
-                text: "ยืนยัน (Next)"
+                text: "Next"
                 font_size: "18sp"
                 size_hint_x: 0.6
                 md_bg_color: get_color_from_hex("#00C853")
