@@ -113,6 +113,12 @@ class NewSplitScreen(Screen):
             self.ids.btn_split_equal.md_bg_color = get_color_from_hex("#E0E0E0")
             self.ids.btn_split_equal.text_color = get_color_from_hex("#757575")
 
+        # Update visibility of custom amount fields
+        is_custom = (mode == 'custom')
+        for child in self.ids.participants_list.children:
+            if hasattr(child, 'show_custom_amount'):
+                child.show_custom_amount = is_custom
+
     def on_add_friend(self):
         """Open friend selection modal"""
         friends = Friend.select().order_by(Friend.name)
@@ -123,7 +129,7 @@ class NewSplitScreen(Screen):
             return
             
         # Create dialog content
-        scroll = ScrollView()
+        scroll = ScrollView(size_hint_y=None, height="250dp")
         list_view = MDList()
         
         for f in friends:
@@ -172,6 +178,7 @@ class NewSplitScreen(Screen):
             row = Factory.NewSplitParticipantRow()
             row.friend_name = name
             row.avatar_initials = name[:2].upper()
+            row.show_custom_amount = (self.split_mode == 'custom')
             self.ids.participants_list.add_widget(row)
 
     def on_calculate(self):
@@ -200,8 +207,23 @@ class NewSplitScreen(Screen):
         if self.split_mode == 'equal':
             split_result = split_equally(subtotal, participants)
         else:
-            # Placeholder for custom split (defaults to equal for now to prevent crash)
-            split_result = split_equally(subtotal, participants)
+            # Custom Split: Read amounts from UI
+            split_result = {}
+            custom_sum = 0.0
+            for child in self.ids.participants_list.children:
+                if hasattr(child, 'amount_text'):
+                    try:
+                        amt = float(child.amount_text) if child.amount_text else 0.0
+                        split_result[child.friend_name] = amt
+                        custom_sum += amt
+                    except ValueError:
+                        split_result[child.friend_name] = 0.0
+            
+            # Basic validation
+            if abs(custom_sum - subtotal) > 0.05:
+                from kivymd.toast import toast
+                toast(f"Custom amounts ({custom_sum:.2f}) don't match subtotal ({subtotal:.2f})!")
+                return
             
         bill_data = {
             'title': self.ids.bill_title.text or 'Untitled Bill',
