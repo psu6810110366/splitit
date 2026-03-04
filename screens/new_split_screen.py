@@ -34,11 +34,7 @@ class NewSplitScreen(Screen):
         for item in items:
             self.add_item_row(item.get("name", ""), str(item.get("price", 0.0)))
             
-        # Add tax if available
-        tax = result.get("tax_or_service_charge", 0.0)
-        if tax > 0:
-            self.ids.tax_input.text = str(tax)
-            
+        # Remove tax manipulation here
         self.recalculate_total()
 
     def add_item_row(self, name="", price="", qty="1"):
@@ -82,16 +78,7 @@ class NewSplitScreen(Screen):
                     subtotal += (price * qty)
                 except ValueError:
                     pass
-                        
-        tax_text = self.ids.tax_input.text
-        tax = 0.0
-        if tax_text:
-            try:
-                tax = float(tax_text)
-            except ValueError:
-                pass
-                
-        grand_total = subtotal + tax
+        grand_total = subtotal
         
         if 'subtotal_label' in self.ids:
             self.ids.subtotal_label.text = f"${subtotal:,.2f}"
@@ -119,5 +106,43 @@ class NewSplitScreen(Screen):
 
     def on_calculate(self):
         """Advance to Summary Screen along with bill data"""
-        print("Moving to Summary Screen...")
+        from core.split_engine import split_equally
+        
+        # 1. Gather Items
+        items = []
+        subtotal = 0.0
+        for child in self.ids.items_list.children:
+            if isinstance(child, EditableBillItem):
+                price_text = child.ids.item_price_input.text
+                qty_text = child.ids.item_qty_input.text
+                try:
+                    price = float(price_text) if price_text else 0.0
+                    qty = int(qty_text) if qty_text else 1
+                    items.append({'name': child.ids.item_name_input.text, 'price': price, 'quantity': qty})
+                    subtotal += (price * qty)
+                except ValueError:
+                    pass
+                    
+        # 2. Gather Participants (Dummy for now until Friend UI is done)
+        # For phase 1, we will just use 2 dummy friends + Me to see the calculation
+        participants = ["Me", "John", "Alice"]
+        
+        # 3. Calculate Split
+        if self.split_mode == 'equal':
+            split_result = split_equally(subtotal, participants)
+        else:
+            # Placeholder for custom split (defaults to equal for now to prevent crash)
+            split_result = split_equally(subtotal, participants)
+            
+        bill_data = {
+            'title': self.ids.bill_title.text or 'Untitled Bill',
+            'total': subtotal,
+            'notes': self.ids.notes_input.text
+        }
+        
+        # Pass to summary screen
+        summary_screen = self.manager.get_screen('summary_screen')
+        summary_screen.receive_data(bill_data, split_result, items)
+        
+        print("Moving to Summary Screen with calculated data...")
         self.manager.current = 'summary_screen'

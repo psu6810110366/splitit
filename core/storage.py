@@ -67,6 +67,51 @@ def get_balance_summary(my_name: str = MY_DISPLAY_NAME) -> dict:
         if not db.is_closed():
             db.close()
 
+def save_bill(bill_data: dict, participants_data: list, items_data: list = None) -> bool:
+    """
+    บันทึกข้อมูลบิลลง DB (Bill, BillItem, BillParticipant) 
+    :param bill_data: dict ของโมเดล Bill {title, total, notes, promptpay}
+    :param participants_data: list of dict {display_name, amount_owed, is_paid}
+    :param items_data: list of dict {name, price, quantity} (Optional)
+    """
+    try:
+        db.connect(reuse_if_open=True)
+        with db.atomic():
+            # 1. Save Bill
+            new_bill = Bill.create(
+                title=bill_data.get('title', 'Unknown Bill'),
+                total=bill_data.get('total', 0.0),
+                notes=bill_data.get('notes', ''),
+                promptpay=bill_data.get('promptpay', ''),
+                is_done=False
+            )
+            
+            # 2. Save Items (if provided)
+            if items_data:
+                for item in items_data:
+                    BillItem.create(
+                        bill=new_bill,
+                        name=item.get('name', 'Item'),
+                        price=item.get('price', 0.0),
+                        quantity=item.get('quantity', 1)
+                    )
+                    
+            # 3. Save Participants
+            for p in participants_data:
+                BillParticipant.create(
+                    bill=new_bill,
+                    display_name=p.get('name', 'Unknown'),
+                    amount_owed=p.get('amount', 0.0),
+                    is_paid=p.get('is_paid', False)
+                )
+        return True
+    except Exception as e:
+        print(f"[storage] save_bill error: {e}")
+        return False
+    finally:
+        if not db.is_closed():
+            db.close()
+
 
 # --- Private Helpers ---
 

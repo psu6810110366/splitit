@@ -140,17 +140,6 @@
                             id: subtotal_label
                             text: "$0.00"
                             halign: "right"
-                    
-                    MDBoxLayout:
-                        orientation: 'horizontal'
-                        MDLabel:
-                            text: "Tax / Service Charge:"
-                        MDTextField:
-                            id: tax_input
-                            hint_text: "0.00"
-                            input_filter: "float"
-                            halign: "right"
-                            on_text: root.recalculate_total()
 
         # Bottom Action Bar
         MDBoxLayout:

@@ -1,5 +1,35 @@
 #:import get_color_from_hex kivy.utils.get_color_from_hex
 
+<SummaryParticipantRow>:
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: "50dp"
+    padding: "10dp"
+    spacing: "10dp"
+    
+    MDIcon:
+        icon: "account-circle"
+        font_size: "30sp"
+        theme_text_color: "Hint"
+        
+    MDLabel:
+        text: root.name
+        font_style: "Subtitle1"
+        size_hint_x: 0.5
+        
+    MDLabel:
+        text: root.amount
+        font_style: "Subtitle1"
+        bold: True
+        halign: "right"
+        size_hint_x: 0.3
+        
+    MDIconButton:
+        icon: "check-circle" if root.status == "Paid" else "circle-outline"
+        theme_text_color: "Custom"
+        text_color: get_color_from_hex("#00C853") if root.status == "Paid" else get_color_from_hex("#BDBDBD")
+        size_hint_x: 0.2
+
 <SummaryScreen>:
     MDBoxLayout:
         orientation: 'vertical'
@@ -28,15 +58,37 @@
                     radius: [15]
 
                     MDLabel:
+                        id: summary_title
                         text: "Final Bill Summary"
                         font_style: "H6"
                         bold: True
                         halign: "center"
 
                     MDLabel:
-                        text: "Ready to split this bill among friends?"
-                        theme_text_color: "Secondary"
+                        id: summary_total
+                        text: "$0.00"
+                        font_style: "H4"
+                        bold: True
                         halign: "center"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex("#FF6B6B")
+
+                MDLabel:
+                    text: "Breakdown"
+                    font_style: "H6"
+                    bold: True
+
+                MDBoxLayout:
+                    id: breakdown_list
+                    orientation: 'vertical'
+                    adaptive_height: True
+                    spacing: "5dp"
+
+                MDRoundFlatIconButton:
+                    icon: "content-copy"
+                    text: "Copy to Clipboard"
+                    pos_hint: {"center_x": .5}
+                    on_release: root.on_copy_clipboard()
 
                 Widget:
                     size_hint_y: 1
