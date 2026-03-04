@@ -45,32 +45,25 @@ class ScanScreen(Screen):
 
     def on_gallery_press(self):
         """
-        Callback 2: Gallery Picker (Tkinter fallback for Mac/PC)
+        Callback 2: Gallery Picker (using plyer to avoid cross-platform crashes)
         """
         print("Action: Open Gallery")
         
         try:
-            import tkinter as tk
-            from tkinter import filedialog
-            
-            # Hide the main tkinter window
-            root = tk.Tk()
-            root.withdraw()
-            
-            # Open file dialog
-            file_path = filedialog.askopenfilename(
-                title="Select Receipt Image",
-                filetypes=[("Image files", "*.jpg *.jpeg *.png")]
-            )
-            
-            if file_path:
-                print(f"Selected: {file_path}")
-                self.start_ai_analysis(file_path)
+            if filechooser:
+                # plyer's filechooser takes a callback
+                filechooser.open_file(
+                    title="Select Receipt Image",
+                    filters=[("Image files", "*.jpg", "*.jpeg", "*.png")],
+                    on_selection=self.handle_gallery_selection
+                )
             else:
-                print("No file selected.")
+                print("Plyer filechooser not available. Trying fallback test image.")
+                if os.path.exists("test_receipt.jpg"):
+                    self.start_ai_analysis("test_receipt.jpg")
                 
         except Exception as e:
-            print(f"Tkinter file picker failed: {e}")
+            print(f"File picker failed: {e}")
             if os.path.exists("test_receipt.jpg"):
                 self.start_ai_analysis("test_receipt.jpg")
                 
