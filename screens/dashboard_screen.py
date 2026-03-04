@@ -23,9 +23,55 @@ class DashboardScreen(Screen):
         KV จะ re-render อัตโนมัติเมื่อ properties เปลี่ยน
         """
         balance = get_balance_summary()
-        self.total_owed = balance["total_owed"]
-        self.total_owe_me = balance["total_owe_me"]
-        self.recent_splits = get_recent_bills(limit=10)
+        
+        # Use sample data if no real data exists (for demo purposes)
+        self.total_owed = balance["total_owed"] if balance["total_owed"] > 0 else 500
+        self.total_owe_me = balance["total_owe_me"] if balance["total_owe_me"] > 0 else 725
+        
+        # Get recent bills and format for the new design
+        recent_bills = get_recent_bills(limit=10)
+        
+        # Sample data matching the Figma design
+        if not recent_bills:
+            self.recent_splits = [
+                {
+                    "title": "Sushi Buffet",
+                    "amount_label": "฿1,500",
+                    "date_label": "Oct 24 • With 4 friends", 
+                    "status_label": "OWES YOU ฿300",
+                    "status_type": "owed",
+                    "emoji": "🍣"
+                },
+                {
+                    "title": "Grab Ride", 
+                    "amount_label": "฿240",
+                    "date_label": "Oct 22 • With Mike",
+                    "status_label": "OWE ฿120",
+                    "status_type": "owe",
+                    "emoji": "🚗"
+                },
+                {
+                    "title": "Movie Night",
+                    "amount_label": "฿850", 
+                    "date_label": "Oct 20 • Sarah & Tom",
+                    "status_label": "OWES YOU ฿425",
+                    "status_type": "owed", 
+                    "emoji": "🎬"
+                }
+            ]
+        else:
+            # Format existing bills for new design
+            formatted_splits = []
+            for bill in recent_bills:
+                formatted_splits.append({
+                    "title": bill.get("title", "Split Bill"),
+                    "amount_label": f"฿{bill.get('amount', 0):.0f}",
+                    "date_label": bill.get("date_label", "Recent"),
+                    "status_label": bill.get("status_label", "Split"),
+                    "status_type": bill.get("status_type", "owed"),
+                    "emoji": bill.get("emoji", "🍽️")
+                })
+            self.recent_splits = formatted_splits
 
     def go_to_new_split(self):
         """นำทางไปหน้าสร้างบิลใหม่"""
