@@ -5,11 +5,21 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from kivy.lang import Builder
+from kivy.core.text import LabelBase
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager
 
 # นำเข้าโมเดลและระบบฐานข้อมูล (Import db logic)
 from core.models import initialize_db
+
+# ── Register Thai font (Sarabun) ────────────────────────────────────────────
+_fonts_dir = os.path.join(os.path.dirname(__file__), 'assets', 'fonts')
+LabelBase.register(
+    name='Sarabun',
+    fn_regular=os.path.join(_fonts_dir, 'Sarabun-Regular.ttf'),
+    fn_bold=os.path.join(_fonts_dir, 'Sarabun-Bold.ttf'),
+)
+# ────────────────────────────────────────────────────────────────────────────
 
 # นำเข้าหน้าจอต่างๆ (Import screens)
 from screens.dashboard_screen import DashboardScreen
@@ -27,13 +37,27 @@ from screens.result_screen import ResultScreen
 from screens.friends_screen import FriendsScreen
 from screens.settings_screen import SettingsScreen
 
+# Global KV rule: apply Sarabun to all text widgets that use font_name directly
+Builder.load_string("""
+<MDTextField>:
+    font_name: 'Sarabun'
+<TextInput>:
+    font_name: 'Sarabun'
+""")
+
+
 class SplitItApp(MDApp):
     def build(self):
         # 1. ตั้งค่าโทนสี (Setup KivyMD Color Palette)
-        # Primary: #00C853 (Green), Secondary: #FF6B6B (Red)
         self.theme_cls.primary_palette = "Green"
         self.theme_cls.accent_palette = "Red"
         self.theme_cls.theme_style = "Light"
+
+        # 2. ตั้ง Sarabun เป็น font สำหรับทุก font_style ใน KivyMD
+        for style_name in list(self.theme_cls.font_styles.keys()):
+            entry = list(self.theme_cls.font_styles[style_name])
+            entry[0] = 'Sarabun'
+            self.theme_cls.font_styles[style_name] = entry
         
         # 2. โหลดไฟล์ UI ทั้งหมด (.kv files)
         kv_dir = os.path.join(os.path.dirname(__file__), 'kv')
