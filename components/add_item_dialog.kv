@@ -1,8 +1,8 @@
 #:import get_color_from_hex kivy.utils.get_color_from_hex
 
-<AddFriendDialog>:
+<AddItemDialog>:
     size_hint: None, None
-    size: "360dp", "340dp"
+    size: "360dp", "380dp"
     radius: [28, 28, 28, 28]
     md_bg_color: get_color_from_hex('#FFFFFF')
     elevation: 0
@@ -13,14 +13,14 @@
         spacing: "14dp"
 
         MDLabel:
-            text: "👋"
+            text: "🛒"
             font_size: "48sp"
             halign: "center"
             size_hint_y: None
             height: "64dp"
 
         MDLabel:
-            text: "Add a Friend"
+            text: "Add Item"
             font_style: "H6"
             bold: True
             theme_text_color: "Custom"
@@ -28,14 +28,7 @@
             halign: "center"
             adaptive_height: True
 
-        MDLabel:
-            text: "Type their name below to invite them to split the bill with you!"
-            font_style: "Body2"
-            theme_text_color: "Custom"
-            text_color: get_color_from_hex('#6B7280')
-            halign: "center"
-            adaptive_height: True
-
+        # Item name input
         MDCard:
             size_hint_y: None
             height: "52dp"
@@ -49,15 +42,15 @@
                 spacing: "10dp"
 
                 MDIcon:
-                    icon: "magnify"
+                    icon: "food-outline"
                     theme_text_color: "Custom"
                     text_color: get_color_from_hex('#4E9773')
                     size_hint_x: None
                     width: "24dp"
 
                 MDTextField:
-                    id: friend_name_input
-                    hint_text: "Type friend's name..."
+                    id: item_name_input
+                    hint_text: "Item name..."
                     mode: "fill"
                     fill_color_normal: 0, 0, 0, 0
                     fill_color_focus: 0, 0, 0, 0
@@ -65,6 +58,38 @@
                     line_color_focus: 0, 0, 0, 0
                     font_size: "16sp"
 
+        # Price input
+        MDCard:
+            size_hint_y: None
+            height: "52dp"
+            radius: [26, 26, 26, 26]
+            md_bg_color: get_color_from_hex('#F3FAF6')
+            elevation: 0
+            padding: ["16dp", "0dp", "16dp", "0dp"]
+
+            MDBoxLayout:
+                orientation: 'horizontal'
+                spacing: "10dp"
+
+                MDIcon:
+                    icon: "currency-usd"
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#4E9773')
+                    size_hint_x: None
+                    width: "24dp"
+
+                MDTextField:
+                    id: item_price_input
+                    hint_text: "Price (e.g. 120)"
+                    input_filter: "float"
+                    mode: "fill"
+                    fill_color_normal: 0, 0, 0, 0
+                    fill_color_focus: 0, 0, 0, 0
+                    line_color_normal: 0, 0, 0, 0
+                    line_color_focus: 0, 0, 0, 0
+                    font_size: "16sp"
+
+        # Add button
         MDCard:
             size_hint_y: None
             height: "52dp"
@@ -80,14 +105,14 @@
                 padding: ["16dp", "0dp", "16dp", "0dp"]
 
                 MDIcon:
-                    icon: "account-plus"
+                    icon: "plus-circle"
                     theme_text_color: "Custom"
                     text_color: get_color_from_hex('#FFFFFF')
                     size_hint_x: None
                     width: "24dp"
 
                 MDLabel:
-                    text: "Add Friend"
+                    text: "Add Item"
                     font_style: "Subtitle1"
                     bold: True
                     theme_text_color: "Custom"
@@ -95,6 +120,7 @@
                     halign: "center"
                     adaptive_height: True
 
+        # Cancel
         MDCard:
             size_hint_y: None
             height: "40dp"

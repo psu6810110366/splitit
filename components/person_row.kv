@@ -1,0 +1,46 @@
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
+<PersonRow>:
+    size_hint_y: None
+    height: "56dp"
+    radius: [16, 16, 16, 16]
+    md_bg_color: get_color_from_hex('#F3FAF6')
+    elevation: 0
+    padding: ["16dp", "0dp", "8dp", "0dp"]
+
+    MDBoxLayout:
+        orientation: 'horizontal'
+        spacing: "12dp"
+
+        MDCard:
+            size_hint: None, None
+            size: "32dp", "32dp"
+            radius: [16, 16, 16, 16]
+            md_bg_color: get_color_from_hex('#50C878')
+            elevation: 0
+
+            MDLabel:
+                text: root.first_letter
+                font_style: "Subtitle2"
+                bold: True
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#FFFFFF')
+                halign: "center"
+                valign: "center"
+
+        MDLabel:
+            text: root.display_name
+            font_style: "Body1"
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex('#0E1B14')
+            adaptive_height: True
+
+        Widget:
+
+        MDIconButton:
+            icon: "close"
+            theme_text_color: "Custom"
+            icon_color: get_color_from_hex('#94A3B8')
+            on_release: root.do_remove()
+            size_hint: None, None
+            size: "36dp", "36dp"

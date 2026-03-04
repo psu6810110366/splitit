@@ -68,6 +68,32 @@ def get_balance_summary(my_name: str = MY_DISPLAY_NAME) -> dict:
             db.close()
 
 
+def save_bill(bill_name: str, total: float, items: list, breakdown: dict) -> int:
+    """
+    บันทึกบิลพร้อมรายการและผู้เข้าร่วมลง DB
+    Returns: bill.id ที่เพิ่งสร้าง
+    """
+    try:
+        db.connect(reuse_if_open=True)
+        with db.atomic():
+            bill = Bill.create(title=bill_name, total=total)
+            for item in items:
+                BillItem.create(bill=bill, name=item['name'], price=item['price'])
+            for name, amount in breakdown.items():
+                BillParticipant.create(
+                    bill=bill,
+                    display_name=name,
+                    amount_owed=round(amount, 2),
+                )
+        return bill.id
+    except Exception as e:
+        print(f"[storage] save_bill error: {e}")
+        return -1
+    finally:
+        if not db.is_closed():
+            db.close()
+
+
 # --- Private Helpers ---
 
 def _format_bill_for_dashboard(bill: Bill) -> dict:

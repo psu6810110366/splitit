@@ -1,0 +1,47 @@
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
+<ItemRow>:
+    size_hint_y: None
+    height: "56dp"
+    radius: [16, 16, 16, 16]
+    md_bg_color: get_color_from_hex('#FFFFFF')
+    elevation: 0
+    padding: ["16dp", "0dp", "8dp", "0dp"]
+
+    MDBoxLayout:
+        orientation: 'horizontal'
+        spacing: "12dp"
+
+        MDIcon:
+            icon: "food-outline"
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex('#4E9773')
+            size_hint_x: None
+            width: "24dp"
+
+        MDLabel:
+            text: root.item_name
+            font_style: "Body1"
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex('#0E1B14')
+            adaptive_height: True
+
+        Widget:
+
+        MDLabel:
+            text: root.price_text
+            font_style: "Subtitle2"
+            bold: True
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex('#0E1B14')
+            halign: "right"
+            size_hint_x: None
+            width: "80dp"
+
+        MDIconButton:
+            icon: "close"
+            theme_text_color: "Custom"
+            icon_color: get_color_from_hex('#94A3B8')
+            on_release: root.do_delete()
+            size_hint: None, None
+            size: "36dp", "36dp"
