@@ -1,0 +1,133 @@
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
+<EditableBillItem@MDBoxLayout>:
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: "56dp"
+    spacing: "10dp"
+    padding: "10dp"
+    
+    # We will bind these in Python code
+    item_name: item_name_input.text
+    item_price: item_price_input.text
+
+    MDTextField:
+        id: item_name_input
+        hint_text: "ชื่อรายการ"
+        size_hint_x: 0.6
+
+    MDTextField:
+        id: item_price_input
+        hint_text: "ราคา"
+        input_filter: "float"
+        size_hint_x: 0.3
+
+    MDIconButton:
+        icon: "trash-can-outline"
+        theme_text_color: "Custom"
+        text_color: get_color_from_hex("#FF6B6B")
+        size_hint_x: 0.1
+        pos_hint: {"center_y": 0.5}
+        # Event is usually bound in python, but we can access parent screen by finding it if we want.
+        # But we will handle this deletion directly in python when we instantiate.
+        on_release: app.root.get_screen('new_split_screen').on_delete_item_widget(root)
+
+<NewSplitScreen>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        md_bg_color: get_color_from_hex('#F5F5F5')
+
+        MDTopAppBar:
+            title: "รายการบิล"
+            anchor_title: "center"
+            left_action_items: [["arrow-left", lambda x: root.manager.current == 'scan_screen']]
+            elevation: 1
+
+        ScrollView:
+            MDBoxLayout:
+                orientation: 'vertical'
+                adaptive_height: True
+                padding: "20dp"
+                spacing: "15dp"
+
+                MDTextField:
+                    id: bill_title
+                    hint_text: "ชื่อบิล (ร้านอาหาร, ทริป)"
+                    font_size: "20sp"
+                    mode: "rectangle"
+
+                MDLabel:
+                    text: "รายการที่สั่ง"
+                    font_style: "H6"
+                    bold: True
+                    theme_text_color: "Primary"
+
+                # Container for EditableBillItem rows
+                MDBoxLayout:
+                    id: items_list
+                    orientation: 'vertical'
+                    adaptive_height: True
+                    spacing: "10dp"
+
+                MDRoundFlatIconButton:
+                    icon: "plus"
+                    text: "เพิ่มรายการใหม่"
+                    pos_hint: {"center_x": .5}
+                    on_release: root.on_add_item()
+
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    adaptive_height: True
+                    padding: ["0dp", "20dp", "0dp", "0dp"]
+                    spacing: "10dp"
+
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+                        MDLabel:
+                            text: "ยอดรวมรายการ (Subtotal):"
+                        MDLabel:
+                            id: subtotal_label
+                            text: "฿0.00"
+                            halign: "right"
+                    
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+                        MDLabel:
+                            text: "ภาษี/Service Charge:"
+                        MDTextField:
+                            id: tax_input
+                            hint_text: "0.00"
+                            input_filter: "float"
+                            halign: "right"
+                            on_text: root.recalculate_total()
+
+        # Bottom Action Bar
+        MDBoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: "80dp"
+            md_bg_color: 1, 1, 1, 1
+            padding: "20dp"
+            spacing: "20dp"
+
+            MDBoxLayout:
+                orientation: 'vertical'
+                MDLabel:
+                    text: "ยอดสุทธิ (Total)"
+                    font_style: "Caption"
+                    theme_text_color: "Secondary"
+                MDLabel:
+                    id: grand_total_label
+                    text: "฿0.00"
+                    font_style: "H5"
+                    bold: True
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex("#00C853")
+
+            MDFillRoundFlatButton:
+                text: "ยืนยัน (Next)"
+                font_size: "18sp"
+                size_hint_x: 0.6
+                md_bg_color: get_color_from_hex("#00C853")
+                pos_hint: {"center_y": .5}
+                on_release: root.on_calculate()
