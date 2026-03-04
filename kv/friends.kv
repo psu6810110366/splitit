@@ -1,0 +1,152 @@
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
+<FriendCardItem@MDCard>:
+    name: ""
+    balance_text: ""
+    balance_color: "#1A1A1A"
+    avatar_color: "#FF6B6B"
+    avatar_initials: ""
+
+    size_hint_y: None
+    height: "70dp"
+    padding: ["15dp", "10dp", "15dp", "10dp"]
+    radius: [16, 16, 16, 16]
+    md_bg_color: 1, 1, 1, 1
+    elevation: 0
+
+    MDBoxLayout:
+        orientation: "horizontal"
+        spacing: "15dp"
+
+        # Avatar
+        MDCard:
+            size_hint: None, None
+            size: "45dp", "45dp"
+            radius: [22.5, 22.5, 22.5, 22.5]
+            md_bg_color: get_color_from_hex(root.avatar_color)
+            pos_hint: {"center_y": .5}
+
+            MDLabel:
+                text: root.avatar_initials
+                font_style: "Subtitle2"
+                bold: True
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1, 1
+                halign: "center"
+                valign: "center"
+
+        # Name
+        MDBoxLayout:
+            orientation: "vertical"
+            pos_hint: {"center_y": .5}
+
+            MDLabel:
+                text: root.name
+                font_style: "Subtitle2"
+                bold: True
+
+        # Balance
+        MDLabel:
+            text: root.balance_text
+            font_style: "Subtitle2"
+            bold: True
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex(root.balance_color)
+            halign: "right"
+            pos_hint: {"center_y": .5}
+
+<FriendsScreen>:
+    # Main Base Layout with Light background
+    MDFloatLayout:
+        md_bg_color: get_color_from_hex('#F8F9FA')
+
+        MDTopAppBar:
+            title: "Friends"
+            pos_hint: {"top": 1}
+            elevation: 0
+            md_bg_color: get_color_from_hex('#F8F9FA')
+            specific_text_color: get_color_from_hex('#1A1A1A')
+
+        # --- SCROLLABLE CONTENT ---
+        MDScrollView:
+            pos_hint: {"top": 0.88}
+            size_hint_y: 0.88
+            
+            MDBoxLayout:
+                orientation: 'vertical'
+                padding: ["20dp", "10dp", "20dp", "100dp"]
+                spacing: "24dp"
+                adaptive_height: True
+
+                MDFillRoundFlatIconButton:
+                    icon: "account-plus"
+                    text: "Add New Friend"
+                    size_hint_x: 1
+                    md_bg_color: get_color_from_hex("#00C853")
+                    on_release: root.open_add_friend_dialog()
+
+                MDLabel:
+                    text: "Your Friends"
+                    font_style: "Subtitle1"
+                    bold: True
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#1A1A1A')
+                    adaptive_height: True
+
+                # Dynamic Friend List
+                RecycleView:
+                    id: friends_rv
+                    data: root.friends_list
+                    viewclass: "FriendCardItem"
+                    size_hint_y: None
+                    height: rv_layout.minimum_height
+
+                    RecycleBoxLayout:
+                        id: rv_layout
+                        orientation: "vertical"
+                        spacing: "10dp"
+                        default_size: None, "70dp"
+                        default_size_hint: 1, None
+                        size_hint_y: None
+                        height: self.minimum_height
+
+        # --- FLOATING BOTTOM NAVBAR PILL ---
+        MDCard:
+            size_hint: None, None
+            size: "240dp", "60dp"
+            radius: [30, 30, 30, 30]
+            md_bg_color: get_color_from_hex('#1A1A1A')
+            pos_hint: {"center_x": .5, "y": .03}
+            elevation: 4
+            padding: "20dp"
+            
+            MDBoxLayout:
+                orientation: 'horizontal'
+                
+                # Nav 1: Dashboard
+                MDIconButton:
+                    icon: "home-outline"
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#757575')
+                    pos_hint: {"center_y": .5}
+                    on_release: root.go_to_dashboard()
+                    
+                Widget:
+                    
+                # Nav 2: Friends (Active)
+                MDIconButton:
+                    icon: "account-multiple"
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#FFFFFF')
+                    pos_hint: {"center_y": .5}
+                    icon_size: "32sp"
+                    
+                Widget:
+                
+                # Nav 3: Camera
+                MDIconButton:
+                    icon: "camera-iris"
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#757575')
+                    pos_hint: {"center_y": .5}
+                    on_release: root.go_to_scan()

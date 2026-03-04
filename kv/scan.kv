@@ -50,11 +50,11 @@
             specific_text_color: 1, 1, 1, 1
             pos_hint: {"top": 1}
 
-        # --- BOTTOM ACTION BAR ---
+        # --- CAMERA ACTION BAR ---
         MDBoxLayout:
             orientation: "horizontal"
-            size_hint: 1, 0.2
-            pos_hint: {"bottom": 0}
+            size_hint: 1, 0.15
+            pos_hint: {"y": 0.15}
             md_bg_color: 0, 0, 0, 0.8
             padding: "20dp"
             spacing: "20dp"
@@ -105,6 +105,48 @@
             
             Widget:
                 size_hint_y: 1
+
+        # --- FLOATING BOTTOM NAVBAR PILL ---
+        MDCard:
+            size_hint: None, None
+            size: "240dp", "60dp"
+            radius: [30, 30, 30, 30]
+            md_bg_color: get_color_from_hex('#1A1A1A')
+            pos_hint: {"center_x": .5, "y": .03}
+            elevation: 4
+            padding: "20dp"
+            
+            MDBoxLayout:
+                orientation: 'horizontal'
+                
+                # Nav 1: Dashboard
+                MDIconButton:
+                    icon: "home-outline"
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#757575')
+                    pos_hint: {"center_y": .5}
+                    on_release: root.go_to_dashboard()
+                    
+                Widget:
+                    
+                # Nav 2: Friends
+                MDIconButton:
+                    icon: "account-multiple"
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#757575')
+                    pos_hint: {"center_y": .5}
+                    icon_size: "24sp"
+                    on_release: root.go_to_friends()
+                    
+                Widget:
+                
+                # Nav 3: Camera (Active)
+                MDIconButton:
+                    icon: "camera-iris"
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#FF6B00')
+                    pos_hint: {"center_y": .5}
+                    icon_size: "32sp"
 
             MDSpinner:
                 size_hint: None, None

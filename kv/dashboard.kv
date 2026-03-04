@@ -293,9 +293,10 @@
                     data: root.recent_splits
                     viewclass: "BillCardItem"
                     size_hint_y: None
-                    height: self.minimum_height
+                    height: rv_layout.minimum_height  # bind ไปที่ layout ข้างใน
 
                     RecycleBoxLayout:
+                        id: rv_layout
                         orientation: "vertical"
                         spacing: "10dp"
                         padding: ["0dp", "0dp", "0dp", "0dp"]
@@ -327,20 +328,21 @@
                     
                 Widget:
                     
-                # Nav 2: Scan Center (Orange Highlighted)
+                # Nav 2: Friends
                 MDIconButton:
-                    icon: "camera-iris"
-                    theme_text_color: "Custom"
-                    text_color: get_color_from_hex('#FF6B00')
-                    pos_hint: {"center_y": .5}
-                    icon_size: "32sp"
-                    on_release: root.go_to_scan()
-                    
-                Widget:
-                
-                # Nav 3: Profile/Settings 
-                MDIconButton:
-                    icon: "cog-outline"
+                    icon: "account-multiple"
                     theme_text_color: "Custom"
                     text_color: get_color_from_hex('#757575')
                     pos_hint: {"center_y": .5}
+                    icon_size: "24sp"
+                    on_release: root.go_to_friends()
+                    
+                Widget:
+                
+                # Nav 3: Camera
+                MDIconButton:
+                    icon: "camera-iris"
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#757575')
+                    pos_hint: {"center_y": .5}
+                    on_release: root.go_to_scan()

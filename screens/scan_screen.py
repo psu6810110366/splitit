@@ -26,8 +26,14 @@ class ScanScreen(Screen):
         if 'camera' in self.ids:
             self.ids.camera.play = False
 
+    def go_to_dashboard(self):
+        self.manager.current = 'dashboard'
+
     def go_back(self):
-        self.manager.current = 'dashboard' # Fixed from 'dashboard_screen'
+        self.manager.current = 'dashboard'
+
+    def go_to_friends(self):
+        self.manager.current = 'friends_screen'
 
     def on_scan_press(self):
         """

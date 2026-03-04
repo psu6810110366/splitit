@@ -32,11 +32,14 @@ class SplitItApp(MDApp):
         Builder.load_file(os.path.join(kv_dir, 'scan.kv'))
         Builder.load_file(os.path.join(kv_dir, 'new_split.kv'))
         Builder.load_file(os.path.join(kv_dir, 'summary.kv'))
+        Builder.load_file(os.path.join(kv_dir, 'friends.kv'))
         Builder.load_file(os.path.join(kv_dir, 'result.kv'))
         
         # 3. สร้างระบบนำทางหน้าจอ (ScreenManager)
         sm = ScreenManager()
+        from screens.friends_screen import FriendsScreen
         sm.add_widget(DashboardScreen(name='dashboard'))
+        sm.add_widget(FriendsScreen(name='friends_screen'))
         sm.add_widget(ScanScreen(name='scan_screen'))
         sm.add_widget(NewSplitScreen(name='new_split_screen'))
         sm.add_widget(SummaryScreen(name='summary_screen'))

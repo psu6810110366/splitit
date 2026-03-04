@@ -35,6 +35,10 @@ class DashboardScreen(Screen):
         """นำทางไปหน้าสแกนใบเสร็จ"""
         self.manager.current = 'scan_screen'
 
+    def go_to_friends(self):
+        """นำทางไปหน้าคลังเพื่อน"""
+        self.manager.current = 'friends_screen'
+
     def go_to_add_friend(self):
-        """นำทางไปหน้าจัดการเพื่อน (Phase B — ของสรวิศ)"""
-        print("[Dashboard] go_to_add_friend: Phase B not yet implemented")
+        """นำทางไปหน้าจัดการเพื่อน (ตอนนี้ชี้ไปที่เพื่อนเหมือนกัน)"""
+        self.manager.current = 'friends_screen'
