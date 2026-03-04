@@ -1,5 +1,6 @@
 from kivy.uix.screenmanager import Screen
 from kivy.properties import ListProperty
+from kivymd.app import MDApp
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.textfield import MDTextField
@@ -38,6 +39,7 @@ class FriendsScreen(Screen):
                 hint_text="Friend's Name",
                 size_hint_x=1
             )
+            app = MDApp.get_running_app()
             self.dialog = MDDialog(
                 title="Add a Friend",
                 type="custom",
@@ -46,13 +48,13 @@ class FriendsScreen(Screen):
                     MDFlatButton(
                         text="CANCEL",
                         theme_text_color="Custom",
-                        text_color=self.theme_cls.error_color,
+                        text_color=app.theme_cls.error_color,
                         on_release=lambda x: self.dialog.dismiss()
                     ),
                     MDFlatButton(
                         text="ADD",
                         theme_text_color="Custom",
-                        text_color=self.theme_cls.primary_color,
+                        text_color=app.theme_cls.primary_color,
                         on_release=self.add_friend_action
                     ),
                 ],
