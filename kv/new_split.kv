@@ -109,23 +109,28 @@
 
                     Widget:
 
-                    MDLabel:
-                        id: total_amount_label
-                        text: "0.00"
-                        font_style: "H4"
-                        bold: True
-                        theme_text_color: "Custom"
-                        text_color: get_color_from_hex('#0E1B14')
-                        halign: "center"
-                        size_hint_x: None
-                        width: "260dp"
-
                     MDIcon:
-                        icon: "pencil"
+                        icon: "currency-usd"
                         theme_text_color: "Custom"
                         text_color: get_color_from_hex('#4E9773')
                         size_hint_x: None
-                        width: "24dp"
+                        width: "28dp"
+
+                    MDTextField:
+                        id: total_amount_label
+                        text: "0.00"
+                        hint_text: "0.00"
+                        input_filter: "float"
+                        mode: "fill"
+                        fill_color_normal: 0, 0, 0, 0
+                        fill_color_focus: 0, 0, 0, 0
+                        line_color_normal: 0, 0, 0, 0
+                        line_color_focus: 0, 0, 0, 0
+                        font_size: "32sp"
+                        bold: True
+                        halign: "center"
+                        size_hint_x: None
+                        width: "220dp"
 
                     Widget:
 
