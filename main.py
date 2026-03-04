@@ -14,10 +14,13 @@ from core.models import initialize_db
 # นำเข้าหน้าจอต่างๆ (Import screens)
 from screens.dashboard_screen import DashboardScreen
 from components.bottom_nav import BottomNav  # noqa: F401
+from components.add_friend_dialog import AddFriendDialog  # noqa: F401
 from screens.scan_screen import ScanScreen
 from screens.new_split_screen import NewSplitScreen
 from screens.summary_screen import SummaryScreen
 from screens.result_screen import ResultScreen
+from screens.friends_screen import FriendsScreen
+from screens.settings_screen import SettingsScreen
 
 class SplitItApp(MDApp):
     def build(self):
@@ -31,7 +34,14 @@ class SplitItApp(MDApp):
         kv_dir = os.path.join(os.path.dirname(__file__), 'kv')
         components_dir = os.path.join(os.path.dirname(__file__), 'components')
         Builder.load_file(os.path.join(components_dir, 'bottom_nav.kv'))
+        Builder.load_file(os.path.join(components_dir, 'add_friend_dialog.kv'))
         Builder.load_file(os.path.join(kv_dir, 'dashboard.kv'))
+        Builder.load_file(os.path.join(kv_dir, 'new_split.kv'))
+        Builder.load_file(os.path.join(kv_dir, 'summary.kv'))
+        Builder.load_file(os.path.join(kv_dir, 'result.kv'))
+        Builder.load_file(os.path.join(kv_dir, 'scan.kv'))
+        Builder.load_file(os.path.join(kv_dir, 'friends.kv'))
+        Builder.load_file(os.path.join(kv_dir, 'settings.kv'))
         
         # 3. สร้างระบบนำทางหน้าจอ (ScreenManager)
         sm = ScreenManager()
@@ -40,6 +50,8 @@ class SplitItApp(MDApp):
         sm.add_widget(NewSplitScreen(name='new_split_screen'))
         sm.add_widget(SummaryScreen(name='summary_screen'))
         sm.add_widget(ResultScreen(name='result_screen'))
+        sm.add_widget(FriendsScreen(name='friends_screen'))
+        sm.add_widget(SettingsScreen(name='settings_screen'))
         
         return sm
         

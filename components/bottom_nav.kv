@@ -13,21 +13,28 @@
     MDBoxLayout:
         orientation: 'horizontal'
 
-        MDIcon:
+        Widget:
+
+        MDIconButton:
             icon: "home"
             theme_text_color: "Custom"
-            text_color: get_color_from_hex('#F45925')
+            icon_color: root.home_icon_color
+            on_release: app.root.current = 'dashboard'
 
         Widget:
 
-        MDIcon:
+        MDIconButton:
             icon: "account-group-outline"
             theme_text_color: "Custom"
-            text_color: get_color_from_hex('#94A3B8')
+            icon_color: root.friends_icon_color
+            on_release: app.root.current = 'friends_screen'
 
         Widget:
 
-        MDIcon:
+        MDIconButton:
             icon: "cog-outline"
             theme_text_color: "Custom"
-            text_color: get_color_from_hex('#94A3B8')
+            icon_color: root.settings_icon_color
+            on_release: app.root.current = 'settings_screen'
+
+        Widget:

@@ -2,102 +2,284 @@
 
 <ScanScreen>:
     MDFloatLayout:
-        md_bg_color: get_color_from_hex('#1A1A1A') # Black background for camera feel
+        md_bg_color: get_color_from_hex('#0D1F17')
 
-        # --- CAMERA PREVIEW ---
-        # Note: Kivy's built-in Camera widget. In a real mobile app build, 
-        # this might be replaced by an Android-specific camera intent or library.
-        Camera:
-            id: camera
-            resolution: (1280, 720) # Request HD, fallback to whatever device supports
-            play: True
-            pos_hint: {"center_x": .5, "center_y": .6}
-            size_hint: 1, 0.8
-            allow_stretch: True
-            keep_ratio: True
-
-        # --- TOP HEADER BAR ---
-        MDTopAppBar:
-            title: "Scan Receipt"
-            anchor_title: "center"
-            left_action_items: [["arrow-left", lambda x: root.go_back()]]
-            elevation: 0
-            md_bg_color: 0, 0, 0, 0.4 # Semi-transparent black
-            specific_text_color: 1, 1, 1, 1
-            pos_hint: {"top": 1}
-
-        # --- BOTTOM ACTION BAR ---
+        # Dark background layer
         MDBoxLayout:
-            orientation: "horizontal"
-            size_hint: 1, 0.2
-            pos_hint: {"bottom": 0}
-            md_bg_color: 0, 0, 0, 0.8
-            padding: "20dp"
-            spacing: "20dp"
+            size_hint: 1, 1
+            md_bg_color: get_color_from_hex('#0D1F17')
 
-            # 1. Gallery Button
-            MDIconButton:
-                icon: "image-outline"
-                theme_icon_color: "Custom"
-                icon_color: 1, 1, 1, 1
-                icon_size: "32dp"
-                pos_hint: {"center_y": .5}
-                on_release: root.on_gallery_press()
-                
-            Widget:
-                # spacing setter
+        # Header
+        MDBoxLayout:
+            orientation: 'horizontal'
+            size_hint: 1, None
+            height: "56dp"
+            pos_hint: {"top": 1}
+            padding: ["16dp", "8dp", "16dp", "8dp"]
+            spacing: "8dp"
 
-            # 2. Main Capture Button (Large circular button)
-            MDFloatingActionButton:
-                icon: "camera"
-                theme_icon_color: "Custom"
-                icon_color: get_color_from_hex('#000000')
-                md_bg_color: get_color_from_hex('#00C853') # SplitIt Primary Green
-                elevation: 2
-                pos_hint: {"center_y": .5}
-                on_release: root.on_scan_press()
+            MDCard:
+                size_hint: None, None
+                size: "44dp", "44dp"
+                radius: [22, 22, 22, 22]
+                md_bg_color: get_color_from_hex('#1F2D26')
+                elevation: 0
+                ripple_behavior: True
+                on_release: root.go_back()
+
+                MDIcon:
+                    icon: "arrow-left"
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#FFFFFF')
+                    halign: "center"
 
             Widget:
-                # spacing setter
 
-            # 3. Manual Entry Button
-            MDIconButton:
-                icon: "keyboard-outline"
-                theme_icon_color: "Custom"
-                icon_color: 1, 1, 1, 1
-                icon_size: "32dp"
-                pos_hint: {"center_y": .5}
-                on_release: root.on_manual_press()
+            MDLabel:
+                text: "Scan Receipt"
+                font_style: "Subtitle1"
+                bold: True
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#FFFFFF')
+                halign: "center"
+                size_hint_x: None
+                width: "140dp"
 
-        # --- LOADING OVERLAY (Hidden by default) ---
+            Widget:
+
+            MDCard:
+                size_hint: None, None
+                size: "44dp", "44dp"
+                radius: [22, 22, 22, 22]
+                md_bg_color: get_color_from_hex('#1F2D26')
+                elevation: 0
+
+                MDIcon:
+                    icon: "flash"
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#FFFFFF')
+                    halign: "center"
+
+        # Instruction text
+        MDLabel:
+            text: "Align receipt within the frame"
+            font_style: "H6"
+            bold: True
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex('#FFFFFF')
+            halign: "center"
+            size_hint: 1, None
+            height: "40dp"
+            pos_hint: {"center_x": .5, "center_y": .74}
+
+        # Scan frame
+        MDCard:
+            size_hint: None, None
+            size: "310dp", "310dp"
+            pos_hint: {"center_x": .5, "center_y": .5}
+            md_bg_color: 0, 0, 0, 0
+            elevation: 0
+            radius: [24, 24, 24, 24]
+
+            MDBoxLayout:
+                canvas.before:
+                    Color:
+                        rgba: get_color_from_hex('#50C878') + [1]
+                    Line:
+                        rounded_rectangle: [self.x, self.y, self.width, self.height, 24]
+                        width: 3
+
+        # Receipt icon
+        MDLabel:
+            text: "🧾"
+            font_size: "56sp"
+            halign: "center"
+            valign: "center"
+            size_hint: None, None
+            size: "80dp", "80dp"
+            pos_hint: {"center_x": .5, "center_y": .5}
+
+        # Status badges
+        MDBoxLayout:
+            orientation: 'horizontal'
+            size_hint: None, None
+            size: "260dp", "40dp"
+            pos_hint: {"center_x": .5, "center_y": .26}
+            spacing: "12dp"
+
+            MDCard:
+                radius: [20, 20, 20, 20]
+                md_bg_color: get_color_from_hex('#1F2D26')
+                elevation: 0
+                padding: ["16dp", "0dp", "16dp", "0dp"]
+
+                MDBoxLayout:
+                    orientation: 'horizontal'
+                    spacing: "6dp"
+
+                    MDIcon:
+                        icon: "weather-sunny"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#50C878')
+                        size_hint_x: None
+                        width: "20dp"
+
+                    MDLabel:
+                        text: "Good Light"
+                        font_style: "Caption"
+                        bold: True
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#FFFFFF')
+                        adaptive_height: True
+
+            MDCard:
+                radius: [20, 20, 20, 20]
+                md_bg_color: get_color_from_hex('#1F2D26')
+                elevation: 0
+                padding: ["16dp", "0dp", "16dp", "0dp"]
+
+                MDBoxLayout:
+                    orientation: 'horizontal'
+                    spacing: "6dp"
+
+                    MDIcon:
+                        icon: "crop-free"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#FFFFFF')
+                        size_hint_x: None
+                        width: "20dp"
+
+                    MDLabel:
+                        text: "Hold Steady"
+                        font_style: "Caption"
+                        bold: True
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#FFFFFF')
+                        adaptive_height: True
+
+        # Bottom action bar
+        MDBoxLayout:
+            orientation: 'horizontal'
+            size_hint: 1, None
+            height: "100dp"
+            pos_hint: {"bottom": 0, "x": 0}
+            md_bg_color: get_color_from_hex('#0D1F17')
+            padding: ["32dp", "16dp", "32dp", "16dp"]
+
+            # Gallery
+            MDBoxLayout:
+                orientation: 'vertical'
+                size_hint_x: 0.33
+                spacing: "4dp"
+
+                MDCard:
+                    size_hint: None, None
+                    size: "48dp", "48dp"
+                    radius: [12, 12, 12, 12]
+                    md_bg_color: get_color_from_hex('#1F2D26')
+                    elevation: 0
+                    ripple_behavior: True
+                    pos_hint: {"center_x": .5}
+                    on_release: root.on_gallery_press()
+
+                    MDIcon:
+                        icon: "image-multiple-outline"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#FFFFFF')
+                        halign: "center"
+
+                MDLabel:
+                    text: "GALLERY"
+                    font_style: "Caption"
+                    bold: True
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#94A3B8')
+                    halign: "center"
+                    adaptive_height: True
+
+            # Camera (large)
+            MDBoxLayout:
+                orientation: 'vertical'
+                size_hint_x: 0.33
+                spacing: "4dp"
+
+                MDCard:
+                    size_hint: None, None
+                    size: "64dp", "64dp"
+                    radius: [32, 32, 32, 32]
+                    md_bg_color: get_color_from_hex('#50C878')
+                    elevation: 0
+                    ripple_behavior: True
+                    pos_hint: {"center_x": .5}
+                    on_release: root.on_scan_press()
+
+                    MDIcon:
+                        icon: "camera"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#0E1B14')
+                        halign: "center"
+
+            # Manual
+            MDBoxLayout:
+                orientation: 'vertical'
+                size_hint_x: 0.33
+                spacing: "4dp"
+
+                MDCard:
+                    size_hint: None, None
+                    size: "48dp", "48dp"
+                    radius: [12, 12, 12, 12]
+                    md_bg_color: get_color_from_hex('#1F2D26')
+                    elevation: 0
+                    ripple_behavior: True
+                    pos_hint: {"center_x": .5}
+                    on_release: root.on_manual_press()
+
+                    MDIcon:
+                        icon: "pencil-outline"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#FFFFFF')
+                        halign: "center"
+
+                MDLabel:
+                    text: "MANUAL"
+                    font_style: "Caption"
+                    bold: True
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#94A3B8')
+                    halign: "center"
+                    adaptive_height: True
+
+        # Loading overlay
         MDBoxLayout:
             id: loading_overlay
             orientation: "vertical"
-            md_bg_color: 0, 0, 0, 0.85 # Very dark overlay
-            opacity: 0 # Hidden out of the box
-            pos_hint: {"center_x": .5, "center_y": .5}
-            padding: "40dp"
-            spacing: "20dp"
-            
+            md_bg_color: 0, 0, 0, 0.85
+            opacity: 0
+            size_hint: 1, 1
+
             Widget:
                 size_hint_y: 1
 
             MDSpinner:
+                id: spinner
                 size_hint: None, None
                 size: "46dp", "46dp"
                 pos_hint: {"center_x": .5}
-                color: get_color_from_hex('#00C853')
+                color: get_color_from_hex('#50C878')
                 active: False
-                id: spinner
 
             MDLabel:
                 id: loading_text
-                text: "กำลังวิเคราะห์ใบเสร็จ..."
+                text: "Analyzing receipt..."
                 theme_text_color: "Custom"
                 text_color: 1, 1, 1, 1
                 halign: "center"
                 font_style: "Subtitle1"
                 bold: True
+                adaptive_height: True
 
             Widget:
+                size_hint_y: 1
+
                 size_hint_y: 1

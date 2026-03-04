@@ -1,6 +1,12 @@
 from kivy.uix.screenmanager import Screen
 
 class ResultScreen(Screen):
+    def go_back(self):
+        self.manager.current = 'summary_screen'
+
+    def go_home(self):
+        self.manager.current = 'dashboard'
+
     def on_copy_clipboard(self):
         """Callback: คัดลอกสรุปบิลไปแปะที่อื่น"""
         print("Copying bill text to clipboard...")

@@ -64,8 +64,9 @@
                             adaptive_height: True
                         
                         MDCard:
-                            size_hint: None, None
-                            size: "200dp", "48dp"
+                            size_hint_x: 1
+                            size_hint_y: None
+                            height: "48dp"
                             radius: [24, 24, 24, 24]
                             md_bg_color: get_color_from_hex('#F45925')
                             elevation: 0
@@ -220,3 +221,4 @@
 
         # Bottom navigation
         BottomNav:
+            active_tab: 'home'

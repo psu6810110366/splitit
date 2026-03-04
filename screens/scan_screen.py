@@ -1,78 +1,61 @@
 from kivy.uix.screenmanager import Screen
 from kivy.clock import Clock
 import threading
-import time
 import os
 
-# Note: In a real app we would use plyer.filechooser for mobile, but for desktop testing
-# we can use kivy's built-in file chooser or plyer depending on OS.
 try:
     from plyer import filechooser
 except ImportError:
     filechooser = None
 
-import platform
 from core.ai_service import scan_receipt
 
 class ScanScreen(Screen):
     
     def on_enter(self, *args):
-        # เปิดกล้องเมื่อเข้าสู่หน้านี้
-        if 'camera' in self.ids:
-            self.ids.camera.play = True
-            
+        pass  # Camera widget removed; handled via gallery/manual
+
     def on_leave(self, *args):
-        # ปิดกล้องเมื่อออกจากหน้านี้เพื่อประหยัดแบต
-        if 'camera' in self.ids:
-            self.ids.camera.play = False
+        pass
 
     def go_back(self):
         self.manager.current = 'dashboard' # Fixed from 'dashboard_screen'
 
     def on_scan_press(self):
         """
-        Callback 1: Camera Capture
+        Callback 1: Camera Capture (delegates to gallery on desktop)
         """
         print("Action: Capture Photo")
-        camera = self.ids.camera
-        
-        # ถ่ายรูปและเซฟชั่วคราว
-        image_path = "temp_receipt.jpg"
-        camera.export_to_png(image_path) # export_to_png exports based on extension if supported, but png is fine
-        
-        # เริ่มกระบวนการวิเคราะห์
-        self.start_ai_analysis(image_path)
+        self.on_gallery_press()
 
     def on_gallery_press(self):
         """
-        Callback 2: Gallery Picker (Tkinter fallback for Mac/PC)
+        Callback 2: Gallery Picker — uses plyer on mobile, fallback on desktop
         """
         print("Action: Open Gallery")
-        
-        try:
-            import tkinter as tk
-            from tkinter import filedialog
-            
-            # Hide the main tkinter window
-            root = tk.Tk()
-            root.withdraw()
-            
-            # Open file dialog
-            file_path = filedialog.askopenfilename(
-                title="Select Receipt Image",
-                filetypes=[("Image files", "*.jpg *.jpeg *.png")]
-            )
-            
-            if file_path:
-                print(f"Selected: {file_path}")
-                self.start_ai_analysis(file_path)
-            else:
-                print("No file selected.")
-                
-        except Exception as e:
-            print(f"Tkinter file picker failed: {e}")
-            if os.path.exists("test_receipt.jpg"):
-                self.start_ai_analysis("test_receipt.jpg")
+
+        # Try plyer first (works on Android/iOS)
+        if filechooser is not None:
+            try:
+                filechooser.open_file(
+                    on_selection=self.handle_gallery_selection,
+                    filters=["*.jpg", "*.jpeg", "*.png"],
+                )
+                return
+            except Exception as e:
+                print(f"plyer filechooser failed: {e}")
+
+        # Desktop fallback: look for a test image, otherwise skip to manual
+        test_paths = ["test_receipt.jpg", "test_receipt.png"]
+        for path in test_paths:
+            if os.path.exists(path):
+                print(f"Using test image: {path}")
+                self.start_ai_analysis(path)
+                return
+
+        # Nothing found — just go to manual entry
+        print("No image source available, opening manual entry.")
+        self.manager.current = 'new_split_screen'
                 
     def handle_gallery_selection(self, selection):
         if selection:
@@ -92,10 +75,6 @@ class ScanScreen(Screen):
         """
         self.show_loading(True)
         
-        # ปิดกล้องชั่วคราวระหว่างรอ
-        if 'camera' in self.ids:
-            self.ids.camera.play = False
-            
         # สร้าง Thread ให้ AI คิดงานหลังบ้าน
         threading.Thread(target=self._run_ai_task, args=(image_path,), daemon=True).start()
         
@@ -135,10 +114,6 @@ class ScanScreen(Screen):
         
         if "error" in result:
             print(f"Failed: {result['error']}")
-            # ในแอปจริงควรมี Popup หรือ Snackbar แจ้งเตือนตรงนี้
-            # เปิดกล้องให้ลองใหม่
-            if 'camera' in self.ids:
-                self.ids.camera.play = True
             return
 
         # ถ้าสำเร็จ ส่งข้อมูลข้ามไปหน้า New Split Screen
