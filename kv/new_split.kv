@@ -1,5 +1,47 @@
 #:import get_color_from_hex kivy.utils.get_color_from_hex
 
+<NewSplitParticipantRow@MDBoxLayout>:
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: "50dp"
+    spacing: "10dp"
+    padding: "5dp"
+    
+    friend_name: ""
+    avatar_color: "#00C853"
+    avatar_initials: ""
+    
+    # Avatar
+    MDCard:
+        size_hint: None, None
+        size: "36dp", "36dp"
+        radius: [18, 18, 18, 18]
+        md_bg_color: get_color_from_hex(root.avatar_color)
+        pos_hint: {"center_y": .5}
+
+        MDLabel:
+            text: root.avatar_initials
+            font_style: "Caption"
+            bold: True
+            theme_text_color: "Custom"
+            text_color: 1, 1, 1, 1
+            halign: "center"
+            valign: "center"
+            
+    MDLabel:
+        text: root.friend_name
+        font_style: "Subtitle2"
+        size_hint_x: 0.8
+        pos_hint: {"center_y": .5}
+        
+    MDIconButton:
+        icon: "close"
+        theme_text_color: "Custom"
+        text_color: get_color_from_hex("#FF6B6B")
+        size_hint_x: 0.2
+        pos_hint: {"center_y": 0.5}
+        on_release: app.root.get_screen('new_split_screen').on_remove_participant(root)
+
 <EditableBillItem@MDBoxLayout>:
     orientation: 'horizontal'
     size_hint_y: None
@@ -62,7 +104,6 @@
                     id: bill_title
                     hint_text: "Bill Title (e.g. Dinner, Trip)"
                     font_size: "20sp"
-                    mode: "rectangle"
 
                 MDLabel:
                     text: "Bill Items"
@@ -92,11 +133,10 @@
                     MDTextField:
                         id: notes_input
                         hint_text: "Add a note or special instructions..."
-                        mode: "rectangle"
                         multiline: True
                         font_size: "14sp"
                         size_hint_y: None
-                        height: "80dp"
+                        height: "60dp"
 
                     Widget:
                         size_hint_y: None
