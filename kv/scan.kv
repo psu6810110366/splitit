@@ -16,6 +16,30 @@
             allow_stretch: True
             keep_ratio: True
 
+        # --- CAMERA GUIDE FRAME ---
+        Widget:
+            size_hint: 0.85, 0.7
+            pos_hint: {"center_x": .5, "center_y": .6}
+            canvas.after:
+                Color:
+                    rgba: get_color_from_hex('#00C853')
+                Line:
+                    rectangle: (self.x, self.y, self.width, self.height)
+                    width: dp(2)
+                # Corner accents (optional nice UX touch)
+                Line:
+                    points: (self.x, self.y + dp(20), self.x, self.y, self.x + dp(20), self.y)
+                    width: dp(4)
+                Line:
+                    points: (self.right, self.y + dp(20), self.right, self.y, self.right - dp(20), self.y)
+                    width: dp(4)
+                Line:
+                    points: (self.x, self.top - dp(20), self.x, self.top, self.x + dp(20), self.top)
+                    width: dp(4)
+                Line:
+                    points: (self.right, self.top - dp(20), self.right, self.top, self.right - dp(20), self.top)
+                    width: dp(4)
+
         # --- TOP HEADER BAR ---
         MDTopAppBar:
             title: "Scan Receipt"
