@@ -1,0 +1,58 @@
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
+<SummaryScreen>:
+    MDBoxLayout:
+        orientation: 'vertical'
+        md_bg_color: get_color_from_hex('#F5F5F5')
+
+        MDTopAppBar:
+            title: "Summary"
+            anchor_title: "center"
+            left_action_items: [["arrow-left", lambda x: root.go_back()]]
+            elevation: 1
+
+        ScrollView:
+            MDBoxLayout:
+                orientation: 'vertical'
+                adaptive_height: True
+                padding: "20dp"
+                spacing: "20dp"
+
+                MDCard:
+                    orientation: 'vertical'
+                    padding: "20dp"
+                    spacing: "15dp"
+                    size_hint_y: None
+                    height: "150dp"
+                    elevation: 2
+                    radius: [15]
+
+                    MDLabel:
+                        text: "Final Bill Summary"
+                        font_style: "H6"
+                        bold: True
+                        halign: "center"
+
+                    MDLabel:
+                        text: "Ready to split this bill among friends?"
+                        theme_text_color: "Secondary"
+                        halign: "center"
+
+                Widget:
+                    size_hint_y: 1
+
+        # Bottom Action Bar
+        MDBoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: "80dp"
+            md_bg_color: 1, 1, 1, 1
+            padding: "20dp"
+
+            MDFillRoundFlatButton:
+                text: "Save & Finish"
+                font_size: "18sp"
+                size_hint_x: 1
+                md_bg_color: get_color_from_hex("#00C853")
+                pos_hint: {"center_y": .5}
+                on_release: root.on_save_and_finish()
