@@ -54,7 +54,10 @@ class SplitItApp(MDApp):
         self.theme_cls.theme_style = "Light"
 
         # 2. ตั้ง Sarabun เป็น font สำหรับทุก font_style ใน KivyMD
+        #    ยกเว้น 'Icon' — ต้องใช้ MaterialIcons font ของ KivyMD ต่อไป
         for style_name in list(self.theme_cls.font_styles.keys()):
+            if style_name == 'Icon':
+                continue
             entry = list(self.theme_cls.font_styles[style_name])
             entry[0] = 'Sarabun'
             self.theme_cls.font_styles[style_name] = entry
