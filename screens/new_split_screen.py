@@ -17,14 +17,17 @@ class NewSplitScreen(Screen):
             return
 
         self._items = []   # [{'name': str, 'price': float, 'assigned_to': [str]}]
-        self._people = []  # [str] (ไม่รวม "Me" — จะเพิ่มในการคำนวณ)
-        self._refresh_items_list()
-        self._refresh_people_list()
+        self._people = []  # [str] (ไม่รวม "Me")
+        self._custom_amounts = {} # {name: str_amount}
+        
+        self.split_mode = 'equal'
         self.ids.bill_name_input.text = ''
         self.ids.total_amount_label.text = '0.00'
-        self.split_mode = 'equal'
         self.ids.btn_split_equal.md_bg_color = [0.314, 0.784, 0.471, 1]
         self.ids.btn_split_custom.md_bg_color = [0.953, 0.961, 0.973, 1]
+        
+        self._refresh_items_list()
+        self._refresh_people_list()
 
     def _all_people(self):
         """รายชื่อทุกคน รวม Me เสมอ"""
@@ -149,16 +152,82 @@ class NewSplitScreen(Screen):
             self._refresh_people_list()
             self._refresh_items_list()
 
+    def on_total_amount_change(self, text):
+        """เมื่อมีการกรอกยอดรวมบิลใหม่ให้รีเฟรชยอดหารรายคน"""
+        self._refresh_people_list()
+        self._update_remaining_balance()
+
     def _refresh_people_list(self):
         people_list = self.ids.people_list
         people_list.clear_widgets()
-        for i, name in enumerate(self._people):
+        
+        # คำนวณยอดหารต่อคน (กรณีโหมด Equal)
+        try:
+            total = float(self.ids.total_amount_label.text.replace(',', ''))
+        except:
+            total = 0.0
+            
+        all_names = self._all_people()
+        count = len(all_names)
+        equal_share = total / count if count > 0 else 0.0
+        
+        for i, name in enumerate(all_names):
             row = PersonRow()
             row.display_name = name
-            row.remove_cb = (lambda idx=i: self._on_person_removed(idx))
+            row.is_custom_mode = (self.split_mode == 'custom')
+            
+            # ตั้งค่าราคาเริ่มต้น
+            if self.split_mode == 'custom':
+                row.amount = self._custom_amounts.get(name, '0.00')
+            else:
+                row.amount = f"{equal_share:.2f}"
+            
+            # Callback เมื่อมีการพิมพ์ตัวเลข (เฉพาะ Custom mode)
+            row.on_amount_change = (lambda val, n=name: self._on_amount_changed(n, val))
+            
+            # ปุ่มลบ (ห้ามลบ "Me")
+            if name == "Me":
+                row.ids.close_btn.opacity = 0
+                row.ids.close_btn.disabled = True
+            else:
+                friend_idx = i - 1 # index ใน self._people
+                row.remove_cb = (lambda idx=friend_idx: self._on_person_removed(idx))
+            
             people_list.add_widget(row)
-        count = len(self._people) + 1  # +1 for "Me"
+            
         self.ids.people_count_label.text = '{} people'.format(count)
+
+    def _on_amount_changed(self, name, value):
+        """บันทึกยอดเงินที่กรอกเอง"""
+        if self.split_mode == 'custom':
+            self._custom_amounts[name] = value
+            self._update_remaining_balance()
+
+    def _update_remaining_balance(self):
+        """คำนวณยอดเงินที่เหลือ (ส่วนต่างระหว่าง Total กับผลรวมที่กรอก)"""
+        if self.split_mode != 'custom':
+            return
+            
+        try:
+            total = float(self.ids.total_amount_label.text.replace(',', ''))
+        except:
+            total = 0.0
+            
+        sum_custom = 0.0
+        for val in self._custom_amounts.values():
+            try:
+                sum_custom += float(val.replace(',', ''))
+            except:
+                pass
+        
+        remaining = total - sum_custom
+        self.ids.remaining_balance_label.text = f"฿{remaining:,.2f}"
+        
+        # เปลี่ยนสีถ้าลงตัว
+        if abs(remaining) < 0.01:
+            self.ids.remaining_balance_label.text_color = [0.196, 0.659, 0.322, 1] # Green
+        else:
+            self.ids.remaining_balance_label.text_color = [0.937, 0.267, 0.267, 1] # Red
 
     # ── Split toggle ──────────────────────────────────────────────────────────
 
@@ -172,6 +241,9 @@ class NewSplitScreen(Screen):
         else:
             self.ids.btn_split_equal.md_bg_color = grey
             self.ids.btn_split_custom.md_bg_color = green
+        
+        # รีเฟรชรายการเพื่อนเพื่อเปิด/ปิดช่องกรอกเงิน
+        self._refresh_people_list()
 
     # ── Calculate ─────────────────────────────────────────────────────────────
 
@@ -190,19 +262,38 @@ class NewSplitScreen(Screen):
         # ── Validation ────────────────────────────────────────────────────────
         if total <= 0:
             if not self._items:
-                toast("กรุณาเพิ่มรายการสินค้า หรือใส่ยอดรวม")
+                toast("Please add items or enter a total amount")
             else:
-                toast("ยอดรวมบิลต้องมากกว่า 0")
-            print('[NewSplit] Cannot calculate: total is 0')
+                toast("Bill total must be greater than 0")
             return
         # ──────────────────────────────────────────────────────────────────────
 
         all_people = self._all_people()
+        breakdown = {}
 
-        # ถ้ามีรายการย่อย ให้คำนวณตาม assignment ของแต่ละรายการ
+        # 1. ถ้ามีรายการสินค้า (Items) -> คำนวณตามที่ติ๊กเลือกในแต่ละรายการ
         if self._items:
             from core.split_engine import split_by_items
             breakdown = split_by_items(self._items, all_people)
+        
+        # 2. ถ้าไม่มีสินค้า แต่เลือกโหมด Custom Amount -> ใช้ยอดที่กรอกมือ
+        elif self.split_mode == 'custom':
+            custom_total = 0.0
+            for name in all_people:
+                amt_str = self._custom_amounts.get(name, '0.00').replace(',', '')
+                try:
+                    amt = float(amt_str)
+                except:
+                    amt = 0.0
+                breakdown[name] = amt
+                custom_total += amt
+            
+            # เช็คว่ายอดรวมตรงกันมั้ย (อนุโลมให้ต่างกันได้ไม่เกิน 1 บาท)
+            if abs(custom_total - total) > 1.0:
+                toast(f"Total doesn't match! Sum is ฿{custom_total:,.2f}")
+                return
+        
+        # 3. ถ้าไม่มีสินค้า และเลือกโหมด Equal -> หารเท่า
         else:
             from core.split_engine import split_equally
             breakdown = split_equally(total, all_people)
