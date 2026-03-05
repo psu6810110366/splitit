@@ -11,7 +11,11 @@ class NewSplitScreen(Screen):
     split_mode = StringProperty('equal')
 
     def on_enter(self, *args):
-        """รีเซ็ตฟอร์มทุกครั้งที่เข้าหน้านี้ใหม่"""
+        """รีเซ็ตฟอร์มทุกครั้งที่เข้าหน้านี้ใหม่ (ยกเว้นกรณีส่งมาจาก AI)"""
+        if getattr(self, '_is_ai_handoff', False):
+            self._is_ai_handoff = False
+            return
+
         self._items = []   # [{'name': str, 'price': float, 'assigned_to': [str]}]
         self._people = []  # [str] (ไม่รวม "Me" — จะเพิ่มในการคำนวณ)
         self._refresh_items_list()
@@ -36,11 +40,15 @@ class NewSplitScreen(Screen):
         รับข้อมูลจาก AI (scan_screen) แล้วเติมลงฟอร์ม
         result format: {'title': str, 'items': [{'name': str, 'price': float}]}
         """
+        # ตั้งค่า flag ป้องกันการล้างข้อมูลใน on_enter
+        self._is_ai_handoff = True
+        
         # รีเซ็ตก่อนเติมข้อมูล
         self._items = []
+        self._people = []
 
         title = result.get('title', 'Scanned Bill')
-        self.ids.bill_name_input.text = title
+        self.ids.bill_name_input.text = str(title)
 
         for item in result.get('items', []):
             name = item.get('name', '')

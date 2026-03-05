@@ -1,11 +1,7 @@
-import os
-import json
-import tempfile
-import google.generativeai as genai
-from PIL import Image
+from dotenv import load_dotenv
 
 # โหลด API Key จาก Environment (Load API Key from env)
-# Note: In production, load this from .env file or secure storage
+load_dotenv()
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
 if GEMINI_API_KEY:
@@ -52,7 +48,7 @@ def scan_receipt(image_path: str) -> dict:
         img = Image.open(compressed_image_path)
         
         # 2. เลือกโมเดลที่เร็วและเหมาะกับ Vision (Select Flash model)
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         
         # 3. คำสั่งเฉพาะเจาะจงที่เข้มงวด (Strict Prompting)
         prompt = """

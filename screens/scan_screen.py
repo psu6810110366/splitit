@@ -189,8 +189,6 @@ class ScanScreen(Screen):
 
         if "error" in result:
             print(f"[Scan] AI Failed: {result['error']}")
-            
-            # แสดง MDSnackbar แจ้ง user 
             from kivymd.uix.snackbar import MDSnackbar, MDSnackbarText
             MDSnackbar(
                 MDSnackbarText(
@@ -200,7 +198,6 @@ class ScanScreen(Screen):
                 pos_hint={"center_x": 0.5},
                 size_hint_x=0.8,
             ).open()
-
             # เปิดกล้องให้ลองใหม่
             try:
                 if 'camera' in self.ids:
