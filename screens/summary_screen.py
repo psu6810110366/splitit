@@ -99,7 +99,9 @@ class SummaryScreen(Screen):
         print('[Summary] Saved bill id:', bill_id)
 
         result = self.manager.get_screen('result_screen')
+        result.bill_id = bill_id
         result.bill_title = self.bill_name
         result.total = self.total
         result.breakdown = dict(self.breakdown)
         self.manager.current = 'result_screen'
+

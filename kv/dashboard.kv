@@ -9,6 +9,7 @@
     elevation: 0
     padding: ["16dp", "0dp", "16dp", "0dp"]
     ripple_behavior: True
+    on_release: app.root.get_screen('dashboard').on_bill_selected(root.bill_id)
 
     MDBoxLayout:
         orientation: 'horizontal'

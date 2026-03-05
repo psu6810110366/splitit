@@ -1,5 +1,5 @@
 from kivy.uix.screenmanager import Screen
-from kivy.properties import StringProperty, NumericProperty, DictProperty
+from kivy.properties import StringProperty, NumericProperty, DictProperty, ListProperty
 from kivy.utils import get_color_from_hex
 from kivymd.uix.card import MDCard
 from kivymd.uix.label import MDLabel
@@ -9,17 +9,40 @@ from kivy.uix.widget import Widget
 
 
 class ResultScreen(Screen):
+    bill_id = NumericProperty(-1)
     bill_title = StringProperty('Bill')
     total = NumericProperty(0.0)
-    breakdown = DictProperty({})  # {name: amount}
+    breakdown = DictProperty({})  # fallback for no-DB
+    _participants_data = ListProperty([]) # List of dicts
 
     def on_enter(self, *args):
+        self._load_data()
         self._populate_participants()
         self._generate_and_show_qr()
 
+    def _load_data(self):
+        """โหลดข้อมูลจาก DB ถ้ามี bill_id, ถ้าไม่มีใช้ breakdown เดิม"""
+        self._participants_data = []
+        if self.bill_id > 0:
+            from core.storage import get_bill_details
+            details = get_bill_details(self.bill_id)
+            if details:
+                self.bill_title = details.get('title', self.bill_title)
+                self.total = details.get('total', self.total)
+                self._participants_data = details.get('participants', [])
+        else:
+            # Fallback
+            for name, amount in self.breakdown.items():
+                self._participants_data.append({
+                    "id": -1,
+                    "name": name,
+                    "amount": amount,
+                    "is_paid": False
+                })
+
     def _generate_and_show_qr(self):
         from kivy.storage.jsonstore import JsonStore
-        import promptpay
+        import promptpay.qrcode
         import qrcode
         import os
         from kivy.clock import Clock
@@ -40,8 +63,7 @@ class ResultScreen(Screen):
             
         try:
             # Generate PromptPay Payload
-            # We use the total amount for the main QR
-            payload = promptpay.generate_payload(promptpay_number, self.total)
+            payload = promptpay.qrcode.generate_payload(promptpay_number, self.total)
             
             # Generate QR Code Image
             img = qrcode.make(payload)
@@ -65,11 +87,18 @@ class ResultScreen(Screen):
     def _populate_participants(self):
         participants_list = self.ids.participants_list
         participants_list.clear_widgets()
-        for name, amount in self.breakdown.items():
-            row = self._make_participant_row(name, amount)
+        for p in self._participants_data:
+            row = self._make_participant_row(p)
             participants_list.add_widget(row)
 
-    def _make_participant_row(self, name, amount):
+    def _make_participant_row(self, p_data):
+        from kivymd.uix.selectioncontrol import MDCheckbox
+        
+        p_id = p_data.get('id', -1)
+        name = p_data.get('name', 'Unknown')
+        amount = p_data.get('amount', 0.0)
+        is_paid = p_data.get('is_paid', False)
+        
         card = MDCard(
             size_hint_y=None,
             height='72dp',
@@ -77,7 +106,10 @@ class ResultScreen(Screen):
             md_bg_color=get_color_from_hex('#FFFFFF'),
             elevation=0,
             padding=['16dp', '12dp', '16dp', '12dp'],
+            ripple_behavior=True
         )
+        card.bind(on_release=lambda x, n=name, a=amount: self.show_person_qr(n, a))
+
         box = BoxLayout(orientation='horizontal', spacing='12dp')
 
         avatar = MDCard(
@@ -119,12 +151,25 @@ class ResultScreen(Screen):
         box.add_widget(vbox)
         box.add_widget(Widget())
 
+        # Checkbox for paid status
+        chk_box = BoxLayout(orientation='vertical', size_hint_x=None, width='48dp', padding='0dp')
+        checkbox = MDCheckbox(
+            size_hint=(None, None),
+            size=('48dp', '48dp'),
+            active=is_paid,
+            pos_hint={'center_x': .5, 'center_y': .5}
+        )
+        # Handle checkbox toggling without triggering the card's ripple/QR
+        checkbox.bind(active=lambda instance, value, pid=p_id: self._on_participant_paid_toggle(pid, value))
+        chk_box.add_widget(checkbox)
+        
         amount_card = MDCard(
             size_hint=(None, None),
-            size=('100dp', '36dp'),
+            size=('80dp', '36dp'),
             radius=[18, 18, 18, 18],
             md_bg_color=get_color_from_hex('#D1FAE5'),
             elevation=0,
+            pos_hint={'center_y': .5}
         )
         amount_card_lbl = MDLabel(
             text='฿' + '{:,.2f}'.format(amount),
@@ -136,10 +181,52 @@ class ResultScreen(Screen):
             text_color=get_color_from_hex('#065F46'),
         )
         amount_card.add_widget(amount_card_lbl)
+        
         box.add_widget(amount_card)
+        box.add_widget(chk_box)
 
         card.add_widget(box)
         return card
+
+    def _on_participant_paid_toggle(self, participant_id, is_paid):
+        """อัปเดตสถานะการจ่ายเงินของเพื่อนลง DB"""
+        if participant_id > 0:
+            from core.storage import update_participant_paid
+            update_participant_paid(participant_id, is_paid)
+            print(f"[Result] Participant {participant_id} paid status = {is_paid}")
+
+    def show_person_qr(self, name, amount):
+        """แสดง Dialog พร้อม QR Code สำหรับคนๆ เดียว"""
+        print(f"[Result] Show QR for {name} - ฿{amount}")
+        
+        from kivymd.uix.dialog import MDDialog
+        from kivy.storage.jsonstore import JsonStore
+        import promptpay.qrcode
+        import qrcode
+        from kivy.uix.image import Image
+        
+        store = JsonStore('settings.json')
+        promptpay_number = store.get('user').get('promptpay', '') if store.exists('user') else ''
+        
+        if not promptpay_number:
+            from kivymd.toast import toast
+            toast("กรุณาตั้งค่า PromptPay ใน Settings ก่อนใช้งาน QR")
+            return
+            
+        promptpay_number = promptpay_number.replace('-', '').replace(' ', '')
+        payload = promptpay.qrcode.generate_payload(promptpay_number, float(amount))
+        img = qrcode.make(payload)
+        qr_path = f"temp_qr_{name}.png"
+        img.save(qr_path)
+        
+        qr_img = Image(source=qr_path, allow_stretch=True, keep_ratio=True, size_hint_y=None, height="240dp")
+        
+        self.dialog = MDDialog(
+            title=f"Scan to pay {name}",
+            type="custom",
+            content_cls=qr_img,
+        )
+        self.dialog.open()
 
     def go_back(self):
         self.manager.current = 'summary_screen'

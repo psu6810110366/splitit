@@ -10,6 +10,7 @@ class BillCardItem(MDCard):
     RecycleView item widget สำหรับแสดง bill card แต่ละอันใน Dashboard
     ข้อมูลจะถูก bind เข้ามาผ่าน data dict โดย RecycleView อัตโนมัติ
     """
+    bill_id = NumericProperty(-1)
     title = StringProperty('')
     amount_label = StringProperty('')
     date_label = StringProperty('')
@@ -50,6 +51,7 @@ class DashboardScreen(Screen):
         if not recent_bills:
             self.recent_splits = [
                 {
+                    "bill_id": -1,
                     "title": "Sushi Buffet",
                     "amount_label": "฿1,500",
                     "date_label": "Oct 24 • With 4 friends", 
@@ -58,6 +60,7 @@ class DashboardScreen(Screen):
                     "emoji": "🍣"
                 },
                 {
+                    "bill_id": -2,
                     "title": "Grab Ride", 
                     "amount_label": "฿240",
                     "date_label": "Oct 22 • With Mike",
@@ -66,6 +69,7 @@ class DashboardScreen(Screen):
                     "emoji": "🚗"
                 },
                 {
+                    "bill_id": -3,
                     "title": "Movie Night",
                     "amount_label": "฿850", 
                     "date_label": "Oct 20 • Sarah & Tom",
@@ -79,14 +83,28 @@ class DashboardScreen(Screen):
             formatted_splits = []
             for bill in recent_bills:
                 formatted_splits.append({
+                    "bill_id": bill.get("bill_id", -1),
                     "title": bill.get("title", "Split Bill"),
-                    "amount_label": f"฿{bill.get('amount', 0):.0f}",
+                    "amount_label": bill.get('amount_label', "฿0"),
                     "date_label": bill.get("date_label", "Recent"),
                     "status_label": bill.get("status_label", "Split"),
                     "status_type": bill.get("status_type", "owed"),
                     "emoji": bill.get("emoji", "🍽️")
                 })
             self.recent_splits = formatted_splits
+
+    def on_bill_selected(self, bill_id):
+        """เปิดดูรายละเอียดบิลเมื่อคลิกการ์ด"""
+        print(f"[Dashboard] Selected bill {bill_id}")
+        if bill_id < 0:
+            return  # Sample data or invalid
+        
+        result_screen = self.manager.get_screen('result_screen')
+        result_screen.bill_id = bill_id
+        # ให้ on_enter ของ ResultScreen ไปโหลดข้อมูลจาก DB ต่อ
+        self.manager.current = 'result_screen'
+
+
 
     def go_to_new_split(self):
         """นำทางไปหน้าสร้างบิลใหม่"""

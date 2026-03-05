@@ -13,13 +13,14 @@ MY_DISPLAY_NAME = "Me"
 def get_recent_bills(limit: int = 10) -> list:
     """
     ดึงบิลล่าสุดจาก DB พร้อมข้อมูลที่ Dashboard ต้องการ
-    Returns: list of dict พร้อม key: title, total, date_label, is_done, participant_count
+    Returns: list of dict พร้อม key: bill_id, title, total, date_label, is_done, etc.
     """
     try:
         db.connect(reuse_if_open=True)
+        # เรียง Unpaid (is_done=False=0) ก่อน Paid (is_done=True=1) แล้วตามด้วยวันที่ล่าสุด
         bills = (
             Bill.select()
-            .order_by(Bill.created_at.desc())
+            .order_by(Bill.is_done.asc(), Bill.created_at.desc())
             .limit(limit)
         )
         result = []
@@ -45,15 +46,14 @@ def get_balance_summary(my_name: str = MY_DISPLAY_NAME) -> dict:
         total_owe_me = 0.0  # ยอดที่คนอื่นต้องจ่ายคุณ
 
         participants = BillParticipant.select().where(
-            BillParticipant.is_paid == False  # noqa: E712 — peewee syntax
+            BillParticipant.is_paid == False  # noqa: E712
         )
 
         for p in participants:
             if p.display_name == my_name:
-                # คุณยังไม่ได้จ่าย
                 total_owed += p.amount_owed
             else:
-                # คนอื่นยังไม่ได้จ่าย (ถ้าคุณเป็นคนจ่ายบิลนั้น)
+                # เราถือว่าบิลที่เราสร้าง เราเป็นเจ้าหนี้ของคนอื่นๆ เสมอ (สำหรับ prototype นี้)
                 total_owe_me += p.amount_owed
 
         return {
@@ -70,19 +70,12 @@ def get_balance_summary(my_name: str = MY_DISPLAY_NAME) -> dict:
 def save_bill(bill_name_or_data, total_or_participants=None, items=None, breakdown=None) -> int:
     """
     บันทึกบิลพร้อมรายการและผู้เข้าร่วมลง DB
-    รองรับ 2 รูปแบบการเรียก:
-    1. save_bill(bill_name: str, total: float, items: list, breakdown: dict)
-       — จาก summary_screen (friend's version)
-    2. save_bill(bill_data: dict, participants_data: list, items_data: list)
-       — จาก legacy code
-    Returns: bill.id ที่เพิ่งสร้าง หรือ -1 ถ้า error
+    รองรับ 2 รูปแบบการเรียก...
     """
     try:
         db.connect(reuse_if_open=True)
         with db.atomic():
-            # Detect call signature
             if isinstance(bill_name_or_data, str):
-                # Signature 1: (name, total, items, breakdown)
                 bill_name = bill_name_or_data
                 total = total_or_participants
                 items_data = items or []
@@ -103,7 +96,6 @@ def save_bill(bill_name_or_data, total_or_participants=None, items=None, breakdo
                         amount_owed=round(amount, 2),
                     )
             else:
-                # Signature 2: (bill_data: dict, participants_data: list, items_data: list)
                 bill_data = bill_name_or_data
                 participants_data = total_or_participants or []
                 items_data = items or []
@@ -139,20 +131,82 @@ def save_bill(bill_name_or_data, total_or_participants=None, items=None, breakdo
             db.close()
 
 
+def get_bill_details(bill_id: int) -> dict:
+    """
+    ดึงรายชื่อบิลและผู้เข้าร่วมจาก DB โดยใช้ bill_id
+    """
+    try:
+        db.connect(reuse_if_open=True)
+        bill = Bill.get_by_id(bill_id)
+        
+        participants = []
+        for p in bill.participants:
+            participants.append({
+                "id": p.id,
+                "name": p.display_name,
+                "amount": p.amount_owed,
+                "is_paid": p.is_paid
+            })
+            
+        return {
+            "title": bill.title,
+            "total": bill.total,
+            "is_done": bill.is_done,
+            "participants": participants
+        }
+    except Exception as e:
+        print(f"[storage] get_bill_details error: {e}")
+        return {}
+    finally:
+        if not db.is_closed():
+            db.close()
+
+def update_participant_paid(participant_id: int, is_paid: bool):
+    """
+    อัปเดตสถานะการจ่ายเงิน และตรวจสอบว่าจ่ายครบทุกคนหรือยัง
+    """
+    try:
+        db.connect(reuse_if_open=True)
+        p = BillParticipant.get_by_id(participant_id)
+        p.is_paid = is_paid
+        p.save()
+        
+        # Check if all participants in this bill are paid
+        bill = p.bill
+        unpaid_count = BillParticipant.select().where(
+            (BillParticipant.bill == bill) & 
+            (BillParticipant.is_paid == False)
+        ).count()
+        
+        bill.is_done = (unpaid_count == 0)
+        bill.save()
+        
+    except Exception as e:
+        print(f"[storage] update_participant_paid error: {e}")
+    finally:
+        if not db.is_closed():
+            db.close()
+
 # --- Private Helpers ---
 
 def _format_bill_for_dashboard(bill: Bill) -> dict:
     """
     แปลง Bill model เป็น dict ที่ UI ใช้ได้เลย
-    Clean Code: ซ่อน logic การ format ไว้ใน helper แทนที่จะยัดใน loop
     """
+    emoji = "✅" if bill.is_done else "🧾"
+    status_label = "CLEARED" if bill.is_done else "UNPAID"
+    status_type = "owed" if bill.is_done else "owe"  # แค่เพื่อให้สีใน KV (owed=เขียว, owe=แดง)
+
     return {
+        "bill_id": bill.id,
         "title": bill.title,
         "total": bill.total,
         "is_done": bill.is_done,
         "date_label": _format_date_label(bill.created_at),
         "amount_label": f"฿{bill.total:,.2f}",
-        "status_color": "#00C853" if bill.is_done else "#FF6B6B",
+        "status_label": status_label,
+        "status_type": status_type,
+        "emoji": emoji,
     }
 
 
