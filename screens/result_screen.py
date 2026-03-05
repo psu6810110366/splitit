@@ -204,14 +204,20 @@ class ResultScreen(Screen):
         from kivymd.uix.dialog import MDDialog
         from kivymd.uix.button import MDFlatButton
         from kivymd.app import MDApp
+        
+        # ป้องกันเปิดหลาย popup ซ้อนกัน
+        if hasattr(self, 'dialog') and self.dialog and getattr(self.dialog, 'parent', None):
+            self.dialog.dismiss()
 
         def on_cancel(inst):
-            self.dialog.dismiss()
-            # คืนค่ากลับเป็นสถานะเดิม (แอบ unbind ก่อนชั่วคราวเพื่อไม่ให้ยิงลูปซ้ำ)
+            if hasattr(self, 'dialog') and self.dialog:
+                self.dialog.dismiss()
+            # คืนค่ากลับเป็นสถานะเดิม
             checkbox_widget.active = original_paid_state
 
         def on_confirm(inst):
-            self.dialog.dismiss()
+            if hasattr(self, 'dialog') and self.dialog:
+                self.dialog.dismiss()
             from core.storage import update_participant_paid
             update_participant_paid(participant_id, is_paid)
             print(f"[Result] Participant {participant_id} ({name}) paid status = {is_paid}")
@@ -221,23 +227,25 @@ class ResultScreen(Screen):
         action_text = "โอนเงินเรียบร้อยแล้ว" if is_paid else "ยังไม่ได้โอนเงิน"
         theme_cls = MDApp.get_running_app().theme_cls
 
+        btn_cancel = MDFlatButton(
+            text="CANCEL",
+            theme_text_color="Custom",
+            text_color=theme_cls.error_color
+        )
+        btn_cancel.bind(on_release=on_cancel)
+
+        btn_confirm = MDFlatButton(
+            text="CONFIRM",
+            theme_text_color="Custom",
+            text_color=theme_cls.primary_color
+        )
+        btn_confirm.bind(on_release=on_confirm)
+
         self.dialog = MDDialog(
             title="ยืนยันการตั้งค่า",
             text=f"คุณต้องการเปลี่ยนสถานะของ [b]{name}[/b] เป็น [b]'{action_text}'[/b] ใช่หรือไม่?",
-            buttons=[
-                MDFlatButton(
-                    text="CANCEL",
-                    theme_text_color="Custom",
-                    text_color=theme_cls.error_color,
-                    on_release=on_cancel
-                ),
-                MDFlatButton(
-                    text="CONFIRM",
-                    theme_text_color="Custom",
-                    text_color=theme_cls.primary_color,
-                    on_release=on_confirm
-                ),
-            ],
+            buttons=[btn_cancel, btn_confirm],
+            auto_dismiss=False  # บังคับให้กดปุ่มเท่านั้น
         )
         self.dialog.open()
 
