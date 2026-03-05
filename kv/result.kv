@@ -65,6 +65,41 @@
                             text_color: get_color_from_hex('#0E1B14')
                             halign: "center"
 
+                # QR Code Container (Hidden by default, shown via python if promptpay exists)
+                MDBoxLayout:
+                    id: qr_container
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: "0dp"
+                    opacity: 0
+                    spacing: "12dp"
+                    padding: ["0dp", "8dp", "0dp", "24dp"]
+
+                    MDCard:
+                        size_hint: None, None
+                        size: "200dp", "200dp"
+                        pos_hint: {"center_x": .5}
+                        elevation: 0
+                        radius: [16, 16, 16, 16]
+                        md_bg_color: get_color_from_hex('#FFFFFF')
+                        padding: ["8dp", "8dp", "8dp", "8dp"]
+
+                        Image:
+                            id: qr_image
+                            source: ""
+                            allow_stretch: True
+                            keep_ratio: True
+
+                    MDLabel:
+                        id: qr_info_label
+                        text: ""
+                        font_style: "Subtitle2"
+                        bold: True
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#0E1B14')
+                        halign: "center"
+                        adaptive_height: True
+
                 # "Who pays what?" heading
                 MDLabel:
                     text: "Who pays what?"

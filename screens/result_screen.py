@@ -15,6 +15,52 @@ class ResultScreen(Screen):
 
     def on_enter(self, *args):
         self._populate_participants()
+        self._generate_and_show_qr()
+
+    def _generate_and_show_qr(self):
+        from kivy.storage.jsonstore import JsonStore
+        import promptpay
+        import qrcode
+        import os
+        from kivy.clock import Clock
+
+        store = JsonStore('settings.json')
+        promptpay_number = store.get('user').get('promptpay', '') if store.exists('user') else ''
+        
+        # Clean the number
+        promptpay_number = promptpay_number.replace('-', '').replace(' ', '')
+        
+        qr_image = self.ids.qr_image
+        qr_container = self.ids.qr_container
+        
+        if not promptpay_number:
+            qr_container.opacity = 0
+            qr_container.height = 0
+            return
+            
+        try:
+            # Generate PromptPay Payload
+            # We use the total amount for the main QR
+            payload = promptpay.generate_payload(promptpay_number, self.total)
+            
+            # Generate QR Code Image
+            img = qrcode.make(payload)
+            qr_path = "temp_promptpay_qr.png"
+            img.save(qr_path)
+            
+            # Update UI
+            qr_image.source = qr_path
+            qr_image.reload()
+            qr_container.opacity = 1
+            qr_container.height = "240dp"
+            
+            # Provide info text
+            self.ids.qr_info_label.text = f"Scan to pay ฿{self.total:,.2f}"
+            
+        except Exception as e:
+            print(f"[ResultScreen] QR Generation failed: {e}")
+            qr_container.opacity = 0
+            qr_container.height = 0
 
     def _populate_participants(self):
         participants_list = self.ids.participants_list
@@ -104,7 +150,10 @@ class ResultScreen(Screen):
     def on_copy_clipboard(self):
         from core.split_engine import format_result_text
         from kivy.core.clipboard import Clipboard
+        from kivymd.toast import toast
+        
         text = format_result_text(self.bill_title, self.total, self.breakdown)
         Clipboard.copy(text)
         print('[Result] Copied to clipboard')
+        toast("คัดลอกสรุปรายการแล้ว นำไปวางในแชทได้เลย!")
 
