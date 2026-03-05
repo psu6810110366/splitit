@@ -5,6 +5,13 @@ import google.generativeai as genai
 from PIL import Image
 from dotenv import load_dotenv
 
+# ลงทะเบียน HEIF/HEIC Support เพื่อให้อ่านไฟล์จาก iPhone ได้
+try:
+    import pillow_heif
+    pillow_heif.register_heif_opener()
+except ImportError:
+    pass  # ถ้าไม่ได้ติดตั้ง pillow-heif ก็แค่ไม่รองรับ HEIC
+
 # โหลด API Key จาก Environment (Load API Key from env)
 load_dotenv()
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
