@@ -159,8 +159,11 @@ class ResultScreen(Screen):
             active=is_paid,
             pos_hint={'center_x': .5, 'center_y': .5}
         )
-        # Handle checkbox toggling without triggering the card's ripple/QR
-        checkbox.bind(active=lambda instance, value, pid=p_id: self._on_participant_paid_toggle(pid, value))
+        
+        # เราจะไม่ bind on_active เพราะจะยิงรัวๆ ตอนโหลด ให้ใช้ on_release หรือวิธีเก็บสถานะแทน
+        # แต่เพื่อความง่าย เราจะ bind active ปกติ แล้วเช็คว่าต่างจากข้อมูลเดิมไหมในฟังก์ชัน
+        checkbox.bind(active=lambda instance, value, pid=p_id, c=checkbox, n=name, op=is_paid: 
+                      self._on_participant_paid_toggle(pid, value, c, n, op))
         chk_box.add_widget(checkbox)
         
         amount_card = MDCard(
@@ -188,12 +191,53 @@ class ResultScreen(Screen):
         card.add_widget(box)
         return card
 
-    def _on_participant_paid_toggle(self, participant_id, is_paid):
-        """อัปเดตสถานะการจ่ายเงินของเพื่อนลง DB"""
-        if participant_id > 0:
+    def _on_participant_paid_toggle(self, participant_id, is_paid, checkbox_widget, name, original_paid_state):
+        """อัปเดตสถานะการจ่ายเงินของเพื่อนลง DB พร้อม Dialog ยืนยัน"""
+        # ถ้าค่าใหม่ตรงกับค่าดั้งเดิมในฐานข้อมูล (เช่นตอนระบบเพิ่งโหลดข้อมูลและเซ็ต active) => ข้าม
+        if is_paid == original_paid_state:
+            return
+            
+        if participant_id < 0:
+            # รายการ fallback (ไม่มี DB) => ปล่อยผ่าน
+            return
+
+        from kivymd.uix.dialog import MDDialog
+        from kivymd.uix.button import MDFlatButton
+
+        def on_cancel(inst):
+            self.dialog.dismiss()
+            # คืนค่ากลับเป็นสถานะเดิม (แอบ unbind ก่อนชั่วคราวเพื่อไม่ให้ยิงลูปซ้ำ)
+            checkbox_widget.active = original_paid_state
+
+        def on_confirm(inst):
+            self.dialog.dismiss()
             from core.storage import update_participant_paid
             update_participant_paid(participant_id, is_paid)
-            print(f"[Result] Participant {participant_id} paid status = {is_paid}")
+            print(f"[Result] Participant {participant_id} ({name}) paid status = {is_paid}")
+            # รีโหลดข้อมูลใหม่ทั้งหมด
+            self.on_enter()
+
+        action_text = "โอนเงินเรียบร้อยแล้ว" if is_paid else "ยังไม่ได้โอนเงิน"
+        
+        self.dialog = MDDialog(
+            title="ยืนยันการตั้งค่า",
+            text=f"คุณต้องการเปลี่ยนสถานะของ [b]{name}[/b] เป็น [b]'{action_text}'[/b] ใช่หรือไม่?",
+            buttons=[
+                MDFlatButton(
+                    text="CANCEL",
+                    theme_text_color="Custom",
+                    text_color=self.theme_cls.error_color,
+                    on_release=on_cancel
+                ),
+                MDFlatButton(
+                    text="CONFIRM",
+                    theme_text_color="Custom",
+                    text_color=self.theme_cls.primary_color,
+                    on_release=on_confirm
+                ),
+            ],
+        )
+        self.dialog.open()
 
     def show_person_qr(self, name, amount):
         """แสดง Dialog พร้อม QR Code สำหรับคนๆ เดียว"""

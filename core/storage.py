@@ -90,10 +90,13 @@ def save_bill(bill_name_or_data, total_or_participants=None, items=None, breakdo
                         quantity=item.get('quantity', 1)
                     )
                 for name, amount in breakdown_data.items():
+                    # ถ้ารายการเป็นชื่อเรา (MY_DISPLAY_NAME) ให้ตั้งค่าว่าจ่ายแล้ว (is_paid=True) ทันที
+                    is_me = (name == MY_DISPLAY_NAME)
                     BillParticipant.create(
                         bill=bill,
                         display_name=name,
                         amount_owed=round(amount, 2),
+                        is_paid=is_me
                     )
             else:
                 bill_data = bill_name_or_data
@@ -115,11 +118,13 @@ def save_bill(bill_name_or_data, total_or_participants=None, items=None, breakdo
                         quantity=item.get('quantity', 1)
                     )
                 for p in participants_data:
+                    p_name = p.get('name', 'Unknown')
+                    is_me = (p_name == MY_DISPLAY_NAME)
                     BillParticipant.create(
                         bill=bill,
-                        display_name=p.get('name', 'Unknown'),
+                        display_name=p_name,
                         amount_owed=p.get('amount', 0.0),
-                        is_paid=p.get('is_paid', False)
+                        is_paid=p.get('is_paid', is_me)
                     )
 
         return bill.id

@@ -55,32 +55,33 @@ class ScanScreen(Screen):
 
     def on_gallery_press(self):
         """
-        Callback 2: Gallery Picker — ใช้ plyer บน mobile, fallback บน desktop
+        Callback 2: Gallery Picker — ให้ผู้ใช้เลือกภาพใบเสร็จ
         """
         print("[Scan] Action: Open Gallery")
 
-        # ลอง plyer ก่อน (ใช้ได้บน Android/iOS)
         if filechooser is not None:
             try:
-                filechooser.open_file(
-                    on_selection=self.handle_gallery_selection,
-                    filters=["*.jpg", "*.jpeg", "*.png"],
+                # เรียก filechooser ให้เลือกรูป
+                # บน Desktop ระบบมักจะ return ค่าตรงๆ คืนมา
+                # บน Mobile ระบบจะส่งเข้า callback 'on_selection'
+                selection = filechooser.open_file(
+                    title="เลือกรูปใบเสร็จเพื่อแสกน",
+                    filters=[("Image files", "*.jpg", "*.jpeg", "*.png")],
+                    on_selection=self.handle_gallery_selection
                 )
+                
+                # หากบน Desktop มีการคืนค่ากลับมาเลย นำไปประมวลผลต่อ
+                if selection and isinstance(selection, list):
+                    self.handle_gallery_selection(selection)
+                    
                 return
             except Exception as e:
                 print(f"[Scan] plyer filechooser failed: {e}")
-
-        # Desktop fallback: หารูปทดสอบ
-        test_paths = ["temp_receipt.jpg", "test_receipt.jpg", "test_receipt.png"]
-        for path in test_paths:
-            if os.path.exists(path):
-                print(f"[Scan] Using test image: {path}")
-                self.start_ai_analysis(path)
-                return
-
-        # ไม่มีรูป → ไปหน้า manual entry
-        print("[Scan] No image source available, opening manual entry.")
-        self.manager.current = 'new_split_screen'
+                
+        # กรณีหา filechooser ไม่เจอหรือเกิด Error
+        from kivymd.toast import toast
+        toast("ไม่สามารถเปิดแกลเลอรี่ได้บนอุปกรณ์นี้")
+        print("[Scan] No image source available.")
 
     def handle_gallery_selection(self, selection):
         if selection:
