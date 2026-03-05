@@ -262,6 +262,7 @@ class ResultScreen(Screen):
         from kivymd.uix.button import MDFlatButton
         from kivymd.uix.boxlayout import MDBoxLayout
         from kivymd.uix.label import MDLabel
+        from kivymd.app import MDApp
         from kivy.storage.jsonstore import JsonStore
         from kivy.uix.image import Image
         import promptpay.qrcode
@@ -309,6 +310,8 @@ class ResultScreen(Screen):
             if os.path.exists(qr_path):
                 os.remove(qr_path)
 
+        theme_cls = MDApp.get_running_app().theme_cls
+
         self.qr_dialog = MDDialog(
             title=f"QR Code ของ {name}",
             type="custom",
@@ -317,7 +320,7 @@ class ResultScreen(Screen):
                 MDFlatButton(
                     text="CLOSE",
                     theme_text_color="Custom",
-                    text_color=self.theme_cls.primary_color,
+                    text_color=theme_cls.primary_color,
                     on_release=_close_qr_dialog
                 ),
             ],
