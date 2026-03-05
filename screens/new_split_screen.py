@@ -156,6 +156,8 @@ class NewSplitScreen(Screen):
     # ── Calculate ─────────────────────────────────────────────────────────────
 
     def on_calculate(self):
+        from kivymd.toast import toast
+
         bill_name = self.ids.bill_name_input.text.strip() or 'Untitled Bill'
         try:
             total = float(self.ids.total_amount_label.text.replace(',', ''))
@@ -165,9 +167,15 @@ class NewSplitScreen(Screen):
         if total <= 0 and self._items:
             total = sum(item['price'] for item in self._items)
 
+        # ── Validation ────────────────────────────────────────────────────────
         if total <= 0:
+            if not self._items:
+                toast("กรุณาเพิ่มรายการสินค้า หรือใส่ยอดรวม")
+            else:
+                toast("ยอดรวมบิลต้องมากกว่า 0")
             print('[NewSplit] Cannot calculate: total is 0')
             return
+        # ──────────────────────────────────────────────────────────────────────
 
         all_people = self._all_people()
 
