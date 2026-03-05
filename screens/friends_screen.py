@@ -7,6 +7,7 @@ from kivymd.uix.textfield import MDTextField
 from kivymd.toast import toast
 from core.models import Friend
 
+
 class FriendsScreen(Screen):
     friends_list = ListProperty([])
     dialog = None
@@ -15,13 +16,12 @@ class FriendsScreen(Screen):
         self.load_friends()
 
     def load_friends(self):
-        """Fetch friends from database and populate the list"""
+        """ดึงรายชื่อเพื่อนจาก DB แล้วอัปเดต list"""
         try:
             friends = Friend.select().order_by(Friend.name)
             data = []
             for f in friends:
                 initials = f.name[:2].upper() if f.name else "??"
-                # In phase 2, we can calculate actual balance, for now just static
                 data.append({
                     "name": f.name,
                     "avatar_initials": initials,
@@ -31,7 +31,7 @@ class FriendsScreen(Screen):
                 })
             self.friends_list = data
         except Exception as e:
-            print(f"Error loading friends: {e}")
+            print(f"[Friends] Error loading friends: {e}")
 
     def open_add_friend_dialog(self):
         if not self.dialog:
@@ -67,15 +67,17 @@ class FriendsScreen(Screen):
         if not name:
             toast("Name cannot be empty")
             return
-            
         try:
             Friend.create(name=name)
             self.dialog.dismiss()
             toast(f"Added {name} to friends!")
             self.load_friends()
         except Exception as e:
-            print(f"Error adding friend: {e}")
+            print(f"[Friends] Error adding friend: {e}")
             toast("Failed to add friend")
+
+    def go_back(self):
+        self.manager.current = 'dashboard'
 
     def go_to_dashboard(self):
         self.manager.current = 'dashboard'

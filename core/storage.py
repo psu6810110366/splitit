@@ -67,47 +67,73 @@ def get_balance_summary(my_name: str = MY_DISPLAY_NAME) -> dict:
         if not db.is_closed():
             db.close()
 
-def save_bill(bill_data: dict, participants_data: list, items_data: list = None) -> bool:
+def save_bill(bill_name_or_data, total_or_participants=None, items=None, breakdown=None) -> int:
     """
-    บันทึกข้อมูลบิลลง DB (Bill, BillItem, BillParticipant) 
-    :param bill_data: dict ของโมเดล Bill {title, total, notes, promptpay}
-    :param participants_data: list of dict {display_name, amount_owed, is_paid}
-    :param items_data: list of dict {name, price, quantity} (Optional)
+    บันทึกบิลพร้อมรายการและผู้เข้าร่วมลง DB
+    รองรับ 2 รูปแบบการเรียก:
+    1. save_bill(bill_name: str, total: float, items: list, breakdown: dict)
+       — จาก summary_screen (friend's version)
+    2. save_bill(bill_data: dict, participants_data: list, items_data: list)
+       — จาก legacy code
+    Returns: bill.id ที่เพิ่งสร้าง หรือ -1 ถ้า error
     """
     try:
         db.connect(reuse_if_open=True)
         with db.atomic():
-            # 1. Save Bill
-            new_bill = Bill.create(
-                title=bill_data.get('title', 'Unknown Bill'),
-                total=bill_data.get('total', 0.0),
-                notes=bill_data.get('notes', ''),
-                promptpay=bill_data.get('promptpay', ''),
-                is_done=False
-            )
-            
-            # 2. Save Items (if provided)
-            if items_data:
+            # Detect call signature
+            if isinstance(bill_name_or_data, str):
+                # Signature 1: (name, total, items, breakdown)
+                bill_name = bill_name_or_data
+                total = total_or_participants
+                items_data = items or []
+                breakdown_data = breakdown or {}
+
+                bill = Bill.create(title=bill_name, total=total)
                 for item in items_data:
                     BillItem.create(
-                        bill=new_bill,
+                        bill=bill,
+                        name=item['name'],
+                        price=item['price'],
+                        quantity=item.get('quantity', 1)
+                    )
+                for name, amount in breakdown_data.items():
+                    BillParticipant.create(
+                        bill=bill,
+                        display_name=name,
+                        amount_owed=round(amount, 2),
+                    )
+            else:
+                # Signature 2: (bill_data: dict, participants_data: list, items_data: list)
+                bill_data = bill_name_or_data
+                participants_data = total_or_participants or []
+                items_data = items or []
+
+                bill = Bill.create(
+                    title=bill_data.get('title', 'Unknown Bill'),
+                    total=bill_data.get('total', 0.0),
+                    notes=bill_data.get('notes', ''),
+                    promptpay=bill_data.get('promptpay', ''),
+                    is_done=False
+                )
+                for item in items_data:
+                    BillItem.create(
+                        bill=bill,
                         name=item.get('name', 'Item'),
                         price=item.get('price', 0.0),
                         quantity=item.get('quantity', 1)
                     )
-                    
-            # 3. Save Participants
-            for p in participants_data:
-                BillParticipant.create(
-                    bill=new_bill,
-                    display_name=p.get('name', 'Unknown'),
-                    amount_owed=p.get('amount', 0.0),
-                    is_paid=p.get('is_paid', False)
-                )
-        return True
+                for p in participants_data:
+                    BillParticipant.create(
+                        bill=bill,
+                        display_name=p.get('name', 'Unknown'),
+                        amount_owed=p.get('amount', 0.0),
+                        is_paid=p.get('is_paid', False)
+                    )
+
+        return bill.id
     except Exception as e:
         print(f"[storage] save_bill error: {e}")
-        return False
+        return -1
     finally:
         if not db.is_closed():
             db.close()

@@ -1,3 +1,23 @@
+def split_by_items(items_with_assignments, all_participants):
+    """
+    หารเงินตามรายการที่แต่ละคนสั่ง (แบบกำหนดเองต่อชิ้น)
+    :param items_with_assignments: [{'name': str, 'price': float, 'assigned_to': [str]}]
+      — ถ้า assigned_to ว่าง หมายถึงทุกคนหารกัน
+    :param all_participants: รายชื่อทุกคนในบิล (e.g. ["Me", "Alice", "Bob"])
+    :return: dict {name: amount}
+    """
+    result = {p: 0.0 for p in all_participants}
+    for item in items_with_assignments:
+        assigned = item.get('assigned_to') or list(all_participants)
+        if not assigned:
+            assigned = list(all_participants)
+        share = item['price'] / len(assigned)
+        for name in assigned:
+            if name in result:
+                result[name] += share
+    return {k: round(v, 2) for k, v in result.items()}
+
+
 def split_equally(total: float, participants: list) -> dict:
     """
     หารบิลเท่าๆ กันตามจำนวนคน (Split the total equally among participants)

@@ -1,0 +1,99 @@
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
+<AssignItemDialog>:
+    size_hint: None, None
+    size: "360dp", "480dp"
+    radius: [28, 28, 28, 28]
+    md_bg_color: get_color_from_hex('#FFFFFF')
+    elevation: 0
+    padding: ["24dp", "24dp", "24dp", "24dp"]
+
+    MDBoxLayout:
+        orientation: 'vertical'
+        spacing: "12dp"
+
+        # Title
+        MDLabel:
+            text: "👥"
+            font_size: "40sp"
+            halign: "center"
+            size_hint_y: None
+            height: "52dp"
+
+        MDLabel:
+            text: "Who splits this?"
+            font_style: "H6"
+            bold: True
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex('#0E1B14')
+            halign: "center"
+            adaptive_height: True
+
+        MDLabel:
+            id: item_name_label
+            text: ""
+            font_style: "Body2"
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex('#6B7280')
+            halign: "center"
+            adaptive_height: True
+
+        # Scrollable people list
+        MDScrollView:
+            size_hint_y: 1
+
+            MDBoxLayout:
+                id: people_list
+                orientation: 'vertical'
+                spacing: "8dp"
+                adaptive_height: True
+                padding: ["0dp", "4dp", "0dp", "4dp"]
+
+        # Confirm button
+        MDCard:
+            size_hint_y: None
+            height: "52dp"
+            radius: [26, 26, 26, 26]
+            md_bg_color: get_color_from_hex('#50C878')
+            elevation: 0
+            ripple_behavior: True
+            on_release: root.confirm()
+
+            MDBoxLayout:
+                orientation: 'horizontal'
+                spacing: "8dp"
+                padding: ["16dp", "0dp", "16dp", "0dp"]
+
+                MDIcon:
+                    icon: "check"
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#FFFFFF')
+                    size_hint_x: None
+                    width: "24dp"
+
+                MDLabel:
+                    text: "Confirm"
+                    font_style: "Subtitle1"
+                    bold: True
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#FFFFFF')
+                    halign: "center"
+                    adaptive_height: True
+
+        # Cancel button
+        MDCard:
+            size_hint_y: None
+            height: "40dp"
+            radius: [20, 20, 20, 20]
+            md_bg_color: get_color_from_hex('#F3F4F6')
+            elevation: 0
+            ripple_behavior: True
+            on_release: root.cancel()
+
+            MDLabel:
+                text: "Cancel"
+                font_style: "Body2"
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#4E9773')
+                halign: "center"
+                adaptive_height: True

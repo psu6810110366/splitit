@@ -1,239 +1,187 @@
 from kivy.uix.screenmanager import Screen
-from kivy.lang import Builder
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivy.properties import StringProperty, ListProperty
-from kivymd.uix.dialog import MDDialog
-from kivymd.uix.list import MDList, OneLineListItem
-from kivymd.app import MDApp
-from kivymd.uix.button import MDFlatButton
-from core.models import Friend
-from kivy.uix.scrollview import ScrollView
+from kivy.properties import StringProperty
+from components.add_friend_dialog import AddFriendDialog    # noqa: F401
+from components.add_item_dialog import AddItemDialog        # noqa: F401
+from components.assign_item_dialog import AssignItemDialog  # noqa: F401
+from components.item_row import ItemRow
+from components.person_row import PersonRow
 
-# Custom widget for the bill items
-class EditableBillItem(MDBoxLayout):
-    item_name = StringProperty()
-    item_qty = StringProperty("1")
-    item_price = StringProperty()
 
 class NewSplitScreen(Screen):
     split_mode = StringProperty('equal')
-    selected_participants = ListProperty([]) # Store simply names for phase 1
-    friend_dialog = None
-    
+
     def on_enter(self, *args):
-        # We can trigger initial calculate here just in case
-        self.recalculate_total()
-        self.set_split_mode('equal')
-        
-        # Add "Me" as default participant if empty
-        if not self.selected_participants:
-            self.selected_participants = ["Me"]
-            self._render_participants()
+        """รีเซ็ตฟอร์มทุกครั้งที่เข้าหน้านี้ใหม่"""
+        self._items = []   # [{'name': str, 'price': float, 'assigned_to': [str]}]
+        self._people = []  # [str] (ไม่รวม "Me" — จะเพิ่มในการคำนวณ)
+        self._refresh_items_list()
+        self._refresh_people_list()
+        self.ids.bill_name_input.text = ''
+        self.ids.total_amount_label.text = '0.00'
+        self.split_mode = 'equal'
+        self.ids.btn_split_equal.md_bg_color = [0.314, 0.784, 0.471, 1]
+        self.ids.btn_split_custom.md_bg_color = [0.953, 0.961, 0.973, 1]
+
+    def _all_people(self):
+        """รายชื่อทุกคน รวม Me เสมอ"""
+        return ['Me'] + list(self._people)
 
     def go_back(self):
-        """Navigate back to the scan screen"""
-        self.manager.current = 'scan_screen'
+        self.manager.current = 'dashboard'
+
+    # ── AI Handoff ────────────────────────────────────────────────────────────
 
     def populate_data_from_ai(self, result):
-        """Populate UI with data received from AI"""
-        # Set title
-        self.ids.bill_title.text = result.get("title", "Scanned Bill")
-        
-        # Clear old items
-        self.ids.items_list.clear_widgets()
-        
-        # Add generated items
-        items = result.get("items", [])
-        for item in items:
-            self.add_item_row(item.get("name", ""), str(item.get("price", 0.0)))
-            
-        # Remove tax manipulation here
-        self.recalculate_total()
+        """
+        รับข้อมูลจาก AI (scan_screen) แล้วเติมลงฟอร์ม
+        result format: {'title': str, 'items': [{'name': str, 'price': float}]}
+        """
+        # รีเซ็ตก่อนเติมข้อมูล
+        self._items = []
 
-    def add_item_row(self, name="", price="", qty="1"):
-        """Add a new item row to the list"""
-        row = EditableBillItem()
-        row.ids.item_name_input.text = name
-        row.ids.item_qty_input.text = str(qty)
-        row.ids.item_price_input.text = price
-        
-        # Bind text change to recalculate total
-        row.ids.item_qty_input.bind(text=self._on_input_changed)
-        row.ids.item_price_input.bind(text=self._on_input_changed)
-        
-        self.ids.items_list.add_widget(row)
-        self.recalculate_total()
+        title = result.get('title', 'Scanned Bill')
+        self.ids.bill_name_input.text = title
 
-    def _on_input_changed(self, instance, value):
-        self.recalculate_total()
+        for item in result.get('items', []):
+            name = item.get('name', '')
+            price = float(item.get('price', 0.0))
+            if name:
+                self._items.append({'name': name, 'price': price, 'assigned_to': []})
 
-    def on_delete_item_widget(self, widget):
-        """Delete an item row from the list"""
-        self.ids.items_list.remove_widget(widget)
-        self.recalculate_total()
+        self._refresh_items_list()
+        print(f"[NewSplit] Populated {len(self._items)} items from AI")
+
+    # ── Items ─────────────────────────────────────────────────────────────────
 
     def on_add_item(self):
-        """Manually add an empty item row"""
-        self.add_item_row("", "0", "1")
+        dialog = AddItemDialog()
+        dialog.callback = self._on_item_added
+        dialog.pos_hint = {'center_x': .5, 'center_y': .5}
+        self.add_widget(dialog)
 
-    def recalculate_total(self, *args):
-        """Calculate subtotal and grand total dynamically"""
-        subtotal = 0.0
-        
-        for child in self.ids.items_list.children:
-            if isinstance(child, EditableBillItem):
-                price_text = child.ids.item_price_input.text
-                qty_text = child.ids.item_qty_input.text
-                
-                try:
-                    price = float(price_text) if price_text else 0.0
-                    qty = int(qty_text) if qty_text else 1
-                    subtotal += (price * qty)
-                except ValueError:
-                    pass
-        grand_total = subtotal
-        
-        if 'subtotal_label' in self.ids:
-            self.ids.subtotal_label.text = f"${subtotal:,.2f}"
-            self.ids.grand_total_label.text = f"${grand_total:,.2f}"
+    def _on_item_added(self, name, price):
+        # default: ทุกคนร่วมหาร (assigned_to ว่าง = ทุกคน)
+        self._items.append({'name': name, 'price': price, 'assigned_to': []})
+        self._refresh_items_list()
 
-    def set_split_mode(self, mode):
-        """Toggle between equal or custom split mode"""
-        from kivy.utils import get_color_from_hex
-        self.split_mode = mode
-        
-        if mode == 'equal':
-            self.ids.btn_split_equal.md_bg_color = get_color_from_hex("#00C853")
-            self.ids.btn_split_equal.text_color = get_color_from_hex("#FFFFFF")
-            self.ids.btn_split_custom.md_bg_color = get_color_from_hex("#E0E0E0")
-            self.ids.btn_split_custom.text_color = get_color_from_hex("#757575")
-        else:
-            self.ids.btn_split_custom.md_bg_color = get_color_from_hex("#00C853")
-            self.ids.btn_split_custom.text_color = get_color_from_hex("#FFFFFF")
-            self.ids.btn_split_equal.md_bg_color = get_color_from_hex("#E0E0E0")
-            self.ids.btn_split_equal.text_color = get_color_from_hex("#757575")
+    def _on_item_deleted(self, index):
+        if 0 <= index < len(self._items):
+            del self._items[index]
+            self._refresh_items_list()
 
-        # Update visibility of custom amount fields
-        is_custom = (mode == 'custom')
-        for child in self.ids.participants_list.children:
-            if hasattr(child, 'show_custom_amount'):
-                child.show_custom_amount = is_custom
+    def _on_assign_item(self, index):
+        """เปิด dialog เลือกว่าใครหารรายการนี้"""
+        if index < 0 or index >= len(self._items):
+            return
+        item = self._items[index]
+        current_assigned = item['assigned_to'] or list(self._all_people())
+
+        dialog = AssignItemDialog()
+        dialog.pos_hint = {'center_x': .5, 'center_y': .5}
+        self.add_widget(dialog)
+        dialog.setup(item['name'], self._all_people(), current_assigned)
+
+        def on_confirmed(selected, idx=index):
+            self._items[idx]['assigned_to'] = selected
+            self._refresh_items_list()
+
+        dialog.callback = on_confirmed
+
+    def _refresh_items_list(self):
+        items_list = self.ids.items_list
+        items_list.clear_widgets()
+        total = 0.0
+        for i, item in enumerate(self._items):
+            row = ItemRow()
+            row.item_name = item['name']
+            row.price = item['price']
+            assigned = item.get('assigned_to') or []
+            row.assigned_to = assigned
+            row.delete_cb = (lambda idx=i: self._on_item_deleted(idx))
+            row.assign_cb = (lambda idx=i: self._on_assign_item(idx))
+            items_list.add_widget(row)
+            total += item['price']
+        if self._items:
+            self.ids.total_amount_label.text = '{:.2f}'.format(total)
+        self.ids.items_count_label.text = '{} Items'.format(len(self._items))
+
+    # ── People ────────────────────────────────────────────────────────────────
 
     def on_add_friend(self):
-        """Open friend selection modal"""
-        friends = Friend.select().order_by(Friend.name)
-        
-        if not friends:
-            from kivymd.toast import toast
-            toast("No friends available. Add them in the Friends tab!")
-            return
-            
-        # Create dialog content
-        scroll = ScrollView(size_hint_y=None, height="250dp")
-        list_view = MDList()
-        
-        for f in friends:
-            if f.name not in self.selected_participants:
-                item = OneLineListItem(
-                    text=f.name,
-                    on_release=lambda x, fname=f.name: self._select_friend(fname)
-                )
-                list_view.add_widget(item)
-                
-        scroll.add_widget(list_view)
-        
-        app = MDApp.get_running_app()
-        self.friend_dialog = MDDialog(
-            title="Select a Friend",
-            type="custom",
-            content_cls=scroll,
-            buttons=[
-                MDFlatButton(
-                    text="CANCEL",
-                    theme_text_color="Custom",
-                    text_color=app.theme_cls.error_color,
-                    on_release=lambda x: self.friend_dialog.dismiss()
-                )
-            ]
-        )
-        self.friend_dialog.open()
+        dialog = AddFriendDialog()
+        dialog.callback = self._on_friend_added
+        dialog.pos_hint = {'center_x': .5, 'center_y': .5}
+        self.add_widget(dialog)
 
-    def _select_friend(self, name):
-        self.selected_participants.append(name)
-        self.friend_dialog.dismiss()
-        self._render_participants()
-        
-    def on_remove_participant(self, row_widget):
-        name = row_widget.friend_name
-        if name in self.selected_participants and name != "Me":
-            self.selected_participants.remove(name)
-            self._render_participants()
-            
-    def _render_participants(self):
-        """Re-render the participant visual list"""
-        from kivy.factory import Factory
-        self.ids.participants_list.clear_widgets()
-        
-        for name in self.selected_participants:
-            row = Factory.NewSplitParticipantRow()
-            row.friend_name = name
-            row.avatar_initials = name[:2].upper()
-            row.show_custom_amount = (self.split_mode == 'custom')
-            self.ids.participants_list.add_widget(row)
+    def _on_friend_added(self, name):
+        if name and name not in self._people:
+            self._people.append(name)
+            self._refresh_people_list()
+
+    def _on_person_removed(self, index):
+        if 0 <= index < len(self._people):
+            name = self._people[index]
+            del self._people[index]
+            # ถอดชื่อออกจาก assigned_to ของทุก item ด้วย
+            for item in self._items:
+                if name in item.get('assigned_to', []):
+                    item['assigned_to'].remove(name)
+            self._refresh_people_list()
+            self._refresh_items_list()
+
+    def _refresh_people_list(self):
+        people_list = self.ids.people_list
+        people_list.clear_widgets()
+        for i, name in enumerate(self._people):
+            row = PersonRow()
+            row.display_name = name
+            row.remove_cb = (lambda idx=i: self._on_person_removed(idx))
+            people_list.add_widget(row)
+        count = len(self._people) + 1  # +1 for "Me"
+        self.ids.people_count_label.text = '{} people'.format(count)
+
+    # ── Split toggle ──────────────────────────────────────────────────────────
+
+    def on_split_mode_toggle(self, mode):
+        self.split_mode = mode
+        green = [0.314, 0.784, 0.471, 1]
+        grey = [0.953, 0.961, 0.973, 1]
+        if mode == 'equal':
+            self.ids.btn_split_equal.md_bg_color = green
+            self.ids.btn_split_custom.md_bg_color = grey
+        else:
+            self.ids.btn_split_equal.md_bg_color = grey
+            self.ids.btn_split_custom.md_bg_color = green
+
+    # ── Calculate ─────────────────────────────────────────────────────────────
 
     def on_calculate(self):
-        """Advance to Summary Screen along with bill data"""
-        from core.split_engine import split_equally
-        
-        # 1. Gather Items
-        items = []
-        subtotal = 0.0
-        for child in self.ids.items_list.children:
-            if isinstance(child, EditableBillItem):
-                price_text = child.ids.item_price_input.text
-                qty_text = child.ids.item_qty_input.text
-                try:
-                    price = float(price_text) if price_text else 0.0
-                    qty = int(qty_text) if qty_text else 1
-                    items.append({'name': child.ids.item_name_input.text, 'price': price, 'quantity': qty})
-                    subtotal += (price * qty)
-                except ValueError:
-                    pass
-                    
-        # 2. Gather Participants
-        participants = list(self.selected_participants) if self.selected_participants else ["Me"]
-        
-        # 3. Calculate Split
-        if self.split_mode == 'equal':
-            split_result = split_equally(subtotal, participants)
+        bill_name = self.ids.bill_name_input.text.strip() or 'Untitled Bill'
+        try:
+            total = float(self.ids.total_amount_label.text.replace(',', ''))
+        except ValueError:
+            total = 0.0
+
+        if total <= 0 and self._items:
+            total = sum(item['price'] for item in self._items)
+
+        if total <= 0:
+            print('[NewSplit] Cannot calculate: total is 0')
+            return
+
+        all_people = self._all_people()
+
+        # ถ้ามีรายการย่อย ให้คำนวณตาม assignment ของแต่ละรายการ
+        if self._items:
+            from core.split_engine import split_by_items
+            breakdown = split_by_items(self._items, all_people)
         else:
-            # Custom Split: Read amounts from UI
-            split_result = {}
-            custom_sum = 0.0
-            for child in self.ids.participants_list.children:
-                if hasattr(child, 'amount_text'):
-                    try:
-                        amt = float(child.amount_text) if child.amount_text else 0.0
-                        split_result[child.friend_name] = amt
-                        custom_sum += amt
-                    except ValueError:
-                        split_result[child.friend_name] = 0.0
-            
-            # Basic validation
-            if abs(custom_sum - subtotal) > 0.05:
-                from kivymd.toast import toast
-                toast(f"Custom amounts ({custom_sum:.2f}) don't match subtotal ({subtotal:.2f})!")
-                return
-            
-        bill_data = {
-            'title': self.ids.bill_title.text or 'Untitled Bill',
-            'total': subtotal,
-            'notes': self.ids.notes_input.text
-        }
-        
-        # Pass to summary screen
-        summary_screen = self.manager.get_screen('summary_screen')
-        summary_screen.receive_data(bill_data, split_result, items)
-        
-        print("Moving to Summary Screen with calculated data...")
+            from core.split_engine import split_equally
+            breakdown = split_equally(total, all_people)
+
+        summary = self.manager.get_screen('summary_screen')
+        summary.bill_name = bill_name
+        summary.total = total
+        summary.breakdown = dict(breakdown)
+        summary.bill_items = list(self._items)
         self.manager.current = 'summary_screen'
