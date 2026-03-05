@@ -58,27 +58,52 @@ class ScanScreen(Screen):
         Callback 2: Gallery Picker — ให้ผู้ใช้เลือกภาพใบเสร็จ
         """
         print("[Scan] Action: Open Gallery")
+        
+        import platform
+        import threading
+        
+        # ใช้ Tkinter สำหรับ Desktop (Windows/Mac) เพื่อหลีกเลี่ยง Kivy Freeze
+        if platform.system() in ['Windows', 'Darwin']:
+            def _open_tk():
+                try:
+                    import tkinter as tk
+                    from tkinter import filedialog
+                    root = tk.Tk()
+                    root.withdraw()
+                    # บังคับหน้าต่างให้อยู่บนสุด
+                    if platform.system() == 'Windows':
+                        root.attributes('-topmost', True)
+                    else:
+                        os.system('''/usr/bin/osascript -e 'tell app "Finder" to set frontmost of process "Python" to true' ''')
+                        
+                    file_path = filedialog.askopenfilename(
+                        title="เลือกรูปภาพใบเสร็จ",
+                        filetypes=[("Image Files", "*.jpg;*.jpeg;*.png;*.webp")]
+                    )
+                    root.destroy()
+                    
+                    if file_path:
+                        Clock.schedule_once(lambda dt: self.handle_gallery_selection([file_path]), 0)
+                except Exception as e:
+                    print(f"[Scan] Tkinter error: {e}")
+                    
+            threading.Thread(target=_open_tk, daemon=True).start()
+            return
 
+        # ลอง plyer สำหรับ Mobile (Android/iOS)
         if filechooser is not None:
             try:
-                # เรียก filechooser ให้เลือกรูป
-                # บน Desktop ระบบมักจะ return ค่าตรงๆ คืนมา
-                # บน Mobile ระบบจะส่งเข้า callback 'on_selection'
                 selection = filechooser.open_file(
                     title="เลือกรูปใบเสร็จเพื่อแสกน",
-                    filters=[("Image files", "*.jpg", "*.jpeg", "*.png")],
+                    filters=[("Images", "*.jpg", "*.jpeg", "*.png")],
                     on_selection=self.handle_gallery_selection
                 )
-                
-                # หากบน Desktop มีการคืนค่ากลับมาเลย นำไปประมวลผลต่อ
                 if selection and isinstance(selection, list):
                     self.handle_gallery_selection(selection)
-                    
                 return
             except Exception as e:
                 print(f"[Scan] plyer filechooser failed: {e}")
                 
-        # กรณีหา filechooser ไม่เจอหรือเกิด Error
         from kivymd.toast import toast
         toast("ไม่สามารถเปิดแกลเลอรี่ได้บนอุปกรณ์นี้")
         print("[Scan] No image source available.")

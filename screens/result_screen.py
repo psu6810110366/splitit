@@ -204,25 +204,26 @@ class ResultScreen(Screen):
         from kivymd.uix.dialog import MDDialog
         from kivymd.uix.button import MDFlatButton
         from kivymd.app import MDApp
+        from kivy.clock import Clock
         
         # ป้องกันเปิดหลาย popup ซ้อนกัน
-        if hasattr(self, 'dialog') and self.dialog and getattr(self.dialog, 'parent', None):
+        if hasattr(self, 'dialog') and getattr(self, 'dialog', None):
             self.dialog.dismiss()
 
-        def on_cancel(inst):
+        def on_cancel(*args):
             if hasattr(self, 'dialog') and self.dialog:
                 self.dialog.dismiss()
             # คืนค่ากลับเป็นสถานะเดิม
             checkbox_widget.active = original_paid_state
 
-        def on_confirm(inst):
+        def on_confirm(*args):
             if hasattr(self, 'dialog') and self.dialog:
                 self.dialog.dismiss()
             from core.storage import update_participant_paid
             update_participant_paid(participant_id, is_paid)
             print(f"[Result] Participant {participant_id} ({name}) paid status = {is_paid}")
-            # รีโหลดข้อมูลใหม่ทั้งหมด
-            self.on_enter()
+            # รีโหลดข้อมูลใหม่ทั้งหมดโดยหน่วงเวลาเล็กน้อยเพื่อให้ Dialog ปิดสนิทก่อน
+            Clock.schedule_once(lambda dt: self.on_enter(), 0.1)
 
         action_text = "โอนเงินเรียบร้อยแล้ว" if is_paid else "ยังไม่ได้โอนเงิน"
         theme_cls = MDApp.get_running_app().theme_cls
@@ -230,16 +231,16 @@ class ResultScreen(Screen):
         btn_cancel = MDFlatButton(
             text="CANCEL",
             theme_text_color="Custom",
-            text_color=theme_cls.error_color
+            text_color=theme_cls.error_color,
+            on_release=on_cancel
         )
-        btn_cancel.bind(on_release=on_cancel)
 
         btn_confirm = MDFlatButton(
             text="CONFIRM",
             theme_text_color="Custom",
-            text_color=theme_cls.primary_color
+            text_color=theme_cls.primary_color,
+            on_release=on_confirm
         )
-        btn_confirm.bind(on_release=on_confirm)
 
         self.dialog = MDDialog(
             title="ยืนยันการตั้งค่า",
