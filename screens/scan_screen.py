@@ -62,19 +62,35 @@ class ScanScreen(Screen):
         import platform
         import threading
         
-        # ใช้ Tkinter สำหรับ Desktop (Windows/Mac) เพื่อหลีกเลี่ยง Kivy Freeze
-        if platform.system() in ['Windows', 'Darwin']:
+        # ใช้ Tkinter/osascript สำหรับ Desktop (Windows/Mac) เพื่อหลีกเลี่ยง Kivy Freeze
+        if platform.system() == 'Darwin':
+            def _open_mac():
+                import subprocess
+                script = '''
+                tell application "System Events"
+                    activate
+                    set theFile to choose file with prompt "เลือกรูปภาพใบเสร็จ:" of type {"public.image"}
+                    POSIX path of theFile
+                end tell
+                '''
+                try:
+                    result = subprocess.run(['osascript', '-e', script], capture_output=True, text=True)
+                    if result.returncode == 0 and result.stdout.strip():
+                        file_path = result.stdout.strip()
+                        Clock.schedule_once(lambda dt: self.handle_gallery_selection([file_path]), 0)
+                except Exception as e:
+                    print(f"[Scan] Mac filechooser error: {e}")
+            threading.Thread(target=_open_mac, daemon=True).start()
+            return
+            
+        elif platform.system() == 'Windows':
             def _open_tk():
                 try:
                     import tkinter as tk
                     from tkinter import filedialog
                     root = tk.Tk()
                     root.withdraw()
-                    # บังคับหน้าต่างให้อยู่บนสุด
-                    if platform.system() == 'Windows':
-                        root.attributes('-topmost', True)
-                    else:
-                        os.system('''/usr/bin/osascript -e 'tell app "Finder" to set frontmost of process "Python" to true' ''')
+                    root.attributes('-topmost', True)
                         
                     file_path = filedialog.askopenfilename(
                         title="เลือกรูปภาพใบเสร็จ",
