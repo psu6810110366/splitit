@@ -189,8 +189,8 @@ class ScanScreen(Screen):
 
         if "error" in result:
             print(f"[Scan] AI Failed: {result['error']}")
-            from kivymd.uix.snackbar import Snackbar
-            Snackbar(text="❌ ไม่สามารถอ่านบิลได้ ลองใหม่อีกครั้ง").open()
+            from kivymd.toast import toast
+            toast("❌ ไม่สามารถอ่านบิลได้ ลองใหม่อีกครั้ง")
             # เปิดกล้องให้ลองใหม่
             try:
                 if 'camera' in self.ids:
