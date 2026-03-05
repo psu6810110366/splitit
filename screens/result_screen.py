@@ -209,21 +209,25 @@ class ResultScreen(Screen):
         # ป้องกันเปิดหลาย popup ซ้อนกัน
         if hasattr(self, 'dialog') and getattr(self, 'dialog', None):
             self.dialog.dismiss()
+            self.dialog = None
 
-        def on_cancel(*args):
+        def _close_dialog(*args):
             if hasattr(self, 'dialog') and self.dialog:
                 self.dialog.dismiss()
-            # คืนค่ากลับเป็นสถานะเดิม
+                self.dialog = None
+
+        def on_cancel(*args):
+            _close_dialog()
+            # คืนค่ากลับเป็นสถานะเดิมแบบเงียบๆ ป้องกัน event ซ้ำ
             checkbox_widget.active = original_paid_state
 
         def on_confirm(*args):
-            if hasattr(self, 'dialog') and self.dialog:
-                self.dialog.dismiss()
+            _close_dialog()
             from core.storage import update_participant_paid
             update_participant_paid(participant_id, is_paid)
             print(f"[Result] Participant {participant_id} ({name}) paid status = {is_paid}")
             # รีโหลดข้อมูลใหม่ทั้งหมดโดยหน่วงเวลาเล็กน้อยเพื่อให้ Dialog ปิดสนิทก่อน
-            Clock.schedule_once(lambda dt: self.on_enter(), 0.1)
+            Clock.schedule_once(lambda dt: self.on_enter(), 0.15)
 
         action_text = "โอนเงินเรียบร้อยแล้ว" if is_paid else "ยังไม่ได้โอนเงิน"
         theme_cls = MDApp.get_running_app().theme_cls
@@ -251,14 +255,23 @@ class ResultScreen(Screen):
         self.dialog.open()
 
     def show_person_qr(self, name, amount):
-        """แสดง Dialog พร้อม QR Code สำหรับคนๆ เดียว"""
+        """แสดง Dialog พร้อม QR Code และจำนวนเงิน สำหรับคนๆ เดียว"""
         print(f"[Result] Show QR for {name} - ฿{amount}")
         
         from kivymd.uix.dialog import MDDialog
+        from kivymd.uix.button import MDFlatButton
+        from kivymd.uix.boxlayout import MDBoxLayout
+        from kivymd.uix.label import MDLabel
         from kivy.storage.jsonstore import JsonStore
+        from kivy.uix.image import Image
         import promptpay.qrcode
         import qrcode
-        from kivy.uix.image import Image
+        import os
+        
+        # ป้องกันเปิดหลาย popup ซ้อนกัน
+        if hasattr(self, 'qr_dialog') and getattr(self, 'qr_dialog', None):
+            self.qr_dialog.dismiss()
+            self.qr_dialog = None
         
         store = JsonStore('settings.json')
         promptpay_number = store.get('user').get('promptpay', '') if store.exists('user') else ''
@@ -274,14 +287,42 @@ class ResultScreen(Screen):
         qr_path = f"temp_qr_{name}.png"
         img.save(qr_path)
         
-        qr_img = Image(source=qr_path, allow_stretch=True, keep_ratio=True, size_hint_y=None, height="240dp")
+        # สร้าง Layout เก็บรูป QR และข้อความจำนวนเงิน
+        content = MDBoxLayout(orientation="vertical", spacing="12dp", size_hint_y=None)
         
-        self.dialog = MDDialog(
-            title=f"Scan to pay {name}",
+        qr_image = Image(source=qr_path, size_hint=(1, None), height="200dp", allow_stretch=True)
+        content.add_widget(qr_image)
+        content.add_widget(MDLabel(
+            text=f"ยอดโอน: ฿{amount:,.2f}",
+            halign="center",
+            theme_text_color="Primary",
+            font_style="H6"
+        ))
+        
+        # ใช้ height ของ Content ให้พอดี
+        content.height = "250dp"
+
+        def _close_qr_dialog(*args):
+            if hasattr(self, 'qr_dialog') and self.qr_dialog:
+                self.qr_dialog.dismiss()
+                self.qr_dialog = None
+            if os.path.exists(qr_path):
+                os.remove(qr_path)
+
+        self.qr_dialog = MDDialog(
+            title=f"QR Code ของ {name}",
             type="custom",
-            content_cls=qr_img,
+            content_cls=content,
+            buttons=[
+                MDFlatButton(
+                    text="CLOSE",
+                    theme_text_color="Custom",
+                    text_color=self.theme_cls.primary_color,
+                    on_release=_close_qr_dialog
+                ),
+            ],
         )
-        self.dialog.open()
+        self.qr_dialog.open()
 
     def go_back(self):
         self.manager.current = 'summary_screen'
