@@ -1,5 +1,75 @@
 #:import get_color_from_hex kivy.utils.get_color_from_hex
 
+# ── RecycleView item widget สำหรับแต่ละบิลใน Dashboard ──────────────────────
+<BillCardItem>:
+    size_hint_y: None
+    height: "72dp"
+    radius: [20, 20, 20, 20]
+    md_bg_color: get_color_from_hex('#FFFFFF')
+    elevation: 0
+    padding: ["16dp", "0dp", "16dp", "0dp"]
+    ripple_behavior: True
+
+    MDBoxLayout:
+        orientation: 'horizontal'
+        spacing: "12dp"
+
+        # Emoji avatar
+        MDLabel:
+            text: root.emoji
+            font_size: "28sp"
+            size_hint_x: None
+            width: "44dp"
+            halign: "center"
+            valign: "center"
+
+        # Title + date
+        MDBoxLayout:
+            orientation: 'vertical'
+            spacing: "2dp"
+
+            MDLabel:
+                text: root.title
+                font_style: "Subtitle2"
+                bold: True
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#0F172A')
+                adaptive_height: True
+
+            MDLabel:
+                text: root.date_label
+                font_style: "Caption"
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#94A3B8')
+                adaptive_height: True
+
+        Widget:
+
+        # Amount + status
+        MDBoxLayout:
+            orientation: 'vertical'
+            size_hint_x: None
+            width: "110dp"
+            spacing: "2dp"
+
+            MDLabel:
+                text: root.amount_label
+                font_style: "Subtitle2"
+                bold: True
+                halign: "right"
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#0F172A')
+                adaptive_height: True
+
+            MDLabel:
+                text: root.status_label
+                font_style: "Caption"
+                bold: True
+                halign: "right"
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#16A34A') if root.status_type == 'owed' else get_color_from_hex('#E11D48')
+                adaptive_height: True
+
 <DashboardScreen>:
     MDFloatLayout:
         md_bg_color: get_color_from_hex('#FCF9F8')

@@ -1,7 +1,22 @@
 from kivy.uix.screenmanager import Screen
-from kivy.properties import NumericProperty, ListProperty
+from kivy.properties import NumericProperty, ListProperty, StringProperty
+from kivymd.uix.card import MDCard
 
 from core.storage import get_recent_bills, get_balance_summary
+
+
+class BillCardItem(MDCard):
+    """
+    RecycleView item widget สำหรับแสดง bill card แต่ละอันใน Dashboard
+    ข้อมูลจะถูก bind เข้ามาผ่าน data dict โดย RecycleView อัตโนมัติ
+    """
+    title = StringProperty('')
+    amount_label = StringProperty('')
+    date_label = StringProperty('')
+    status_label = StringProperty('')
+    status_type = StringProperty('owed')  # 'owed' | 'owe'
+    emoji = StringProperty('🍽️')
+
 
 
 class DashboardScreen(Screen):
