@@ -117,16 +117,26 @@ class NewSplitScreen(Screen):
 
     def on_add_friend(self):
         from components.select_friend_dialog import SelectFriendDialog
-        dialog = SelectFriendDialog()
+        # ส่งรายชื่อที่เลือกอยู่แล้วไปให้ Dialog ติ๊กถูกไว้ก่อน
+        dialog = SelectFriendDialog(pre_selected=list(self._people))
         dialog.callback = self._on_friends_selected
         dialog.open()
 
     def _on_friends_selected(self, names):
-        """รับรายชื่อเพื่อนหลายคนจากการเลือกใน Dialog"""
-        for name in names:
-            if name and name not in self._people:
-                self._people.append(name)
+        """รับรายชื่อเพื่อนจากการเลือกใน Dialog (รวมทั้งเพิ่มและลด)"""
+        old_people = set(self._people)
+        new_people = set(names)
+        
+        # หาคนที่ถูกลบออก
+        removed_people = old_people - new_people
+        for name in removed_people:
+            for item in self._items:
+                if name in item.get('assigned_to', []):
+                    item['assigned_to'].remove(name)
+        
+        self._people = list(names)
         self._refresh_people_list()
+        self._refresh_items_list()
 
     def _on_person_removed(self, index):
         if 0 <= index < len(self._people):

@@ -28,8 +28,9 @@ class SelectFriendDialog(ModalView):
     friends_data = ListProperty([])
     callback = ObjectProperty(None)  # ฟังก์ชันที่จะเรียกเมื่อยืนยัน
 
-    def __init__(self, **kwargs):
+    def __init__(self, pre_selected=None, **kwargs):
         super().__init__(**kwargs)
+        self.pre_selected = pre_selected or []
         self.load_friends()
 
     def load_friends(self):
@@ -38,10 +39,11 @@ class SelectFriendDialog(ModalView):
             friends = Friend.select().order_by(Friend.name)
             data = []
             for f in friends:
+                is_selected = f.name in self.pre_selected
                 data.append({
                     "name": f.name,
                     "avatar_color": f.avatar_color or "#16A34A",
-                    "is_selected": False
+                    "is_selected": is_selected
                 })
             self.friends_data = data
         except Exception as e:
