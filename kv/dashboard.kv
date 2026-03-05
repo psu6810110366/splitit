@@ -15,14 +15,22 @@
         orientation: 'horizontal'
         spacing: "12dp"
 
-        # Emoji avatar
-        MDLabel:
-            text: root.emoji
-            font_size: "28sp"
-            size_hint_x: None
-            width: "44dp"
-            halign: "center"
-            valign: "center"
+        # Icon Container
+        MDBoxLayout:
+            size_hint: None, None
+            size: "44dp", "44dp"
+            pos_hint: {"center_y": .5}
+            md_bg_color: get_color_from_hex('#F1F5F9')
+            radius: [12, 12, 12, 12]
+            
+            MDIcon:
+                icon: root.icon_name
+                font_size: "24sp"
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#475569')
+                halign: "center"
+                valign: "center"
+                pos_hint: {"center_x": .5, "center_y": .5}
 
         # Title + date
         MDBoxLayout:
@@ -93,11 +101,20 @@
                     height: "40dp"
                     
                     MDLabel:
-                        text: "SplitIt 💸"
+                        text: "SplitIt"
                         font_style: "H5"
                         bold: True
                         theme_text_color: "Custom"
                         text_color: get_color_from_hex('#0F172A')
+                        adaptive_size: True
+                        pos_hint: {"center_y": .5}
+                    
+                    MDIcon:
+                        icon: "wallet-outline"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#F45925')
+                        font_size: "24sp"
+                        pos_hint: {"center_y": .5}
                         
                     Widget:
                         
@@ -106,12 +123,17 @@
                         size: "40dp", "40dp" 
                         radius: [20, 20, 20, 20]
                         md_bg_color: get_color_from_hex('#FFF0EB')
+                        ripple_behavior: True
+                        elevation: 0
                         
-                        MDLabel:
-                            text: "👩‍💼"
+                        MDIcon:
+                            icon: "account-circle-outline"
                             font_size: "24sp"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#F45925')
                             halign: "center"
                             valign: "center"
+                            pos_hint: {"center_x": .5, "center_y": .5}
 
                 # Hero section
                 MDCard:
@@ -168,7 +190,7 @@
                         height: "102dp"
                         radius: [24, 24, 24, 24]
                         md_bg_color: get_color_from_hex('#FFFFFF')
-                        padding: ["17dp", "17dp", "17dp", "17dp"]
+                        padding: ["12dp", "16dp", "12dp", "16dp"]
                         elevation: 0
                         ripple_behavior: True
                         on_release: root.go_to_scan()
@@ -177,14 +199,15 @@
                             icon: "camera-outline"
                             theme_text_color: "Custom"
                             text_color: get_color_from_hex('#16A34A')
-                            size_hint_y: None
-                            height: "40dp"
+                            font_size: "32sp"
+                            pos_hint: {"center_x": .5}
                                 
                         MDLabel:
                             text: "Scan Receipt"
                             font_style: "Subtitle2"
                             theme_text_color: "Custom"
                             text_color: get_color_from_hex('#0F172A')
+                            halign: "center"
                             adaptive_height: True
                             
                     MDCard:
@@ -194,7 +217,7 @@
                         height: "102dp"
                         radius: [24, 24, 24, 24]
                         md_bg_color: get_color_from_hex('#FFFFFF')
-                        padding: ["17dp", "17dp", "17dp", "17dp"]
+                        padding: ["12dp", "16dp", "12dp", "16dp"]
                         elevation: 0
                         ripple_behavior: True
                         on_release: root.go_to_add_friend()
@@ -203,14 +226,15 @@
                             icon: "account-multiple-plus-outline"
                             theme_text_color: "Custom"
                             text_color: get_color_from_hex('#2563EB')
-                            size_hint_y: None
-                            height: "40dp"
+                            font_size: "32sp"
+                            pos_hint: {"center_x": .5}
                                 
                         MDLabel:
                             text: "Add Friend"
                             font_style: "Subtitle2"
                             theme_text_color: "Custom"
                             text_color: get_color_from_hex('#0F172A')
+                            halign: "center"
                             adaptive_height: True
 
                 # Balance summary
@@ -232,20 +256,35 @@
                     MDCard:
                         orientation: "vertical"
                         size_hint_x: 0.5
-                        padding: ["21dp", "21dp", "21dp", "21dp"]
+                        padding: ["20dp", "16dp", "20dp", "16dp"]
                         size_hint_y: None
                         height: "142dp"
                         radius: [32, 32, 32, 32]
                         md_bg_color: get_color_from_hex('#FFF1F2')
                         elevation: 0
                         
-                        MDLabel:
-                            text: "YOU OWE"
-                            theme_text_color: "Custom"
-                            text_color: get_color_from_hex('#FB7185')
-                            font_style: "Caption"
-                            bold: True
+                        MDBoxLayout:
+                            orientation: 'horizontal'
                             adaptive_height: True
+                            spacing: "4dp"
+                            
+                            MDIcon:
+                                icon: "bank-transfer-out"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#FB7185')
+                                font_size: "20sp"
+                                pos_hint: {"center_y": .5}
+
+                            MDLabel:
+                                text: "YOU OWE"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#FB7185')
+                                font_style: "Caption"
+                                bold: True
+                                adaptive_height: True
+                                pos_hint: {"center_y": .5}
+                            
+                        Widget: # Spacer
                             
                         MDLabel:
                             text: "฿{:,.2f}".format(root.total_owed)
@@ -258,20 +297,35 @@
                     MDCard:
                         orientation: "vertical"
                         size_hint_x: 0.5
-                        padding: ["21dp", "21dp", "21dp", "21dp"]
+                        padding: ["20dp", "16dp", "20dp", "16dp"]
                         size_hint_y: None
                         height: "142dp"
                         radius: [32, 32, 32, 32]
                         md_bg_color: get_color_from_hex('#F0F9FF')
                         elevation: 0
                         
-                        MDLabel:
-                            text: "OWED TO YOU"
-                            theme_text_color: "Custom"
-                            text_color: get_color_from_hex('#38BDF8')
-                            font_style: "Caption"
-                            bold: True
+                        MDBoxLayout:
+                            orientation: 'horizontal'
                             adaptive_height: True
+                            spacing: "4dp"
+
+                            MDIcon:
+                                icon: "bank-transfer-in"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#38BDF8')
+                                font_size: "20sp"
+                                pos_hint: {"center_y": .5}
+
+                            MDLabel:
+                                text: "OWED TO YOU"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#38BDF8')
+                                font_style: "Caption"
+                                bold: True
+                                adaptive_height: True
+                                pos_hint: {"center_y": .5}
+                            
+                        Widget: # Spacer
                             
                         MDLabel:
                             text: "฿{:,.2f}".format(root.total_owe_me)
