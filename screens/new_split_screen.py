@@ -1,6 +1,6 @@
 from kivy.uix.screenmanager import Screen
 from kivy.properties import StringProperty
-from components.add_friend_dialog import AddFriendDialog    # noqa: F401
+# from components.add_friend_dialog import AddFriendDialog    # noqa: F401
 from components.add_item_dialog import AddItemDialog        # noqa: F401
 from components.assign_item_dialog import AssignItemDialog  # noqa: F401
 from components.item_row import ItemRow
@@ -116,15 +116,17 @@ class NewSplitScreen(Screen):
     # ── People ────────────────────────────────────────────────────────────────
 
     def on_add_friend(self):
-        dialog = AddFriendDialog()
-        dialog.callback = self._on_friend_added
-        dialog.pos_hint = {'center_x': .5, 'center_y': .5}
-        self.add_widget(dialog)
+        from components.select_friend_dialog import SelectFriendDialog
+        dialog = SelectFriendDialog()
+        dialog.callback = self._on_friends_selected
+        dialog.open()
 
-    def _on_friend_added(self, name):
-        if name and name not in self._people:
-            self._people.append(name)
-            self._refresh_people_list()
+    def _on_friends_selected(self, names):
+        """รับรายชื่อเพื่อนหลายคนจากการเลือกใน Dialog"""
+        for name in names:
+            if name and name not in self._people:
+                self._people.append(name)
+        self._refresh_people_list()
 
     def _on_person_removed(self, index):
         if 0 <= index < len(self._people):

@@ -5,6 +5,7 @@ from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.textfield import MDTextField
 from kivymd.toast import toast
+from peewee import fn
 from core.models import Friend
 
 
@@ -18,16 +19,35 @@ class FriendsScreen(Screen):
     def load_friends(self):
         """ดึงรายชื่อเพื่อนจาก DB แล้วอัปเดต list"""
         try:
+            from core.storage import MY_DISPLAY_NAME
+            from core.models import BillParticipant
+            
             friends = Friend.select().order_by(Friend.name)
             data = []
+            
             for f in friends:
                 initials = f.name[:2].upper() if f.name else "??"
+                
+                # คำนวณยอดค้างจ่ายของเพื่อนคนนี้ (เพื่อนติดหนี้เรา ในบิลที่เราเป็นเจ้าของ)
+                # ในที่นี้ตัวอย่างง่ายๆ คือหาบิลที่คนนี้ยังไม่จ่าย และเรา (Me) เป็นคนสร้าง
+                unpaid_total = BillParticipant.select().where(
+                    (BillParticipant.display_name == f.name) & 
+                    (BillParticipant.is_paid == False)
+                ).aggregate(fn.SUM(BillParticipant.amount_owed)) or 0.0
+                
+                if unpaid_total > 0:
+                    balance_text = f"Owes you ฿{unpaid_total:,.2f}"
+                    balance_color = "#E11D48" # แดง
+                else:
+                    balance_text = "Settled up"
+                    balance_color = "#6B7280" # เทา
+                
                 data.append({
                     "name": f.name,
                     "avatar_initials": initials,
-                    "avatar_color": f.avatar_color,
-                    "balance_text": "Settled up",
-                    "balance_color": "#BDBDBD"
+                    "avatar_color": f.avatar_color or "#16A34A",
+                    "balance_text": balance_text,
+                    "balance_color": balance_color
                 })
             self.friends_list = data
         except Exception as e:
@@ -37,6 +57,8 @@ class FriendsScreen(Screen):
         if not self.dialog:
             self.name_input = MDTextField(
                 hint_text="Friend's Name",
+                helper_text="e.g. John Doe",
+                helper_text_mode="on_focus",
                 size_hint_x=1
             )
             app = MDApp.get_running_app()
@@ -67,8 +89,16 @@ class FriendsScreen(Screen):
         if not name:
             toast("Name cannot be empty")
             return
+        
+        # ป้องกันชื่อซ้ำ
+        if Friend.select().where(Friend.name == name).exists():
+            toast(f"{name} is already your friend!")
+            return
+
         try:
-            Friend.create(name=name)
+            import random
+            colors = ["#16A34A", "#2563EB", "#D97706", "#7C3AED", "#DB2777"]
+            Friend.create(name=name, avatar_color=random.choice(colors))
             self.dialog.dismiss()
             toast(f"Added {name} to friends!")
             self.load_friends()

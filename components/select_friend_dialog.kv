@@ -1,0 +1,129 @@
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
+<SelectFriendItem@MDCard>:
+    name: ""
+    is_selected: False
+    avatar_color: "#16A34A"
+    
+    size_hint_y: None
+    height: "56dp"
+    radius: [12, 12, 12, 12]
+    md_bg_color: get_color_from_hex('#F8FAFC') if not root.is_selected else get_color_from_hex('#DCFCE7')
+    elevation: 0
+    padding: ["12dp", "0dp", "12dp", "0dp"]
+    ripple_behavior: True
+    on_release: root.toggle_selection()
+
+    MDBoxLayout:
+        orientation: 'horizontal'
+        spacing: "12dp"
+        
+        # Mini Avatar
+        MDCard:
+            size_hint: None, None
+            size: "32dp", "32dp"
+            radius: [16, 16, 16, 16]
+            md_bg_color: get_color_from_hex(root.avatar_color)
+            pos_hint: {"center_y": .5}
+            elevation: 0
+            
+            MDLabel:
+                text: root.name[:1].upper() if root.name else ""
+                font_style: "Caption"
+                bold: True
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#FFFFFF')
+                halign: "center"
+        
+        MDLabel:
+            text: root.name
+            font_style: "Subtitle2"
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex('#0F172A')
+            pos_hint: {"center_y": .5}
+
+        Widget:
+
+        MDIcon:
+            icon: "check-circle" if root.is_selected else "circle-outline"
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex('#16A34A') if root.is_selected else get_color_from_hex('#CBD5E1')
+            size_hint_x: None
+            width: "24dp"
+            pos_hint: {"center_y": .5}
+
+<SelectFriendDialog>:
+    id: select_friend_dialog
+    orientation: "vertical"
+    padding: "20dp"
+    spacing: "12dp"
+    size_hint: .9, .7
+    pos_hint: {"center_x": .5, "center_y": .6}
+
+    MDCard:
+        orientation: "vertical"
+        radius: [24, 24, 24, 24]
+        md_bg_color: get_color_from_hex('#FFFFFF')
+        padding: "20dp"
+        spacing: "16dp"
+
+        MDLabel:
+            text: "Select Friends"
+            font_style: "H6"
+            bold: True
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex('#0F172A')
+            adaptive_height: True
+
+        # Search or Add new
+        MDBoxLayout:
+            orientation: 'horizontal'
+            spacing: "8dp"
+            size_hint_y: None
+            height: "48dp"
+            
+            MDTextField:
+                id: new_name_input
+                hint_text: "Search or Add Name"
+                mode: "round"
+                fill_color_normal: get_color_from_hex('#F1F5F9')
+                size_hint_y: None
+                height: "44dp"
+            
+            MDIconButton:
+                icon: "plus-box"
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#16A34A')
+                on_release: root.add_custom_name()
+
+        # Friends List
+        RecycleView:
+            id: friends_rv
+            data: root.friends_data
+            viewclass: "SelectFriendItem"
+            
+            RecycleBoxLayout:
+                orientation: "vertical"
+                spacing: "8dp"
+                default_size: None, "56dp"
+                default_size_hint: 1, None
+                size_hint_y: None
+                height: self.minimum_height
+
+        # Action Buttons
+        MDBoxLayout:
+            orientation: 'horizontal'
+            spacing: "12dp"
+            size_hint_y: None
+            height: "48dp"
+            
+            MDFlatButton:
+                text: "CANCEL"
+                on_release: root.dismiss()
+                size_hint_x: 0.4
+                
+            MDRaisedButton:
+                text: "CONFIRM"
+                md_bg_color: get_color_from_hex('#16A34A')
+                on_release: root.confirm_selection()
+                size_hint_x: 0.6

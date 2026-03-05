@@ -1,70 +1,129 @@
 #:import get_color_from_hex kivy.utils.get_color_from_hex
 
+<FriendListItem@MDCard>:
+    name: ""
+    avatar_initials: ""
+    avatar_color: "#16A34A"
+    balance_text: "Settled up"
+    balance_color: "#6B7280"
+    
+    size_hint_y: None
+    height: "72dp"
+    radius: [16, 16, 16, 16]
+    md_bg_color: get_color_from_hex('#FFFFFF')
+    elevation: 0
+    padding: ["16dp", "0dp", "16dp", "0dp"]
+    
+    MDBoxLayout:
+        orientation: 'horizontal'
+        spacing: "12dp"
+        
+        # Avatar
+        MDCard:
+            size_hint: None, None
+            size: "44dp", "44dp"
+            radius: [22, 22, 22, 22]
+            md_bg_color: get_color_from_hex(root.avatar_color)
+            pos_hint: {"center_y": .5}
+            elevation: 0
+            
+            MDLabel:
+                text: root.avatar_initials
+                font_style: "Subtitle2"
+                bold: True
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#FFFFFF')
+                halign: "center"
+        
+        # Name & Info
+        MDBoxLayout:
+            orientation: 'vertical'
+            spacing: "2dp"
+            pos_hint: {"center_y": .5}
+            
+            MDLabel:
+                text: root.name
+                font_style: "Subtitle1"
+                bold: True
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#0E1B14')
+                adaptive_height: True
+                
+            MDLabel:
+                text: root.balance_text
+                font_style: "Caption"
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex(root.balance_color)
+                adaptive_height: True
+
 <FriendsScreen>:
     MDFloatLayout:
         md_bg_color: get_color_from_hex('#F6F8F7')
 
-        MDScrollView:
-            pos_hint: {"top": 1}
-            size_hint_y: 1
+        MDBoxLayout:
+            orientation: 'vertical'
+            padding: ["20dp", "48dp", "20dp", "100dp"]
+            spacing: "20dp"
 
+            # Header
             MDBoxLayout:
-                orientation: 'vertical'
-                padding: ["20dp", "48dp", "20dp", "100dp"]
-                spacing: "20dp"
+                orientation: 'horizontal'
                 adaptive_height: True
+                size_hint_y: None
+                height: "60dp"
+                
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    
+                    MDLabel:
+                        text: "Friends"
+                        font_style: "H5"
+                        bold: True
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#0E1B14')
+                        adaptive_height: True
 
-                # Header
-                MDLabel:
-                    text: "Friends"
-                    font_style: "H5"
-                    bold: True
+                    MDLabel:
+                        text: "People you split bills with"
+                        font_style: "Body2"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#6B7280')
+                        adaptive_height: True
+                
+                Widget:
+                
+                MDIconButton:
+                    icon: "account-plus-outline"
                     theme_text_color: "Custom"
-                    text_color: get_color_from_hex('#0E1B14')
-                    adaptive_height: True
+                    text_color: get_color_from_hex('#16A34A')
+                    user_font_size: "32sp"
+                    on_release: root.open_add_friend_dialog()
 
-                MDLabel:
-                    text: "People you split bills with"
-                    font_style: "Body2"
-                    theme_text_color: "Custom"
-                    text_color: get_color_from_hex('#6B7280')
-                    adaptive_height: True
-
-                # Placeholder
-                MDCard:
+            # Dynamic Friend List
+            RecycleView:
+                id: friends_rv
+                data: root.friends_list
+                viewclass: "FriendListItem"
+                
+                RecycleBoxLayout:
+                    orientation: "vertical"
+                    spacing: "12dp"
+                    padding: ["0dp", "4dp", "0dp", "4dp"]
+                    default_size: None, "72dp"
+                    default_size_hint: 1, None
                     size_hint_y: None
-                    height: "200dp"
-                    radius: [24, 24, 24, 24]
-                    md_bg_color: get_color_from_hex('#FFFFFF')
-                    elevation: 0
-                    padding: ["24dp", "24dp", "24dp", "24dp"]
+                    height: self.minimum_height
 
-                    MDBoxLayout:
-                        orientation: 'vertical'
-                        spacing: "12dp"
-
-                        MDLabel:
-                            text: "👥"
-                            font_size: "48sp"
-                            halign: "center"
-                            adaptive_height: True
-
-                        MDLabel:
-                            text: "No friends yet"
-                            font_style: "Subtitle1"
-                            bold: True
-                            theme_text_color: "Custom"
-                            text_color: get_color_from_hex('#0E1B14')
-                            halign: "center"
-                            adaptive_height: True
-
-                        MDLabel:
-                            text: "Add friends when creating a new split"
-                            font_style: "Body2"
-                            theme_text_color: "Custom"
-                            text_color: get_color_from_hex('#6B7280')
-                            halign: "center"
-                            adaptive_height: True
+        # Empty state (Optional overlay if needed)
+        MDLabel:
+            text: "No friends yet — Click + to add"
+            font_style: "Caption"
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex('#BDBDBD')
+            halign: "center"
+            adaptive_height: True
+            pos_hint: {"center_x": .5, "center_y": .5}
+            opacity: 1 if not root.friends_list else 0
 
         # Bottom navigation
         BottomNav:
