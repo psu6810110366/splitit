@@ -30,10 +30,10 @@ class FriendsScreen(Screen):
                 
                 # คำนวณยอดค้างจ่ายของเพื่อนคนนี้ (เพื่อนติดหนี้เรา ในบิลที่เราเป็นเจ้าของ)
                 # ในที่นี้ตัวอย่างง่ายๆ คือหาบิลที่คนนี้ยังไม่จ่าย และเรา (Me) เป็นคนสร้าง
-                unpaid_total = BillParticipant.select().where(
+                unpaid_total = BillParticipant.select(fn.SUM(BillParticipant.amount_owed)).where(
                     (BillParticipant.display_name == f.name) & 
                     (BillParticipant.is_paid == False)
-                ).aggregate(fn.SUM(BillParticipant.amount_owed)) or 0.0
+                ).scalar() or 0.0
                 
                 if unpaid_total > 0:
                     balance_text = f"Owes you ฿{unpaid_total:,.2f}"

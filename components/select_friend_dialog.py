@@ -1,5 +1,5 @@
 from kivy.uix.modalview import ModalView
-from kivy.properties import ListProperty, ObjectProperty
+from kivy.properties import ListProperty, ObjectProperty, StringProperty, BooleanProperty
 from kivy.lang import Builder
 from kivymd.uix.card import MDCard
 from core.models import Friend
@@ -10,6 +10,10 @@ kv_path = os.path.join(os.path.dirname(__file__), "select_friend_dialog.kv")
 Builder.load_file(kv_path)
 
 class SelectFriendItem(MDCard):
+    name = StringProperty("")
+    is_selected = BooleanProperty(False)
+    avatar_color = StringProperty("#16A34A")
+
     def toggle_selection(self):
         self.is_selected = not self.is_selected
         # อัปเดตข้อมูลใน parent data list เพื่อให้ RecycleView จำสถานะได้
