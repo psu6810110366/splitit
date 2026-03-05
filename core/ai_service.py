@@ -1,3 +1,8 @@
+import os
+import json
+import tempfile
+import google.generativeai as genai
+from PIL import Image
 from dotenv import load_dotenv
 
 # โหลด API Key จาก Environment (Load API Key from env)
