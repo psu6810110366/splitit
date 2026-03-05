@@ -203,6 +203,7 @@ class ResultScreen(Screen):
 
         from kivymd.uix.dialog import MDDialog
         from kivymd.uix.button import MDFlatButton
+        from kivymd.app import MDApp
 
         def on_cancel(inst):
             self.dialog.dismiss()
@@ -218,7 +219,8 @@ class ResultScreen(Screen):
             self.on_enter()
 
         action_text = "โอนเงินเรียบร้อยแล้ว" if is_paid else "ยังไม่ได้โอนเงิน"
-        
+        theme_cls = MDApp.get_running_app().theme_cls
+
         self.dialog = MDDialog(
             title="ยืนยันการตั้งค่า",
             text=f"คุณต้องการเปลี่ยนสถานะของ [b]{name}[/b] เป็น [b]'{action_text}'[/b] ใช่หรือไม่?",
@@ -226,13 +228,13 @@ class ResultScreen(Screen):
                 MDFlatButton(
                     text="CANCEL",
                     theme_text_color="Custom",
-                    text_color=self.theme_cls.error_color,
+                    text_color=theme_cls.error_color,
                     on_release=on_cancel
                 ),
                 MDFlatButton(
                     text="CONFIRM",
                     theme_text_color="Custom",
-                    text_color=self.theme_cls.primary_color,
+                    text_color=theme_cls.primary_color,
                     on_release=on_confirm
                 ),
             ],
