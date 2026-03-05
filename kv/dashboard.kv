@@ -248,7 +248,7 @@
                             adaptive_height: True
                             
                         MDLabel:
-                            text: "฿500"
+                            text: "฿{:,.2f}".format(root.total_owed)
                             theme_text_color: "Custom" 
                             text_color: get_color_from_hex('#E11D48')
                             font_style: "H5"
@@ -274,7 +274,7 @@
                             adaptive_height: True
                             
                         MDLabel:
-                            text: "฿725"
+                            text: "฿{:,.2f}".format(root.total_owe_me)
                             theme_text_color: "Custom"
                             text_color: get_color_from_hex('#0284C7')
                             font_style: "H5"

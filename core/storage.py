@@ -50,10 +50,11 @@ def get_balance_summary(my_name: str = MY_DISPLAY_NAME) -> dict:
         )
 
         for p in participants:
+            # ถ้าเป็นชื่อเรา (Me) และยังไม่จ่าย = เราติดหนี้คนอื่น
             if p.display_name == my_name:
                 total_owed += p.amount_owed
             else:
-                # เราถือว่าบิลที่เราสร้าง เราเป็นเจ้าหนี้ของคนอื่นๆ เสมอ (สำหรับ prototype นี้)
+                # ถ้าเป็นชื่อคนอื่นและยังไม่จ่าย = เขาติดหนี้เรา
                 total_owe_me += p.amount_owed
 
         return {
@@ -198,9 +199,28 @@ def _format_bill_for_dashboard(bill: Bill) -> dict:
     """
     แปลง Bill model เป็น dict ที่ UI ใช้ได้เลย
     """
-    emoji = "✅" if bill.is_done else "🧾"
-    status_label = "CLEARED" if bill.is_done else "UNPAID"
-    status_type = "owed" if bill.is_done else "owe"  # แค่เพื่อให้สีใน KV (owed=เขียว, owe=แดง)
+    unpaid_p = [p for p in bill.participants if not p.is_paid and p.display_name != MY_DISPLAY_NAME]
+    me_p = next((p for p in bill.participants if p.display_name == MY_DISPLAY_NAME), None)
+    
+    if bill.is_done:
+        status_label = "CLEARED"
+        status_type = "owed"
+        emoji = "✅"
+    elif unpaid_p:
+        # มีเพื่อนยังไม่จ่าย -> เพื่อนติดหนี้เรา
+        total_unpaid = sum(p.amount_owed for p in unpaid_p)
+        status_label = f"OWES YOU ฿{total_unpaid:,.2f}"
+        status_type = "owed"
+        emoji = "⏳"
+    elif me_p and not me_p.is_paid:
+        # เรายังไม่จ่าย -> เราติดหนี้ (ในเคสที่มีคนอื่นเป็นเจ้าของบิล)
+        status_label = f"YOU OWE ฿{me_p.amount_owed:,.2f}"
+        status_type = "owe"
+        emoji = "💸"
+    else:
+        status_label = "PENDING"
+        status_type = "owe"
+        emoji = "🧾"
 
     return {
         "bill_id": bill.id,
