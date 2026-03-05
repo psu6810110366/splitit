@@ -16,7 +16,7 @@ class BillCardItem(MDCard):
     date_label = StringProperty('')
     status_label = StringProperty('')
     status_type = StringProperty('owed')  # 'owed' | 'owe'
-    emoji = StringProperty('🍽️')
+    icon_name = StringProperty('receipt-text-outline')
 
 
 
@@ -51,6 +51,16 @@ class DashboardScreen(Screen):
             # Format existing bills for new design
             formatted_splits = []
             for bill in recent_bills:
+                # แมพไอคอนตามชื่อบิลเบื้องต้น (ถ้ามีคำสำคัญ) หรือใช้ default
+                title_str = bill.get("title", "").lower()
+                icon = "receipt-text-outline"
+                if "food" in title_str or "dinner" in title_str or "lunch" in title_str:
+                    icon = "silverware-fork-knife"
+                elif "drink" in title_str or "coffee" in title_str:
+                    icon = "coffee-outline"
+                elif "travel" in title_str or "taxi" in title_str:
+                    icon = "car-outline"
+
                 formatted_splits.append({
                     "bill_id": bill.get("bill_id", -1),
                     "title": bill.get("title", "Split Bill"),
@@ -58,7 +68,7 @@ class DashboardScreen(Screen):
                     "date_label": bill.get("date_label", "Recent"),
                     "status_label": bill.get("status_label", "Split"),
                     "status_type": bill.get("status_type", "owed"),
-                    "emoji": bill.get("emoji", "🍽️")
+                    "icon_name": icon
                 })
             self.recent_splits = formatted_splits
 
