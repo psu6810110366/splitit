@@ -28,23 +28,26 @@
                         md_bg_color: get_color_from_hex('#FFFFFF')
                         elevation: 0
                         ripple_behavior: True
-                        on_release: root.go_back()
+                        # Removed on_release from MDCard as MDIconButton handles it
 
-                        MDIcon:
+                        MDIconButton:
                             icon: "arrow-left"
+                            pos_hint: {"center_y": .5}
                             theme_text_color: "Custom"
-                            text_color: get_color_from_hex('#0E1B14')
-                            halign: "center"
+                            text_color: get_color_from_hex('#0F172A')
+                            md_bg_color: get_color_from_hex('#FFFFFF')
+                            on_release: app.root.current = 'dashboard'
 
                     Widget:
 
                     MDLabel:
-                        text: "Split Summary 🎉"
-                        font_style: "H6"
+                        text: "Split Summary"
+                        font_style: "Subtitle1"
                         bold: True
-                        theme_text_color: "Custom"
-                        text_color: get_color_from_hex('#0E1B14')
                         halign: "center"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#0F172A')
+                        pos_hint: {"center_y": .5}
                         size_hint_x: None
                         width: "200dp"
 
