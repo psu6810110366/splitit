@@ -9,6 +9,12 @@ from components.person_row import PersonRow
 
 class NewSplitScreen(Screen):
     split_mode = StringProperty('equal')
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._items = []
+        self._people = []
+        self._custom_amounts = {}
 
     def on_enter(self, *args):
         """รีเซ็ตฟอร์มทุกครั้งที่เข้าหน้านี้ใหม่ (ยกเว้นกรณีส่งมาจาก AI)"""

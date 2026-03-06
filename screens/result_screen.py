@@ -18,6 +18,7 @@ class ResultScreen(Screen):
 
     def on_enter(self, *args):
         self._load_data()
+        self._populate_items()
         self._populate_participants()
         self._generate_and_show_qr()
 
@@ -87,6 +88,67 @@ class ResultScreen(Screen):
             print(f"[ResultScreen] QR Generation failed: {e}")
             qr_container.opacity = 0
             qr_container.height = 0
+
+    def _populate_items(self):
+        container = self.ids.get('items_list_container')
+        heading = self.ids.get('items_heading_label')
+        if not container or getattr(heading, 'opacity', None) is None:
+            return
+            
+        container.clear_widgets()
+        if not self._items_data:
+            # ซ่อนส่วนนี้ทิ้งถ้าบิลเก่าๆ ไม่มีข้อมูล items
+            container.opacity = 0
+            container.height = "0dp"
+            heading.opacity = 0
+            heading.height = "0dp"
+            return
+            
+        # เปิดคืนกรณีเคยถูกซ่อน
+        container.opacity = 1
+        heading.opacity = 1
+        heading.height = "32dp"
+        
+        from kivymd.uix.label import MDLabel
+        from kivy.uix.boxlayout import BoxLayout
+        
+        for item in self._items_data:
+            name = item.get('name', 'Item')
+            price = item.get('price', 0.0)
+            qty = item.get('quantity', 1)
+            
+            card = MDCard(
+                size_hint_y=None,
+                height='48dp',
+                radius=[12, 12, 12, 12],
+                md_bg_color=get_color_from_hex('#F8FAFC'),
+                elevation=0,
+                padding=['16dp', '0dp', '16dp', '0dp']
+            )
+            
+            box = BoxLayout(orientation='horizontal')
+            
+            name_lbl = MDLabel(
+                text=f"{name} (x{qty})", 
+                font_style='Subtitle2', 
+                theme_text_color='Custom', 
+                text_color=get_color_from_hex('#334155'),
+                valign='center'
+            )
+            price_lbl = MDLabel(
+                text=f"฿{price:,.2f}", 
+                halign='right', 
+                valign='center',
+                font_style='Subtitle2',
+                bold=True, 
+                theme_text_color='Custom', 
+                text_color=get_color_from_hex('#065F46')
+            )
+            
+            box.add_widget(name_lbl)
+            box.add_widget(price_lbl)
+            card.add_widget(box)
+            container.add_widget(card)
 
     def _populate_participants(self):
         participants_list = self.ids.participants_list

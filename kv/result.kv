@@ -100,6 +100,24 @@
                         halign: "center"
                         adaptive_height: True
 
+                # "Items Ordered" heading
+                MDLabel:
+                    id: items_heading_label
+                    text: "Items Ordered"
+                    font_style: "H6"
+                    bold: True
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#0E1B14')
+                    adaptive_height: True
+                    halign: "center"
+
+                # Items list container
+                MDBoxLayout:
+                    id: items_list_container
+                    orientation: 'vertical'
+                    adaptive_height: True
+                    spacing: "8dp"
+
                 # "Who pays what?" heading
                 MDLabel:
                     text: "Who pays what?"
