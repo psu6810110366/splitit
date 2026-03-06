@@ -4,3 +4,5 @@ peewee==3.17.1
 google-generativeai==0.4.0
 python-dotenv==1.0.1
 pillow
+promptpay
+pillow-heif==1.3.0

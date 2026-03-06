@@ -14,6 +14,7 @@ class ResultScreen(Screen):
     total = NumericProperty(0.0)
     breakdown = DictProperty({})  # fallback for no-DB
     _participants_data = ListProperty([]) # List of dicts
+    _items_data = ListProperty([]) # List of items
 
     def on_enter(self, *args):
         self._load_data()
@@ -23,6 +24,8 @@ class ResultScreen(Screen):
     def _load_data(self):
         """โหลดข้อมูลจาก DB ถ้ามี bill_id, ถ้าไม่มีใช้ breakdown เดิม"""
         self._participants_data = []
+        self._items_data = getattr(self, 'bill_items', []) # Fallback for items from NewSplit
+        
         if self.bill_id > 0:
             from core.storage import get_bill_details
             details = get_bill_details(self.bill_id)
@@ -30,6 +33,7 @@ class ResultScreen(Screen):
                 self.bill_title = details.get('title', self.bill_title)
                 self.total = details.get('total', self.total)
                 self._participants_data = details.get('participants', [])
+                self._items_data = details.get('items', self._items_data)
         else:
             # Fallback
             for name, amount in self.breakdown.items():
@@ -338,7 +342,7 @@ class ResultScreen(Screen):
         from kivy.core.clipboard import Clipboard
         from kivymd.toast import toast
         
-        text = format_result_text(self.bill_title, self.total, self.breakdown)
+        text = format_result_text(self.bill_title, self.total, self._participants_data, self._items_data)
         Clipboard.copy(text)
         print('[Result] Copied to clipboard')
         toast("คัดลอกสรุปรายการแล้ว นำไปวางในแชทได้เลย!")

@@ -154,11 +154,20 @@ def get_bill_details(bill_id: int) -> dict:
                 "is_paid": p.is_paid
             })
             
+        items = []
+        for i in bill.items:
+            items.append({
+                "name": i.name,
+                "price": i.price,
+                "quantity": i.quantity
+            })
+            
         return {
             "title": bill.title,
             "total": bill.total,
             "is_done": bill.is_done,
-            "participants": participants
+            "participants": participants,
+            "items": items
         }
     except Exception as e:
         print(f"[storage] get_bill_details error: {e}")

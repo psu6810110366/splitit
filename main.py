@@ -5,15 +5,24 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from kivy.lang import Builder
-from kivy.core.text import LabelBase
+from kivy.core.text import LabelBase, DEFAULT_FONT
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import ScreenManager
 
 # นำเข้าโมเดลและระบบฐานข้อมูล (Import db logic)
 from core.models import initialize_db
 
-# ── Register Thai font (Sarabun) ────────────────────────────────────────────
+# ── Register Thai font (Sarabun) Globally ───────────────────────────────────
 _fonts_dir = os.path.join(os.path.dirname(__file__), 'assets', 'fonts')
+
+# Override default Kivy font completely
+LabelBase.register(
+    DEFAULT_FONT,
+    fn_regular=os.path.join(_fonts_dir, 'Sarabun-Regular.ttf'),
+    fn_bold=os.path.join(_fonts_dir, 'Sarabun-Bold.ttf'),
+)
+
+# Also register it under 'Sarabun' name for backward compatibility
 LabelBase.register(
     name='Sarabun',
     fn_regular=os.path.join(_fonts_dir, 'Sarabun-Regular.ttf'),

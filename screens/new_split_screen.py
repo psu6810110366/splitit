@@ -59,7 +59,11 @@ class NewSplitScreen(Screen):
             if name:
                 self._items.append({'name': name, 'price': price, 'assigned_to': []})
 
+        total_amount = result.get('total', 0.0)
+        self.ids.total_amount_label.text = f"{total_amount:.2f}"
+
         self._refresh_items_list()
+        self._refresh_people_list()
         print(f"[NewSplit] Populated {len(self._items)} items from AI")
 
     # ── Items ─────────────────────────────────────────────────────────────────

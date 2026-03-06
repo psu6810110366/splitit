@@ -55,8 +55,8 @@
                 hint_text: ""
                 mode: "line"
                 fill_color_normal: 0, 0, 0, 0
-                active_line: True if root.is_custom_mode else False
-                line_color_normal: get_color_from_hex('#E2E8F0') if root.is_custom_mode else (0, 0, 0, 0)
+                active_line: root.is_custom_mode
+                line_color_normal: get_color_from_hex('#E2E8F0') if root.is_custom_mode else [0, 0, 0, 0]
                 readonly: not root.is_custom_mode
                 input_filter: "float"
                 on_text: root.on_text_validate(self.text)

@@ -72,22 +72,45 @@ def split_custom(items: list, assignments: dict) -> dict:
         
     return result
 
-def format_result_text(bill_title: str, total: float, participants_result: dict) -> str:
+def format_result_text(bill_title: str, total: float, participants_result: list, items_list: list = None) -> str:
     """
     สร้างข้อความสำหรับคัดลอกลง Clipboard (Format string for sharing to Line/Messenger)
     :param bill_title: ชื่อบิล (e.g. "Shabu Buffet")
     :param total: ยอดเต็ม (e.g. 1500)
-    :param participants_result: ผลลัพธ์จากการหาร (e.g. {"Alice": 500, "Bob": 500})
+    :param participants_result: ผลลัพธ์จากการหาร (list of dicts containing name, amount, is_paid)
+    :param items_list: รายการสินค้า (optional)
     :return: Formatted text block
     """
     text = f"💸 สรุปยอดค่า {bill_title}\n"
+    
+    if items_list:
+        text += "📝 รายการ:\n"
+        for item in items_list:
+            qty = item.get('quantity', 1)
+            name = item.get('name', 'Item')
+            price = item.get('price', 0.0)
+            text += f" - {name} (x{qty}): ฿{price:,.2f}\n"
+        text += "\n"
+
     text += f"💰 ยอดรวม: ฿{total:,.2f}\n"
     text += "-" * 20 + "\n"
     
-    for name, amount in participants_result.items():
-        text += f"👤 {name} จ่าย: ฿{amount:,.2f}\n"
+    all_paid = True
+    for p in participants_result:
+        name = p.get('name', 'Unknown')
+        amount = p.get('amount', 0.0)
+        is_paid = p.get('is_paid', False)
+        
+        status_icon = "✅ สำเร็จ" if is_paid else "⏳ รอชำระ"
+        if not is_paid:
+            all_paid = False
+            
+        text += f"👤 {name} ยอดโอน: ฿{amount:,.2f} ({status_icon})\n"
         
     text += "-" * 20 + "\n"
-    text += "อย่าลืมโอนเงินนะจ๊ะ! 🙏"
+    if all_paid:
+        text += "🎉 บิลนี้เคลียร์ครบทุกคนแล้ว ขอบคุณจ้า! 🙏"
+    else:
+        text += "อย่าลืมโอนเงินนะจ๊ะ! 🙏"
     
     return text
