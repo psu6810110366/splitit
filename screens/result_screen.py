@@ -3,7 +3,6 @@ from kivy.properties import StringProperty, NumericProperty, DictProperty, ListP
 from kivy.utils import get_color_from_hex
 from kivymd.uix.card import MDCard
 from kivymd.uix.label import MDLabel
-from kivymd.uix.button import MDIconButton
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
 
@@ -49,8 +48,6 @@ class ResultScreen(Screen):
         from kivy.storage.jsonstore import JsonStore
         import promptpay.qrcode
         import qrcode
-        import os
-        from kivy.clock import Clock
 
         store = JsonStore('settings.json')
         promptpay_number = store.get('user').get('promptpay', '') if store.exists('user') else ''

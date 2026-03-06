@@ -1,7 +1,6 @@
 from kivy.uix.screenmanager import Screen
 from kivy.clock import Clock
 import threading
-import os
 
 try:
     from plyer import filechooser
