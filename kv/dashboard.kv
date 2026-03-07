@@ -1,278 +1,347 @@
 #:import get_color_from_hex kivy.utils.get_color_from_hex
 
-# --- BillCardItem: Reusable widget for each bill row in RecycleView ---
-<BillCardItem@MDCard>:
-    title: ""
-    amount_label: ""
-    date_label: ""
-    status_color: "#00C853"
-    is_done: False
-
+# ── RecycleView item widget สำหรับแต่ละบิลใน Dashboard ──────────────────────
+<BillCardItem>:
     size_hint_y: None
-    height: "70dp"
-    padding: ["15dp", "10dp", "15dp", "10dp"]
-    radius: [16, 16, 16, 16]
-    md_bg_color: 1, 1, 1, 1
+    height: "72dp"
+    radius: [20, 20, 20, 20]
+    md_bg_color: get_color_from_hex('#FFFFFF')
     elevation: 0
+    padding: ["16dp", "0dp", "16dp", "0dp"]
+    ripple_behavior: True
+    on_release: app.root.get_screen('dashboard').on_bill_selected(root.bill_id)
 
     MDBoxLayout:
-        orientation: "horizontal"
-        spacing: "15dp"
+        orientation: 'horizontal'
+        spacing: "12dp"
 
-        # Status Dot
-        MDCard:
+        # Icon Container
+        MDBoxLayout:
             size_hint: None, None
-            size: "45dp", "45dp"
-            radius: [12, 12, 12, 12]
-            md_bg_color: get_color_from_hex(root.status_color) if root.is_done else get_color_from_hex('#FFF0F0')
+            size: "44dp", "44dp"
             pos_hint: {"center_y": .5}
-
+            md_bg_color: get_color_from_hex('#F1F5F9')
+            radius: [12, 12, 12, 12]
+            
             MDIcon:
-                icon: "check-circle-outline" if root.is_done else "clock-outline"
+                icon: root.icon_name
+                font_size: "24sp"
                 theme_text_color: "Custom"
-                text_color: get_color_from_hex(root.status_color)
+                text_color: get_color_from_hex('#475569')
+                halign: "center"
+                valign: "center"
                 pos_hint: {"center_x": .5, "center_y": .5}
 
-        # Title + Date
+        # Title + date
         MDBoxLayout:
-            orientation: "vertical"
-            pos_hint: {"center_y": .5}
+            orientation: 'vertical'
+            spacing: "2dp"
 
             MDLabel:
                 text: root.title
                 font_style: "Subtitle2"
                 bold: True
-                shorten: True
-                shorten_from: "right"
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#0F172A')
+                adaptive_height: True
 
             MDLabel:
                 text: root.date_label
                 font_style: "Caption"
                 theme_text_color: "Custom"
-                text_color: get_color_from_hex('#757575')
+                text_color: get_color_from_hex('#94A3B8')
+                adaptive_height: True
 
-        # Amount
-        MDLabel:
-            text: root.amount_label
-            font_style: "Subtitle2"
-            bold: True
-            theme_text_color: "Custom"
-            text_color: get_color_from_hex(root.status_color)
-            halign: "right"
-            pos_hint: {"center_y": .5}
+        Widget:
+
+        # Amount + status
+        MDBoxLayout:
+            orientation: 'vertical'
+            size_hint_x: None
+            width: "110dp"
+            spacing: "2dp"
+
+            MDLabel:
+                text: root.amount_label
+                font_style: "Subtitle2"
+                bold: True
+                halign: "right"
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#0F172A')
+                adaptive_height: True
+
+            MDLabel:
+                text: root.status_label
+                font_style: "Caption"
+                bold: True
+                halign: "right"
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#16A34A') if root.status_type == 'owed' else get_color_from_hex('#E11D48')
+                adaptive_height: True
 
 <DashboardScreen>:
-    # Main Base Layout with Light background
     MDFloatLayout:
-        md_bg_color: get_color_from_hex('#F8F9FA')
+        md_bg_color: get_color_from_hex('#FCF9F8')
         
-        # --- SCROLLABLE CONTENT ---
         MDScrollView:
             pos_hint: {"top": 1}
-            # Leave space at the bottom for the floating navigation bar
             size_hint_y: 1
             
             MDBoxLayout:
                 orientation: 'vertical'
-                padding: ["20dp", "40dp", "20dp", "100dp"] # Padding bottom 100dp avoids hiding behind nav bar
-                spacing: "24dp"
+                padding: ["24dp", "48dp", "24dp", "120dp"]
+                spacing: "32dp"
                 adaptive_height: True
 
-                # 1. HEADER (Title & Profile)
+                # Simple header
                 MDBoxLayout:
                     orientation: 'horizontal'
                     adaptive_height: True
+                    size_hint_y: None
+                    height: "40dp"
                     
                     MDLabel:
-                        text: "SplitIt \U0001F4B8"
+                        text: "SplitIt"
                         font_style: "H5"
                         bold: True
                         theme_text_color: "Custom"
-                        text_color: get_color_from_hex('#1A1A1A')
-                        valign: "center"
-                        size_hint_y: None
-                        height: "40dp"
-                        
-                    # Profile Picture placeholder
-                    FitImage:
-                        source: "assets/profile.jpg"
-                        size_hint: None, None
-                        size: "40dp", "40dp"
-                        radius: [20, 20, 20, 20]
-
-                # 2. MAIN BANNER CARD
-                # Using a dark purple/navy background to simulate the dark gradient card
-                MDCard:
-                    orientation: "vertical"
-                    size_hint_y: None
-                    height: "180dp"
-                    radius: [24, 24, 24, 24]
-                    md_bg_color: get_color_from_hex('#1F1A30')
-                    padding: "20dp"
-                    elevation: 3
+                        text_color: get_color_from_hex('#0F172A')
+                        adaptive_size: True
+                        pos_hint: {"center_y": .5}
                     
-                    MDLabel:
-                        text: "DASHBOARD"
-                        font_style: "Overline"
+                    MDIcon:
+                        icon: "wallet-outline"
                         theme_text_color: "Custom"
-                        text_color: get_color_from_hex('#9E9E9E')
-                        adaptive_height: True
+                        text_color: get_color_from_hex('#F45925')
+                        font_size: "24sp"
+                        pos_hint: {"center_y": .5}
                         
-                    MDLabel:
-                        text: "Ready to split\nthe bill?"
-                        font_style: "H4"
-                        bold: True
-                        theme_text_color: "Custom"
-                        text_color: 1, 1, 1, 1
-                        valign: "center"
+                    Widget:
                         
-                    # Orange gradient Button (Custom Card acting as button)
                     MDCard:
                         size_hint: None, None
-                        size: "160dp", "45dp"
-                        radius: [22, 22, 22, 22]
-                        md_bg_color: get_color_from_hex('#FF6B00') # Vibrant Orange
-                        elevation: 1
+                        size: "40dp", "40dp" 
+                        radius: [20, 20, 20, 20]
+                        md_bg_color: get_color_from_hex('#FFF0EB')
                         ripple_behavior: True
-                        on_release: root.go_to_new_split()
+                        elevation: 0
                         
-                        MDRelativeLayout:
+                        MDIcon:
+                            icon: "account-circle-outline"
+                            font_size: "24sp"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#F45925')
+                            halign: "center"
+                            valign: "center"
+                            pos_hint: {"center_x": .5, "center_y": .5}
+
+                # Hero section
+                MDCard:
+                    size_hint_y: None
+                    height: "200dp"
+                    radius: [32, 32, 32, 32]
+                    md_bg_color: get_color_from_hex('#FFEDD5')
+                    padding: ["25dp", "25dp", "25dp", "25dp"]
+                    elevation: 0
+                    
+                    MDBoxLayout:
+                        orientation: "vertical"
+                        spacing: "24dp"
+                        
+                        MDLabel:
+                            text: "Ready to split\nthe bill?"
+                            font_style: "H4"
+                            bold: True
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#0F172A')
+                            adaptive_height: True
+                        
+                        MDCard:
+                            size_hint_x: 1
+                            size_hint_y: None
+                            height: "48dp"
+                            radius: [24, 24, 24, 24]
+                            md_bg_color: get_color_from_hex('#F45925')
+                            elevation: 0
+                            ripple_behavior: True
+                            on_release: root.go_to_new_split()
+                            
                             MDLabel:
                                 text: "Create New Bill"
                                 font_style: "Subtitle2"
                                 bold: True
                                 theme_text_color: "Custom"
-                                text_color: 1, 1, 1, 1
+                                text_color: get_color_from_hex('#FFFFFF')
                                 halign: "center"
                                 valign: "center"
 
-                # 3. ACTION BUTTONS (Scan & Add Friend)
+                # Action buttons
                 MDBoxLayout:
                     orientation: 'horizontal'
-                    spacing: "15dp"
+                    spacing: "16dp"
                     adaptive_height: True
+                    size_hint_y: None
+                    height: "102dp"
                     
-                    # Action 1: Scan Receipt
                     MDCard:
                         orientation: "vertical"
+                        size_hint_x: 0.5
                         size_hint_y: None
-                        height: "100dp"
-                        radius: [20, 20, 20, 20]
-                        md_bg_color: 1, 1, 1, 1
-                        padding: "15dp"
-                        elevation: 1
+                        height: "102dp"
+                        radius: [24, 24, 24, 24]
+                        md_bg_color: get_color_from_hex('#FFFFFF')
+                        padding: ["12dp", "16dp", "12dp", "16dp"]
+                        elevation: 0
                         ripple_behavior: True
                         on_release: root.go_to_scan()
                         
                         MDIcon:
                             icon: "camera-outline"
                             theme_text_color: "Custom"
-                            text_color: get_color_from_hex('#1F1A30')
+                            text_color: get_color_from_hex('#16A34A')
                             font_size: "32sp"
                             pos_hint: {"center_x": .5}
-                            
+                                
                         MDLabel:
-                            text: "Scan\nReceipt"
-                            font_style: "Caption"
-                            bold: True
-                            halign: "center"
+                            text: "Scan Receipt"
+                            font_style: "Subtitle2"
                             theme_text_color: "Custom"
-                            text_color: get_color_from_hex('#1F1A30')
+                            text_color: get_color_from_hex('#0F172A')
+                            halign: "center"
+                            adaptive_height: True
                             
-                    # Action 2: Add Friend
                     MDCard:
                         orientation: "vertical"
+                        size_hint_x: 0.5
                         size_hint_y: None
-                        height: "100dp"
-                        radius: [20, 20, 20, 20]
-                        md_bg_color: 1, 1, 1, 1
-                        padding: "15dp"
-                        elevation: 1
+                        height: "102dp"
+                        radius: [24, 24, 24, 24]
+                        md_bg_color: get_color_from_hex('#FFFFFF')
+                        padding: ["12dp", "16dp", "12dp", "16dp"]
+                        elevation: 0
                         ripple_behavior: True
                         on_release: root.go_to_add_friend()
                         
                         MDIcon:
                             icon: "account-multiple-plus-outline"
                             theme_text_color: "Custom"
-                            text_color: get_color_from_hex('#1F1A30')
+                            text_color: get_color_from_hex('#2563EB')
                             font_size: "32sp"
                             pos_hint: {"center_x": .5}
-                            
+                                
                         MDLabel:
-                            text: "Add\nFriend"
-                            font_style: "Caption"
-                            bold: True
-                            halign: "center"
+                            text: "Add Friend"
+                            font_style: "Subtitle2"
                             theme_text_color: "Custom"
-                            text_color: get_color_from_hex('#1F1A30')
+                            text_color: get_color_from_hex('#0F172A')
+                            halign: "center"
+                            adaptive_height: True
 
-                # 4. BALANCE SUMMARY SECION
+                # Balance summary
                 MDLabel:
                     text: "Balance Summary"
                     font_style: "Subtitle1"
                     bold: True
                     theme_text_color: "Custom"
-                    text_color: get_color_from_hex('#1A1A1A')
+                    text_color: get_color_from_hex('#0F172A')
                     adaptive_height: True
                     
                 MDBoxLayout:
                     orientation: 'horizontal'
-                    spacing: "15dp"
+                    spacing: "16dp"
                     adaptive_height: True
+                    size_hint_y: None
+                    height: "142dp"
                     
-                    # YOU OWE (Pinkish)
                     MDCard:
                         orientation: "vertical"
-                        padding: "15dp"
+                        size_hint_x: 0.5
+                        padding: ["20dp", "16dp", "20dp", "16dp"]
                         size_hint_y: None
-                        height: "90dp"
-                        radius: [16, 16, 16, 16]
-                        md_bg_color: get_color_from_hex('#FFF0F0') # Soft pink
+                        height: "142dp"
+                        radius: [32, 32, 32, 32]
+                        md_bg_color: get_color_from_hex('#FFF1F2')
                         elevation: 0
                         
-                        MDLabel:
-                            text: "YOU OWE"
-                            theme_text_color: "Custom"
-                            text_color: get_color_from_hex('#FF5252')
-                            font_style: "Caption"
-                            bold: True
-                        MDLabel:
-                            text: f"\u0E3F{root.total_owed:.2f}"
-                            theme_text_color: "Custom"
-                            text_color: get_color_from_hex('#1A1A1A')
-                            font_style: "H6"
-                            bold: True
+                        MDBoxLayout:
+                            orientation: 'horizontal'
+                            adaptive_height: True
+                            spacing: "4dp"
                             
-                    # OWED TO YOU (Light Blue)
+                            MDIcon:
+                                icon: "bank-transfer-out"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#FB7185')
+                                font_size: "20sp"
+                                pos_hint: {"center_y": .5}
+
+                            MDLabel:
+                                text: "YOU OWE"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#FB7185')
+                                font_style: "Caption"
+                                bold: True
+                                adaptive_height: True
+                                pos_hint: {"center_y": .5}
+                            
+                        Widget: # Spacer
+                            
+                        MDLabel:
+                            text: "฿{:,.2f}".format(root.total_owed)
+                            theme_text_color: "Custom" 
+                            text_color: get_color_from_hex('#E11D48')
+                            font_style: "H5"
+                            bold: True
+                            adaptive_height: True
+                    
                     MDCard:
                         orientation: "vertical"
-                        padding: "15dp"
+                        size_hint_x: 0.5
+                        padding: ["20dp", "16dp", "20dp", "16dp"]
                         size_hint_y: None
-                        height: "90dp"
-                        radius: [16, 16, 16, 16]
-                        md_bg_color: get_color_from_hex('#F0F8FF') # Soft blue
+                        height: "142dp"
+                        radius: [32, 32, 32, 32]
+                        md_bg_color: get_color_from_hex('#F0F9FF')
                         elevation: 0
                         
-                        MDLabel:
-                            text: "OWED TO YOU"
-                            theme_text_color: "Custom"
-                            text_color: get_color_from_hex('#2196F3')
-                            font_style: "Caption"
-                            bold: True
-                        MDLabel:
-                            text: f"\u0E3F{root.total_owe_me:.2f}"
-                            theme_text_color: "Custom"
-                            text_color: get_color_from_hex('#1A1A1A')
-                            font_style: "H6"
-                            bold: True
+                        MDBoxLayout:
+                            orientation: 'horizontal'
+                            adaptive_height: True
+                            spacing: "4dp"
 
-                # 5. RECENT SPLITS TITLE
+                            MDIcon:
+                                icon: "bank-transfer-in"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#38BDF8')
+                                font_size: "20sp"
+                                pos_hint: {"center_y": .5}
+
+                            MDLabel:
+                                text: "OWED TO YOU"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#38BDF8')
+                                font_style: "Caption"
+                                bold: True
+                                adaptive_height: True
+                                pos_hint: {"center_y": .5}
+                            
+                        Widget: # Spacer
+                            
+                        MDLabel:
+                            text: "฿{:,.2f}".format(root.total_owe_me)
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#0284C7')
+                            font_style: "H5"
+                            bold: True 
+                            adaptive_height: True
+
+                # Recent splits
                 MDLabel:
                     text: "Recent Splits"
                     font_style: "Subtitle1"
                     bold: True
                     theme_text_color: "Custom"
-                    text_color: get_color_from_hex('#1A1A1A')
+                    text_color: get_color_from_hex('#0F172A')
                     adaptive_height: True
 
                 # Empty state — แสดงเมื่อยังไม่มีบิล
@@ -293,9 +362,10 @@
                     data: root.recent_splits
                     viewclass: "BillCardItem"
                     size_hint_y: None
-                    height: self.minimum_height
+                    height: rv_layout.minimum_height
 
                     RecycleBoxLayout:
+                        id: rv_layout
                         orientation: "vertical"
                         spacing: "10dp"
                         padding: ["0dp", "0dp", "0dp", "0dp"]
@@ -304,43 +374,6 @@
                         size_hint_y: None
                         height: self.minimum_height
 
-        # --- FLOATING BOTTOM NAVBAR PILL ---
-        # Positioned right over the scrolling content
-        MDCard:
-            size_hint: None, None
-            size: "240dp", "60dp"
-            radius: [30, 30, 30, 30]
-            md_bg_color: get_color_from_hex('#1A1A1A') # Black pill
-            pos_hint: {"center_x": .5, "y": .03}
-            elevation: 4
-            padding: "20dp"
-            
-            MDBoxLayout:
-                orientation: 'horizontal'
-                
-                # Nav 1: Dashboard (Active)
-                MDIconButton:
-                    icon: "home"
-                    theme_text_color: "Custom"
-                    text_color: get_color_from_hex('#FFFFFF')
-                    pos_hint: {"center_y": .5}
-                    
-                Widget:
-                    
-                # Nav 2: Scan Center (Orange Highlighted)
-                MDIconButton:
-                    icon: "camera-iris"
-                    theme_text_color: "Custom"
-                    text_color: get_color_from_hex('#FF6B00')
-                    pos_hint: {"center_y": .5}
-                    icon_size: "32sp"
-                    on_release: root.go_to_scan()
-                    
-                Widget:
-                
-                # Nav 3: Profile/Settings 
-                MDIconButton:
-                    icon: "cog-outline"
-                    theme_text_color: "Custom"
-                    text_color: get_color_from_hex('#757575')
-                    pos_hint: {"center_y": .5}
+        # Bottom navigation component
+        BottomNav:
+            active_tab: 'home'

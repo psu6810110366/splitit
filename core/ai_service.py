@@ -3,9 +3,17 @@ import json
 import tempfile
 import google.generativeai as genai
 from PIL import Image
+from dotenv import load_dotenv
+
+# ลงทะเบียน HEIF/HEIC Support เพื่อให้อ่านไฟล์จาก iPhone ได้
+try:
+    import pillow_heif
+    pillow_heif.register_heif_opener()
+except ImportError:
+    pass  # ถ้าไม่ได้ติดตั้ง pillow-heif ก็แค่ไม่รองรับ HEIC
 
 # โหลด API Key จาก Environment (Load API Key from env)
-# Note: In production, load this from .env file or secure storage
+load_dotenv()
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
 if GEMINI_API_KEY:
@@ -51,7 +59,7 @@ def scan_receipt(image_path: str) -> dict:
         compressed_image_path = preprocess_image(image_path)
         img = Image.open(compressed_image_path)
         
-        # 2. เลือกโมเดลที่เร็วและเหมาะกับ Vision (Select Flash model)
+        # 2. เลือกโมเดลที่รองรับ Vision (gemini-2.5-flash — ยืนยันว่าเปิดใช้งานอยู่)
         model = genai.GenerativeModel('gemini-2.5-flash')
         
         # 3. คำสั่งเฉพาะเจาะจงที่เข้มงวด (Strict Prompting)

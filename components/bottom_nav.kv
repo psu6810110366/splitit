@@ -1,0 +1,40 @@
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
+<BottomNav>:
+    size_hint: None, None
+    size: "400dp", "64dp"
+    radius: [32, 32, 32, 32]
+    md_bg_color: get_color_from_hex('#FFFFFF')
+    opacity: 0.95
+    pos_hint: {"center_x": .5, "y": .02}
+    elevation: 0
+    padding: ["25dp", "13dp", "25dp", "13dp"]
+
+    MDBoxLayout:
+        orientation: 'horizontal'
+
+        Widget:
+
+        MDIconButton:
+            icon: "home"
+            theme_text_color: "Custom"
+            icon_color: root.home_icon_color
+            on_release: app.root.current = 'dashboard'
+
+        Widget:
+
+        MDIconButton:
+            icon: "account-group-outline"
+            theme_text_color: "Custom"
+            icon_color: root.friends_icon_color
+            on_release: app.root.current = 'friends_screen'
+
+        Widget:
+
+        MDIconButton:
+            icon: "cog-outline"
+            theme_text_color: "Custom"
+            icon_color: root.settings_icon_color
+            on_release: app.root.current = 'settings_screen'
+
+        Widget:

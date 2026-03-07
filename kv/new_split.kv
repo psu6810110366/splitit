@@ -1,0 +1,394 @@
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+
+<NewSplitScreen>:
+    MDFloatLayout:
+        md_bg_color: get_color_from_hex('#F6F8F7')
+
+        MDScrollView:
+            pos_hint: {"top": 1}
+            size_hint_y: 1
+
+            MDBoxLayout:
+                orientation: 'vertical'
+                padding: ["20dp", "48dp", "20dp", "100dp"]
+                spacing: "16dp"
+                adaptive_height: True
+
+                # Header
+                MDBoxLayout:
+                    orientation: 'horizontal'
+                    adaptive_height: True
+                    size_hint_y: None
+                    height: "48dp"
+
+                    MDCard:
+                        size_hint: None, None
+                        size: "40dp", "40dp"
+                        radius: [20, 20, 20, 20]
+                        md_bg_color: get_color_from_hex('#FFFFFF')
+                        elevation: 0
+                        ripple_behavior: True
+                        on_release: root.go_back()
+
+                        MDIcon:
+                            icon: "arrow-left"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#0E1B14')
+                            halign: "center"
+
+                    Widget:
+
+                    MDLabel:
+                        text: "New Split"
+                        font_style: "H6"
+                        bold: True
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#0E1B14')
+                        halign: "center"
+                        size_hint_x: None
+                        width: "160dp"
+
+                    Widget:
+
+                    Widget:
+                        size_hint_x: None
+                        width: "40dp"
+
+                # WHAT WAS IT FOR?
+                MDLabel:
+                    text: "WHAT WAS IT FOR?"
+                    font_style: "Caption"
+                    bold: True
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#4E9773')
+                    adaptive_height: True
+
+                MDCard:
+                    size_hint_y: None
+                    height: "64dp"
+                    radius: [32, 32, 32, 32]
+                    md_bg_color: get_color_from_hex('#FFFFFF')
+                    elevation: 0
+                    padding: ["16dp", "0dp", "16dp", "0dp"]
+
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+                        spacing: "12dp"
+
+                        MDIcon:
+                            icon: "pencil-outline"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#4E9773')
+                            size_hint_x: None
+                            width: "24dp"
+
+                        MDTextField:
+                            id: bill_name_input
+                            hint_text: "e.g. Friday Dinner"
+                            mode: "fill"
+                            fill_color_normal: 0, 0, 0, 0
+                            fill_color_focus: 0, 0, 0, 0
+                            line_color_normal: 0, 0, 0, 0
+                            line_color_focus: 0, 0, 0, 0
+                            font_size: "18sp"
+
+                # Total Amount
+                MDLabel:
+                    text: "Total Amount"
+                    font_style: "Subtitle2"
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#4E9773')
+                    adaptive_height: True
+                    halign: "center"
+
+                MDBoxLayout:
+                    orientation: 'horizontal'
+                    adaptive_height: True
+                    size_hint_y: None
+                    height: "60dp"
+
+                    Widget:
+
+                    MDIcon:
+                        icon: "currency-usd"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#4E9773')
+                        size_hint_x: None
+                        width: "28dp"
+
+                    MDTextField:
+                        id: total_amount_label
+                        text: "0.00"
+                        hint_text: "0.00"
+                        input_filter: "float"
+                        mode: "fill"
+                        fill_color_normal: 0, 0, 0, 0
+                        fill_color_focus: 0, 0, 0, 0
+                        line_color_normal: 0, 0, 0, 0
+                        line_color_focus: 0, 0, 0, 0
+                        font_size: "32sp"
+                        bold: True
+                        halign: "center"
+                        size_hint_x: None
+                        width: "220dp"
+                        on_text: root.on_total_amount_change(self.text)
+
+                    Widget:
+
+                # Items & Details heading
+                MDBoxLayout:
+                    orientation: 'horizontal'
+                    adaptive_height: True
+                    size_hint_y: None
+                    height: "36dp"
+
+                    MDLabel:
+                        text: "Items & Details"
+                        font_style: "H6"
+                        bold: True
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#0E1B14')
+                        adaptive_height: True
+
+                    Widget:
+
+                    MDCard:
+                        size_hint: None, None
+                        size: "64dp", "28dp"
+                        radius: [6, 6, 6, 6]
+                        md_bg_color: get_color_from_hex('#D1FAE5')
+                        elevation: 0
+
+                        MDLabel:
+                            id: items_count_label
+                            text: "0 Items"
+                            font_style: "Caption"
+                            bold: True
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#065F46')
+                            halign: "center"
+
+                MDBoxLayout:
+                    id: items_list
+                    orientation: 'vertical'
+                    adaptive_height: True
+                    spacing: "8dp"
+
+                # Add Item button
+                MDCard:
+                    size_hint_y: None
+                    height: "56dp"
+                    radius: [28, 28, 28, 28]
+                    md_bg_color: get_color_from_hex('#F6F8F7')
+                    elevation: 0
+                    ripple_behavior: True
+                    on_release: root.on_add_item()
+
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+                        spacing: "8dp"
+                        padding: ["20dp", "0dp", "20dp", "0dp"]
+
+                        MDIcon:
+                            icon: "plus-circle-outline"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#4E9773')
+                            size_hint_x: None
+                            width: "24dp"
+
+                        MDLabel:
+                            text: "Add Item"
+                            font_style: "Subtitle1"
+                            bold: True
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#4E9773')
+                            adaptive_height: True
+
+                # Notes
+                MDCard:
+                    size_hint_y: None
+                    height: "80dp"
+                    radius: [16, 16, 16, 16]
+                    md_bg_color: get_color_from_hex('#FFFFFF')
+                    elevation: 0
+                    padding: ["16dp", "8dp", "16dp", "8dp"]
+
+                    MDTextField:
+                        id: notes_input
+                        hint_text: "Add a note or special instructions..."
+                        mode: "fill"
+                        fill_color_normal: 0, 0, 0, 0
+                        fill_color_focus: 0, 0, 0, 0
+                        line_color_normal: 0, 0, 0, 0
+                        line_color_focus: 0, 0, 0, 0
+                        multiline: True
+                        font_size: "15sp"
+
+                # Split toggle
+                MDCard:
+                    size_hint_y: None
+                    height: "56dp"
+                    radius: [28, 28, 28, 28]
+                    md_bg_color: get_color_from_hex('#F3F4F6')
+                    elevation: 0
+                    padding: ["4dp", "4dp", "4dp", "4dp"]
+
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+
+                        MDCard:
+                            id: btn_split_equal
+                            size_hint_x: 0.5
+                            radius: [24, 24, 24, 24]
+                            md_bg_color: get_color_from_hex('#50C878')
+                            elevation: 0
+                            ripple_behavior: True
+                            on_release: root.on_split_mode_toggle('equal')
+
+                            MDLabel:
+                                text: "Split Equally"
+                                font_style: "Subtitle2"
+                                bold: True
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#FFFFFF')
+                                halign: "center"
+
+                        MDCard:
+                            id: btn_split_custom
+                            size_hint_x: 0.5
+                            radius: [24, 24, 24, 24]
+                            md_bg_color: get_color_from_hex('#F3F4F6')
+                            elevation: 0
+                            ripple_behavior: True
+                            on_release: root.on_split_mode_toggle('custom')
+
+                            MDLabel:
+                                text: "Custom Amount"
+                                font_style: "Subtitle2"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#6B7280')
+                                halign: "center"
+
+                # Who's paying?
+                MDBoxLayout:
+                    orientation: 'horizontal'
+                    adaptive_height: True
+                    size_hint_y: None
+                    height: "48dp" # เพิ่มความสูงเพื่อให้พอสำหรับ 2 บรรทัด
+                    spacing: "12dp"
+
+                    MDLabel:
+                        text: "Who's paying?"
+                        font_style: "H6"
+                        bold: True
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#0E1B14')
+                        adaptive_height: True
+                        pos_hint: {"center_y": .5}
+
+                    Widget:
+
+                    MDBoxLayout:
+                        orientation: 'vertical'
+                        adaptive_size: True
+                        spacing: "0dp"
+                        opacity: 1 if root.split_mode == 'custom' else 0
+                        disabled: False if root.split_mode == 'custom' else True
+                        pos_hint: {"center_y": .5}
+
+                        MDLabel:
+                            text: "Remaining"
+                            font_style: "Caption"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#64748B')
+                            halign: "right"
+                            adaptive_size: True
+                        
+                        MDLabel:
+                            id: remaining_balance_label
+                            text: "฿0.00"
+                            font_style: "Caption"
+                            bold: True
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#EF4444')
+                            halign: "right"
+                            adaptive_size: True
+
+                    MDCard:
+                        size_hint: None, None
+                        size: "76dp", "28dp"
+                        radius: [14, 14, 14, 14]
+                        md_bg_color: get_color_from_hex('#FEF3C7')
+                        elevation: 0
+                        pos_hint: {"center_y": .5}
+
+                        MDLabel:
+                            id: people_count_label
+                            text: "1 person"
+                            font_style: "Caption"
+                            bold: True
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#92400E')
+                            halign: "center"
+
+                MDBoxLayout:
+                    id: people_list
+                    orientation: 'vertical'
+                    adaptive_height: True
+                    spacing: "8dp"
+
+                # Add Friend button
+                MDCard:
+                    size_hint_y: None
+                    height: "56dp"
+                    radius: [28, 28, 28, 28]
+                    md_bg_color: get_color_from_hex('#F6F8F7')
+                    elevation: 0
+                    ripple_behavior: True
+                    on_release: root.on_add_friend()
+
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+                        spacing: "8dp"
+                        padding: ["20dp", "0dp", "20dp", "0dp"]
+
+                        MDIcon:
+                            icon: "plus"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#4E9773')
+                            size_hint_x: None
+                            width: "24dp"
+
+                        MDLabel:
+                            text: "Add Friend"
+                            font_style: "Subtitle1"
+                            bold: True
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#4E9773')
+                            adaptive_height: True
+
+        # Calculate button
+        MDCard:
+            size_hint: 1, None
+            height: "80dp"
+            pos_hint: {"bottom": 1, "x": 0}
+            md_bg_color: get_color_from_hex('#F6F8F7')
+            elevation: 0
+            padding: ["20dp", "12dp", "20dp", "12dp"]
+
+            MDCard:
+                size_hint_y: None
+                height: "56dp"
+                radius: [28, 28, 28, 28]
+                md_bg_color: get_color_from_hex('#50C878')
+                elevation: 0
+                ripple_behavior: True
+                on_release: root.on_calculate()
+
+                MDLabel:
+                    text: "Calculate!"
+                    font_style: "Subtitle1"
+                    bold: True
+                    theme_text_color: "Custom"
+                    text_color: get_color_from_hex('#FFFFFF')
+                    halign: "center"

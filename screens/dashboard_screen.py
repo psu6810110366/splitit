@@ -1,7 +1,23 @@
 from kivy.uix.screenmanager import Screen
-from kivy.properties import NumericProperty, ListProperty
+from kivy.properties import NumericProperty, ListProperty, StringProperty
+from kivymd.uix.card import MDCard
 
 from core.storage import get_recent_bills, get_balance_summary
+
+
+class BillCardItem(MDCard):
+    """
+    RecycleView item widget สำหรับแสดง bill card แต่ละอันใน Dashboard
+    ข้อมูลจะถูก bind เข้ามาผ่าน data dict โดย RecycleView อัตโนมัติ
+    """
+    bill_id = NumericProperty(-1)
+    title = StringProperty('')
+    amount_label = StringProperty('')
+    date_label = StringProperty('')
+    status_label = StringProperty('')
+    status_type = StringProperty('owed')  # 'owed' | 'owe'
+    icon_name = StringProperty('receipt-text-outline')
+
 
 
 class DashboardScreen(Screen):
@@ -25,7 +41,49 @@ class DashboardScreen(Screen):
         balance = get_balance_summary()
         self.total_owed = balance["total_owed"]
         self.total_owe_me = balance["total_owe_me"]
-        self.recent_splits = get_recent_bills(limit=10)
+        
+        # Get recent bills and format for the new design
+        recent_bills = get_recent_bills(limit=10)
+        
+        if not recent_bills:
+            self.recent_splits = []
+        else:
+            # Format existing bills for new design
+            formatted_splits = []
+            for bill in recent_bills:
+                # แมพไอคอนตามชื่อบิลเบื้องต้น (ถ้ามีคำสำคัญ) หรือใช้ default
+                title_str = bill.get("title", "").lower()
+                icon = "receipt-text-outline"
+                if "food" in title_str or "dinner" in title_str or "lunch" in title_str:
+                    icon = "silverware-fork-knife"
+                elif "drink" in title_str or "coffee" in title_str:
+                    icon = "coffee-outline"
+                elif "travel" in title_str or "taxi" in title_str:
+                    icon = "car-outline"
+
+                formatted_splits.append({
+                    "bill_id": bill.get("bill_id", -1),
+                    "title": bill.get("title", "Split Bill"),
+                    "amount_label": bill.get('amount_label', "฿0"),
+                    "date_label": bill.get("date_label", "Recent"),
+                    "status_label": bill.get("status_label", "Split"),
+                    "status_type": bill.get("status_type", "owed"),
+                    "icon_name": icon
+                })
+            self.recent_splits = formatted_splits
+
+    def on_bill_selected(self, bill_id):
+        """เปิดดูรายละเอียดบิลเมื่อคลิกการ์ด"""
+        print(f"[Dashboard] Selected bill {bill_id}")
+        if bill_id < 0:
+            return  # Sample data or invalid
+        
+        result_screen = self.manager.get_screen('result_screen')
+        result_screen.bill_id = bill_id
+        # ให้ on_enter ของ ResultScreen ไปโหลดข้อมูลจาก DB ต่อ
+        self.manager.current = 'result_screen'
+
+
 
     def go_to_new_split(self):
         """นำทางไปหน้าสร้างบิลใหม่"""
@@ -35,6 +93,10 @@ class DashboardScreen(Screen):
         """นำทางไปหน้าสแกนใบเสร็จ"""
         self.manager.current = 'scan_screen'
 
+    def go_to_friends(self):
+        """นำทางไปหน้าคลังเพื่อน"""
+        self.manager.current = 'friends_screen'
+
     def go_to_add_friend(self):
-        """นำทางไปหน้าจัดการเพื่อน (Phase B — ของสรวิศ)"""
-        print("[Dashboard] go_to_add_friend: Phase B not yet implemented")
+        """นำทางไปหน้ารายชื่อเพื่อน"""
+        self.manager.current = 'friends_screen'

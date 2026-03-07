@@ -1,163 +1,221 @@
 from kivy.uix.screenmanager import Screen
 from kivy.clock import Clock
 import threading
-import time
 import os
 
-# Note: In a real app we would use plyer.filechooser for mobile, but for desktop testing
-# we can use kivy's built-in file chooser or plyer depending on OS.
 try:
     from plyer import filechooser
 except ImportError:
     filechooser = None
 
-import platform
 from core.ai_service import scan_receipt
 
+
 class ScanScreen(Screen):
-    
+
     def on_enter(self, *args):
-        # เปิดกล้องเมื่อเข้าสู่หน้านี้
-        if 'camera' in self.ids:
-            self.ids.camera.play = True
-            
+        """เปิดกล้องเมื่อเข้าสู่หน้านี้"""
+        try:
+            if 'camera' in self.ids:
+                self.ids.camera.play = True
+        except Exception as e:
+            print(f"[ScanScreen] Camera not available: {e}")
+
     def on_leave(self, *args):
-        # ปิดกล้องเมื่อออกจากหน้านี้เพื่อประหยัดแบต
-        if 'camera' in self.ids:
-            self.ids.camera.play = False
+        """ปิดกล้องเมื่อออกจากหน้านี้เพื่อประหยัดทรัพยากร"""
+        try:
+            if 'camera' in self.ids:
+                self.ids.camera.play = False
+        except Exception:
+            pass
+
+    def go_to_dashboard(self):
+        self.manager.current = 'dashboard'
 
     def go_back(self):
-        self.manager.current = 'dashboard' # Fixed from 'dashboard_screen'
+        self.manager.current = 'dashboard'
+
+    def go_to_friends(self):
+        self.manager.current = 'friends_screen'
 
     def on_scan_press(self):
         """
-        Callback 1: Camera Capture
+        Callback 1: Camera Capture — ถ่ายรูปจากกล้องและส่งไป AI
+        ถ้ากล้องไม่พร้อม (desktop) จะ fallback ไปเปิด gallery
         """
-        print("Action: Capture Photo")
-        camera = self.ids.camera
-        
-        # ถ่ายรูปและเซฟชั่วคราว
-        image_path = "temp_receipt.jpg"
-        camera.export_to_png(image_path) # export_to_png exports based on extension if supported, but png is fine
-        
-        # เริ่มกระบวนการวิเคราะห์
-        self.start_ai_analysis(image_path)
+        print("[Scan] Action: Capture Photo")
+        try:
+            camera = self.ids.camera
+            image_path = "temp_receipt.jpg"
+            camera.export_to_png(image_path)
+            self.start_ai_analysis(image_path)
+        except Exception as e:
+            print(f"[Scan] Camera capture failed: {e} — falling back to gallery")
+            self.on_gallery_press()
 
     def on_gallery_press(self):
         """
-        Callback 2: Gallery Picker (Tkinter fallback for Mac/PC)
+        Callback 2: Gallery Picker — ให้ผู้ใช้เลือกภาพใบเสร็จ
         """
-        print("Action: Open Gallery")
+        print("[Scan] Action: Open Gallery")
         
-        try:
-            import tkinter as tk
-            from tkinter import filedialog
+        import platform
+        import threading
+        
+        # ใช้ Tkinter/osascript สำหรับ Desktop (Windows/Mac) เพื่อหลีกเลี่ยง Kivy Freeze
+        if platform.system() == 'Darwin':
+            def _open_mac():
+                import subprocess
+                script = '''
+                tell application "System Events"
+                    activate
+                    set theFile to choose file with prompt "เลือกรูปภาพใบเสร็จ:" of type {"public.image"}
+                    POSIX path of theFile
+                end tell
+                '''
+                try:
+                    result = subprocess.run(['osascript', '-e', script], capture_output=True, text=True)
+                    if result.returncode == 0 and result.stdout.strip():
+                        file_path = result.stdout.strip()
+                        Clock.schedule_once(lambda dt: self.handle_gallery_selection([file_path]), 0)
+                except Exception as e:
+                    print(f"[Scan] Mac filechooser error: {e}")
+            threading.Thread(target=_open_mac, daemon=True).start()
+            return
             
-            # Hide the main tkinter window
-            root = tk.Tk()
-            root.withdraw()
-            
-            # Open file dialog
-            file_path = filedialog.askopenfilename(
-                title="Select Receipt Image",
-                filetypes=[("Image files", "*.jpg *.jpeg *.png")]
-            )
-            
-            if file_path:
-                print(f"Selected: {file_path}")
-                self.start_ai_analysis(file_path)
-            else:
-                print("No file selected.")
+        elif platform.system() == 'Windows':
+            def _open_tk():
+                try:
+                    import tkinter as tk
+                    from tkinter import filedialog
+                    root = tk.Tk()
+                    root.withdraw()
+                    root.attributes('-topmost', True)
+                        
+                    file_path = filedialog.askopenfilename(
+                        title="เลือกรูปภาพใบเสร็จ",
+                        filetypes=[("Image Files", "*.jpg;*.jpeg;*.png;*.webp")]
+                    )
+                    root.destroy()
+                    
+                    if file_path:
+                        Clock.schedule_once(lambda dt: self.handle_gallery_selection([file_path]), 0)
+                except Exception as e:
+                    print(f"[Scan] Tkinter error: {e}")
+                    
+            threading.Thread(target=_open_tk, daemon=True).start()
+            return
+
+        # ลอง plyer สำหรับ Mobile (Android/iOS)
+        if filechooser is not None:
+            try:
+                selection = filechooser.open_file(
+                    title="เลือกรูปใบเสร็จเพื่อแสกน",
+                    filters=[("Images", "*.jpg", "*.jpeg", "*.png")],
+                    on_selection=self.handle_gallery_selection
+                )
+                if selection and isinstance(selection, list):
+                    self.handle_gallery_selection(selection)
+                return
+            except Exception as e:
+                print(f"[Scan] plyer filechooser failed: {e}")
                 
-        except Exception as e:
-            print(f"Tkinter file picker failed: {e}")
-            if os.path.exists("test_receipt.jpg"):
-                self.start_ai_analysis("test_receipt.jpg")
-                
+        from kivymd.toast import toast
+        toast("ไม่สามารถเปิดแกลเลอรี่ได้บนอุปกรณ์นี้")
+        print("[Scan] No image source available.")
+
     def handle_gallery_selection(self, selection):
         if selection:
             image_path = selection[0]
             self.start_ai_analysis(image_path)
 
     def on_manual_press(self):
-        """
-        Skip AI and go straight to manual entry
-        """
-        print("Action: Manual Entry")
+        """ข้าม AI แล้วไปกรอกมือเลย"""
+        print("[Scan] Action: Manual Entry")
         self.manager.current = 'new_split_screen'
 
     def start_ai_analysis(self, image_path):
         """
-        แสดง Loading overlay และโยนงานให้ Thread รองทำ เพื่อไม่ให้ UI ค้าง
+        แสดง Loading overlay และโยนงานให้ background thread
+        เพื่อไม่ให้ UI ค้าง
         """
         self.show_loading(True)
-        
+
         # ปิดกล้องชั่วคราวระหว่างรอ
-        if 'camera' in self.ids:
-            self.ids.camera.play = False
-            
-        # สร้าง Thread ให้ AI คิดงานหลังบ้าน
-        threading.Thread(target=self._run_ai_task, args=(image_path,), daemon=True).start()
-        
-        # เริ่มแอนิเมชันเปลี่ยนข้อความรอ
+        try:
+            if 'camera' in self.ids:
+                self.ids.camera.play = False
+        except Exception:
+            pass
+
+        # สร้าง daemon thread ให้ AI ทำงานเบื้องหลัง
+        threading.Thread(
+            target=self._run_ai_task,
+            args=(image_path,),
+            daemon=True
+        ).start()
+
+        # เริ่ม animation เปลี่ยนข้อความรอ
         self.loading_step = 0
-        self.loading_event = Clock.schedule_interval(self._update_loading_text, 2.0)
+        self.loading_event = Clock.schedule_interval(
+            self._update_loading_text, 2.0
+        )
 
     def _update_loading_text(self, dt):
         texts = [
-            "กำลังอัปโหลดรูปภาพ...",
+            "กำลังส่งรูปภาพ...",
             "กำลังให้ AI อ่านบิล...",
             "กำลังแยกราคาสินค้า...",
-            "กำลังคำนวณภาษี...",
-            "เกือบเสร็จแล้ว..."
+            "เกือบเสร็จแล้ว...",
         ]
         self.loading_step = (self.loading_step + 1) % len(texts)
-        self.ids.loading_text.text = texts[self.loading_step]
+        if 'loading_text' in self.ids:
+            self.ids.loading_text.text = texts[self.loading_step]
 
     def _run_ai_task(self, image_path):
-        """ท่วงทำอยู่เบื้องหลัง (Background Thread)"""
-        # เรียก AI ฟังก์ชันจาก core
+        """Background thread — เรียก AI แล้ว schedule callback กลับ main thread"""
         result = scan_receipt(image_path)
-        
-        # เมื่อเสร็จแล้ว ต้องกลับมาอัปเดต UI บน Main Thread เท่านั้น
         Clock.schedule_once(lambda dt: self.on_ai_result(result))
 
     def on_ai_result(self, result):
         """
-        Callback 3: AI Result Handler (Runs on Main Thread)
+        Callback หลัง AI เสร็จ — ทำงานบน Main Thread เท่านั้น
         """
-        # หยุดข้อความโหลด
         if hasattr(self, 'loading_event'):
             self.loading_event.cancel()
-            
+
         self.show_loading(False)
-        print(f"AI Result: {result}")
-        
+        print(f"[Scan] AI Result: {result}")
+
         if "error" in result:
-            print(f"Failed: {result['error']}")
-            # ในแอปจริงควรมี Popup หรือ Snackbar แจ้งเตือนตรงนี้
+            print(f"[Scan] AI Failed: {result['error']}")
+            from kivymd.toast import toast
+            toast("❌ ไม่สามารถอ่านบิลได้ ลองใหม่อีกครั้ง")
             # เปิดกล้องให้ลองใหม่
-            if 'camera' in self.ids:
-                self.ids.camera.play = True
+            try:
+                if 'camera' in self.ids:
+                    self.ids.camera.play = True
+            except Exception:
+                pass
             return
 
-        # ถ้าสำเร็จ ส่งข้อมูลข้ามไปหน้า New Split Screen
+        # ส่งข้อมูลข้ามหน้าไปยัง NewSplitScreen
         new_split = self.manager.get_screen('new_split_screen')
-        
-        # Phase A: ส่งผลลัพธ์จาก AI ไปยัง New Split Screen
         if hasattr(new_split, 'populate_data_from_ai'):
             new_split.populate_data_from_ai(result)
-        
-        # นำทางไปหน้าถัดไป
+
         self.manager.current = 'new_split_screen'
 
     def show_loading(self, show: bool):
+        if 'loading_overlay' not in self.ids:
+            return
         overlay = self.ids.loading_overlay
         spinner = self.ids.spinner
         if show:
             overlay.opacity = 1
             spinner.active = True
-            self.ids.loading_text.text = "กำลังส่งรูปภาพ..."
+            if 'loading_text' in self.ids:
+                self.ids.loading_text.text = "กำลังส่งรูปภาพ..."
         else:
             overlay.opacity = 0
             spinner.active = False
