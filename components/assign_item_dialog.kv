@@ -64,12 +64,16 @@
                 spacing: "8dp"
                 padding: ["16dp", "0dp", "16dp", "0dp"]
 
-                MDIcon:
-                    icon: "check"
-                    theme_text_color: "Custom"
-                    text_color: get_color_from_hex('#FFFFFF')
+                AnchorLayout:
                     size_hint_x: None
                     width: "24dp"
+                    anchor_x: "center"
+                    anchor_y: "center"
+                    MDIcon:
+                        icon: "check"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#FFFFFF')
+                        adaptive_size: True
 
                 MDLabel:
                     text: "Confirm"

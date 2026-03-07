@@ -38,11 +38,15 @@
 
         Widget:
 
-        MDIcon:
-            id: check_icon
-            icon: "check-circle"
-            theme_text_color: "Custom"
-            text_color: get_color_from_hex('#50C878')
+        AnchorLayout:
             size_hint_x: None
             width: "28dp"
-            opacity: root.check_opacity
+            anchor_x: "center"
+            anchor_y: "center"
+            MDIcon:
+                id: check_icon
+                icon: "check-circle"
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#50C878')
+                opacity: root.check_opacity
+                adaptive_size: True

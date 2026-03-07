@@ -28,15 +28,15 @@
                         md_bg_color: get_color_from_hex('#FFFFFF')
                         elevation: 0
                         ripple_behavior: True
-                        # Removed on_release from MDCard as MDIconButton handles it
+                        on_release: app.root.current = 'dashboard'
 
-                        MDIconButton:
+                        MDIcon:
                             icon: "arrow-left"
-                            pos_hint: {"center_y": .5}
                             theme_text_color: "Custom"
                             text_color: get_color_from_hex('#0F172A')
-                            md_bg_color: get_color_from_hex('#FFFFFF')
-                            on_release: app.root.current = 'dashboard'
+                            halign: "center"
+                            valign: "center"
+                            pos_hint: {"center_x": .5, "center_y": .5}
 
                     Widget:
 
@@ -67,6 +67,8 @@
                             theme_text_color: "Custom"
                             text_color: get_color_from_hex('#0E1B14')
                             halign: "center"
+                            valign: "center"
+                            pos_hint: {"center_x": .5, "center_y": .5}
 
                 # QR Code Container (Hidden by default, shown via python if promptpay exists)
                 MDBoxLayout:
@@ -162,12 +164,16 @@
                     spacing: "8dp"
                     padding: ["16dp", "0dp", "16dp", "0dp"]
 
-                    MDIcon:
-                        icon: "content-copy"
-                        theme_text_color: "Custom"
-                        text_color: get_color_from_hex('#FFFFFF')
+                    AnchorLayout:
                         size_hint_x: None
                         width: "24dp"
+                        anchor_x: "center"
+                        anchor_y: "center"
+                        MDIcon:
+                            icon: "content-copy"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#FFFFFF')
+                            adaptive_size: True
 
                     MDLabel:
                         text: "Copy to Clipboard"
@@ -192,12 +198,16 @@
                     spacing: "8dp"
                     padding: ["16dp", "0dp", "16dp", "0dp"]
 
-                    MDIcon:
-                        icon: "home-outline"
-                        theme_text_color: "Custom"
-                        text_color: get_color_from_hex('#BE123C')
+                    AnchorLayout:
                         size_hint_x: None
                         width: "24dp"
+                        anchor_x: "center"
+                        anchor_y: "center"
+                        MDIcon:
+                            icon: "home-outline"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#BE123C')
+                            adaptive_size: True
 
                     MDLabel:
                         text: "Back to Home"

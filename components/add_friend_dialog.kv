@@ -48,12 +48,16 @@
                 orientation: 'horizontal'
                 spacing: "10dp"
 
-                MDIcon:
-                    icon: "magnify"
-                    theme_text_color: "Custom"
-                    text_color: get_color_from_hex('#4E9773')
+                AnchorLayout:
                     size_hint_x: None
                     width: "24dp"
+                    anchor_x: "center"
+                    anchor_y: "center"
+                    MDIcon:
+                        icon: "magnify"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#4E9773')
+                        adaptive_size: True
 
                 MDTextField:
                     id: friend_name_input
@@ -79,12 +83,16 @@
                 spacing: "8dp"
                 padding: ["16dp", "0dp", "16dp", "0dp"]
 
-                MDIcon:
-                    icon: "account-plus"
-                    theme_text_color: "Custom"
-                    text_color: get_color_from_hex('#FFFFFF')
+                AnchorLayout:
                     size_hint_x: None
                     width: "24dp"
+                    anchor_x: "center"
+                    anchor_y: "center"
+                    MDIcon:
+                        icon: "account-plus"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#FFFFFF')
+                        adaptive_size: True
 
                 MDLabel:
                     text: "Add Friend"
