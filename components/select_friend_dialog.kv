@@ -44,13 +44,16 @@
 
         Widget:
 
-        MDIcon:
-            icon: "check-circle" if root.is_selected else "circle-outline"
-            theme_text_color: "Custom"
-            text_color: get_color_from_hex('#16A34A') if root.is_selected else get_color_from_hex('#CBD5E1')
+        AnchorLayout:
             size_hint_x: None
             width: "24dp"
-            pos_hint: {"center_y": .5}
+            anchor_x: "center"
+            anchor_y: "center"
+            MDIcon:
+                icon: "check-circle" if root.is_selected else "circle-outline"
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#16A34A') if root.is_selected else get_color_from_hex('#CBD5E1')
+                adaptive_size: True
 
 <SelectFriendDialog>:
     id: select_friend_dialog

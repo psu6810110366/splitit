@@ -10,7 +10,7 @@
 
             MDBoxLayout:
                 orientation: 'vertical'
-                padding: ["20dp", "48dp", "20dp", "100dp"]
+                padding: ["20dp", "48dp", "20dp", "120dp"]
                 spacing: "20dp"
                 adaptive_height: True
 
@@ -31,6 +31,7 @@
                     md_bg_color: get_color_from_hex('#FFFFFF')
                     elevation: 0
                     padding: ["16dp", "16dp", "16dp", "16dp"]
+                    ripple_behavior: True
 
                     MDBoxLayout:
                         orientation: 'horizontal'
@@ -42,6 +43,7 @@
                             radius: [28, 28, 28, 28]
                             md_bg_color: get_color_from_hex('#FFF0EB')
                             elevation: 0
+                            pos_hint: {"center_y": .5}
 
                             MDIcon:
                                 icon: "account-edit-outline"
@@ -49,11 +51,13 @@
                                 theme_text_color: "Custom"
                                 text_color: get_color_from_hex('#F45925')
                                 halign: "center"
-                                pos_hint: {"center_y": .5}
+                                valign: "center"
+                                pos_hint: {"center_x": .5, "center_y": .5}
 
                         MDBoxLayout:
                             orientation: 'vertical'
                             spacing: "4dp"
+                            pos_hint: {"center_y": .5}
 
                             MDLabel:
                                 text: "My Profile"
@@ -70,12 +74,16 @@
                                 text_color: get_color_from_hex('#6B7280')
                                 adaptive_height: True
 
-                        MDIcon:
-                            icon: "chevron-right"
-                            theme_text_color: "Custom"
-                            text_color: get_color_from_hex('#94A3B8')
+                        AnchorLayout:
                             size_hint_x: None
                             width: "24dp"
+                            anchor_x: "center"
+                            anchor_y: "center"
+                            MDIcon:
+                                icon: "chevron-right"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#94A3B8')
+                                adaptive_size: True
 
                 # PromptPay Settings
                 MDLabel:
@@ -88,11 +96,11 @@
 
                 MDCard:
                     size_hint_y: None
-                    height: "80dp"
+                    height: "88dp"
                     radius: [20, 20, 20, 20]
                     md_bg_color: get_color_from_hex('#FFFFFF')
                     elevation: 0
-                    padding: ["16dp", "8dp", "16dp", "8dp"]
+                    padding: ["16dp", "12dp", "16dp", "12dp"]
 
                     MDBoxLayout:
                         orientation: 'horizontal'
@@ -110,8 +118,7 @@
                                 icon: "qrcode-scan"
                                 theme_text_color: "Custom"
                                 text_color: get_color_from_hex('#0284C7')
-                                halign: "center"
-                                pos_hint: {"center_y": .5}
+                                pos_hint: {"center_x": .5, "center_y": .5}
 
                         MDBoxLayout:
                             orientation: 'vertical'
@@ -131,6 +138,8 @@
                                 hint_text: "08x-xxx-xxxx / ID Card"
                                 font_size: "14sp"
                                 mode: "rectangle"
+                                size_hint_y: None
+                                height: "36dp"
                                 on_focus: if not self.focus: root.save_promptpay()
                                 on_text_validate: root.save_promptpay()
 
@@ -160,12 +169,16 @@
                             size_hint_y: None
                             height: "60dp"
 
-                            MDIcon:
-                                icon: "currency-usd"
-                                theme_text_color: "Custom"
-                                text_color: get_color_from_hex('#4E9773')
+                            AnchorLayout:
                                 size_hint_x: None
                                 width: "24dp"
+                                anchor_x: "center"
+                                anchor_y: "center"
+                                MDIcon:
+                                    icon: "currency-usd"
+                                    theme_text_color: "Custom"
+                                    text_color: get_color_from_hex('#4E9773')
+                                    adaptive_size: True
 
                             MDLabel:
                                 text: "Default Currency"
@@ -173,6 +186,7 @@
                                 theme_text_color: "Custom"
                                 text_color: get_color_from_hex('#0E1B14')
                                 adaptive_height: True
+                                pos_hint: {"center_y": .5}
 
                             Widget:
 
@@ -184,13 +198,18 @@
                                 adaptive_height: True
                                 size_hint_x: None
                                 width: "60dp"
+                                pos_hint: {"center_y": .5}
 
-                            MDIcon:
-                                icon: "chevron-right"
-                                theme_text_color: "Custom"
-                                text_color: get_color_from_hex('#94A3B8')
+                            AnchorLayout:
                                 size_hint_x: None
                                 width: "24dp"
+                                anchor_x: "center"
+                                anchor_y: "center"
+                                MDIcon:
+                                    icon: "chevron-right"
+                                    theme_text_color: "Custom"
+                                    text_color: get_color_from_hex('#94A3B8')
+                                    adaptive_size: True
 
                         MDBoxLayout:
                             orientation: 'horizontal'
@@ -199,12 +218,16 @@
                             size_hint_y: None
                             height: "60dp"
 
-                            MDIcon:
-                                icon: "bell-outline"
-                                theme_text_color: "Custom"
-                                text_color: get_color_from_hex('#4E9773')
+                            AnchorLayout:
                                 size_hint_x: None
                                 width: "24dp"
+                                anchor_x: "center"
+                                anchor_y: "center"
+                                MDIcon:
+                                    icon: "bell-outline"
+                                    theme_text_color: "Custom"
+                                    text_color: get_color_from_hex('#4E9773')
+                                    adaptive_size: True
 
                             MDLabel:
                                 text: "Notifications"
@@ -212,15 +235,20 @@
                                 theme_text_color: "Custom"
                                 text_color: get_color_from_hex('#0E1B14')
                                 adaptive_height: True
+                                pos_hint: {"center_y": .5}
 
                             Widget:
 
-                            MDIcon:
-                                icon: "chevron-right"
-                                theme_text_color: "Custom"
-                                text_color: get_color_from_hex('#94A3B8')
+                            AnchorLayout:
                                 size_hint_x: None
                                 width: "24dp"
+                                anchor_x: "center"
+                                anchor_y: "center"
+                                MDIcon:
+                                    icon: "chevron-right"
+                                    theme_text_color: "Custom"
+                                    text_color: get_color_from_hex('#94A3B8')
+                                    adaptive_size: True
 
                         MDBoxLayout:
                             orientation: 'horizontal'
@@ -229,12 +257,16 @@
                             size_hint_y: None
                             height: "60dp"
 
-                            MDIcon:
-                                icon: "information-outline"
-                                theme_text_color: "Custom"
-                                text_color: get_color_from_hex('#4E9773')
+                            AnchorLayout:
                                 size_hint_x: None
                                 width: "24dp"
+                                anchor_x: "center"
+                                anchor_y: "center"
+                                MDIcon:
+                                    icon: "information-outline"
+                                    theme_text_color: "Custom"
+                                    text_color: get_color_from_hex('#4E9773')
+                                    adaptive_size: True
 
                             MDLabel:
                                 text: "About SplitIt"
@@ -242,15 +274,20 @@
                                 theme_text_color: "Custom"
                                 text_color: get_color_from_hex('#0E1B14')
                                 adaptive_height: True
+                                pos_hint: {"center_y": .5}
 
                             Widget:
 
-                            MDIcon:
-                                icon: "chevron-right"
-                                theme_text_color: "Custom"
-                                text_color: get_color_from_hex('#94A3B8')
+                            AnchorLayout:
                                 size_hint_x: None
                                 width: "24dp"
+                                anchor_x: "center"
+                                anchor_y: "center"
+                                MDIcon:
+                                    icon: "chevron-right"
+                                    theme_text_color: "Custom"
+                                    text_color: get_color_from_hex('#94A3B8')
+                                    adaptive_size: True
 
         # Bottom navigation
         BottomNav:

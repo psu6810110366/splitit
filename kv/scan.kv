@@ -62,6 +62,8 @@
                     theme_text_color: "Custom"
                     text_color: get_color_from_hex('#FFFFFF')
                     halign: "center"
+                    valign: "center"
+                    pos_hint: {"center_x": .5, "center_y": .5}
 
             Widget:
 
@@ -89,6 +91,8 @@
                     theme_text_color: "Custom"
                     text_color: get_color_from_hex('#FFFFFF')
                     halign: "center"
+                    valign: "center"
+                    pos_hint: {"center_x": .5, "center_y": .5}
 
         # Instruction text
         MDLabel:
@@ -120,12 +124,16 @@
                     orientation: 'horizontal'
                     spacing: "6dp"
 
-                    MDIcon:
-                        icon: "weather-sunny"
-                        theme_text_color: "Custom"
-                        text_color: get_color_from_hex('#50C878')
+                    AnchorLayout:
                         size_hint_x: None
                         width: "20dp"
+                        anchor_x: "center"
+                        anchor_y: "center"
+                        MDIcon:
+                            icon: "weather-sunny"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#50C878')
+                            adaptive_size: True
 
                     MDLabel:
                         text: "Good Light"
@@ -145,12 +153,16 @@
                     orientation: 'horizontal'
                     spacing: "6dp"
 
-                    MDIcon:
-                        icon: "crop-free"
-                        theme_text_color: "Custom"
-                        text_color: get_color_from_hex('#FFFFFF')
+                    AnchorLayout:
                         size_hint_x: None
                         width: "20dp"
+                        anchor_x: "center"
+                        anchor_y: "center"
+                        MDIcon:
+                            icon: "crop-free"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#FFFFFF')
+                            adaptive_size: True
 
                     MDLabel:
                         text: "Hold Steady"
@@ -190,6 +202,8 @@
                         theme_text_color: "Custom"
                         text_color: get_color_from_hex('#FFFFFF')
                         halign: "center"
+                        valign: "center"
+                        pos_hint: {"center_x": .5, "center_y": .5}
 
                 MDLabel:
                     text: "GALLERY"
@@ -221,6 +235,8 @@
                         theme_text_color: "Custom"
                         text_color: get_color_from_hex('#0E1B14')
                         halign: "center"
+                        valign: "center"
+                        pos_hint: {"center_x": .5, "center_y": .5}
 
             # Manual entry
             MDBoxLayout:
@@ -243,6 +259,8 @@
                         theme_text_color: "Custom"
                         text_color: get_color_from_hex('#FFFFFF')
                         halign: "center"
+                        valign: "center"
+                        pos_hint: {"center_x": .5, "center_y": .5}
 
                 MDLabel:
                     text: "MANUAL"
