@@ -22,6 +22,14 @@
             on_release: app.root.current = 'dashboard'
 
         Widget:
+        
+        MDIconButton:
+            icon: "camera-outline"
+            theme_text_color: "Custom"
+            icon_color: root.scan_icon_color
+            on_release: app.root.current = 'scan_screen'
+
+        Widget:
 
         MDIconButton:
             icon: "account-group-outline"

@@ -19,7 +19,6 @@ class FriendsScreen(Screen):
     def load_friends(self):
         """ดึงรายชื่อเพื่อนจาก DB แล้วอัปเดต list"""
         try:
-            from core.storage import MY_DISPLAY_NAME
             from core.models import BillParticipant
             
             friends = Friend.select().order_by(Friend.name)

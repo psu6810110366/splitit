@@ -9,6 +9,12 @@ from components.person_row import PersonRow
 
 class NewSplitScreen(Screen):
     split_mode = StringProperty('equal')
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._items = []
+        self._people = []
+        self._custom_amounts = {}
 
     def on_enter(self, *args):
         """รีเซ็ตฟอร์มทุกครั้งที่เข้าหน้านี้ใหม่ (ยกเว้นกรณีส่งมาจาก AI)"""
@@ -59,7 +65,11 @@ class NewSplitScreen(Screen):
             if name:
                 self._items.append({'name': name, 'price': price, 'assigned_to': []})
 
+        total_amount = result.get('total', 0.0)
+        self.ids.total_amount_label.text = f"{total_amount:.2f}"
+
         self._refresh_items_list()
+        self._refresh_people_list()
         print(f"[NewSplit] Populated {len(self._items)} items from AI")
 
     # ── Items ─────────────────────────────────────────────────────────────────

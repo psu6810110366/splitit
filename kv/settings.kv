@@ -43,11 +43,13 @@
                             md_bg_color: get_color_from_hex('#FFF0EB')
                             elevation: 0
 
-                            MDLabel:
-                                text: "👩‍💼"
+                            MDIcon:
+                                icon: "account-edit-outline"
                                 font_size: "28sp"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#F45925')
                                 halign: "center"
-                                valign: "center"
+                                pos_hint: {"center_y": .5}
 
                         MDBoxLayout:
                             orientation: 'vertical'

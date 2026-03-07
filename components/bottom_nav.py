@@ -8,10 +8,12 @@ _INACTIVE = [0.580, 0.635, 0.722, 1.0]  # #94A3B8 grey
 class BottomNav(MDCard):
     active_tab = StringProperty('home')
     home_icon_color = ListProperty(_ACTIVE)
+    scan_icon_color = ListProperty(_INACTIVE)
     friends_icon_color = ListProperty(_INACTIVE)
     settings_icon_color = ListProperty(_INACTIVE)
 
     def on_active_tab(self, instance, value):
         self.home_icon_color = _ACTIVE if value == 'home' else _INACTIVE
+        self.scan_icon_color = _ACTIVE if value == 'scan' else _INACTIVE
         self.friends_icon_color = _ACTIVE if value == 'friends' else _INACTIVE
         self.settings_icon_color = _ACTIVE if value == 'settings' else _INACTIVE

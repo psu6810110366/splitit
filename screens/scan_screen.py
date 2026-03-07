@@ -1,7 +1,6 @@
 from kivy.uix.screenmanager import Screen
 from kivy.clock import Clock
 import threading
-import os
 
 try:
     from plyer import filechooser
@@ -69,7 +68,7 @@ class ScanScreen(Screen):
                 script = '''
                 tell application "System Events"
                     activate
-                    set theFile to choose file with prompt "เลือกรูปภาพใบเสร็จ:" of type {"public.image"}
+                    set theFile to choose file with prompt "Select Receipt Image:" of type {"public.image"}
                     POSIX path of theFile
                 end tell
                 '''

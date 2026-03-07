@@ -3,7 +3,6 @@ from kivy.properties import StringProperty, NumericProperty, DictProperty, ListP
 from kivy.utils import get_color_from_hex
 from kivymd.uix.card import MDCard
 from kivymd.uix.label import MDLabel
-from kivymd.uix.button import MDIconButton
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
 
@@ -14,15 +13,19 @@ class ResultScreen(Screen):
     total = NumericProperty(0.0)
     breakdown = DictProperty({})  # fallback for no-DB
     _participants_data = ListProperty([]) # List of dicts
+    _items_data = ListProperty([]) # List of items
 
     def on_enter(self, *args):
         self._load_data()
+        self._populate_items()
         self._populate_participants()
         self._generate_and_show_qr()
 
     def _load_data(self):
         """โหลดข้อมูลจาก DB ถ้ามี bill_id, ถ้าไม่มีใช้ breakdown เดิม"""
         self._participants_data = []
+        self._items_data = getattr(self, 'bill_items', []) # Fallback for items from NewSplit
+        
         if self.bill_id > 0:
             from core.storage import get_bill_details
             details = get_bill_details(self.bill_id)
@@ -30,6 +33,7 @@ class ResultScreen(Screen):
                 self.bill_title = details.get('title', self.bill_title)
                 self.total = details.get('total', self.total)
                 self._participants_data = details.get('participants', [])
+                self._items_data = details.get('items', self._items_data)
         else:
             # Fallback
             for name, amount in self.breakdown.items():
@@ -44,8 +48,6 @@ class ResultScreen(Screen):
         from kivy.storage.jsonstore import JsonStore
         import promptpay.qrcode
         import qrcode
-        import os
-        from kivy.clock import Clock
 
         store = JsonStore('settings.json')
         promptpay_number = store.get('user').get('promptpay', '') if store.exists('user') else ''
@@ -83,6 +85,67 @@ class ResultScreen(Screen):
             print(f"[ResultScreen] QR Generation failed: {e}")
             qr_container.opacity = 0
             qr_container.height = 0
+
+    def _populate_items(self):
+        container = self.ids.get('items_list_container')
+        heading = self.ids.get('items_heading_label')
+        if not container or getattr(heading, 'opacity', None) is None:
+            return
+            
+        container.clear_widgets()
+        if not self._items_data:
+            # ซ่อนส่วนนี้ทิ้งถ้าบิลเก่าๆ ไม่มีข้อมูล items
+            container.opacity = 0
+            container.height = "0dp"
+            heading.opacity = 0
+            heading.height = "0dp"
+            return
+            
+        # เปิดคืนกรณีเคยถูกซ่อน
+        container.opacity = 1
+        heading.opacity = 1
+        heading.height = "32dp"
+        
+        from kivymd.uix.label import MDLabel
+        from kivy.uix.boxlayout import BoxLayout
+        
+        for item in self._items_data:
+            name = item.get('name', 'Item')
+            price = item.get('price', 0.0)
+            qty = item.get('quantity', 1)
+            
+            card = MDCard(
+                size_hint_y=None,
+                height='48dp',
+                radius=[12, 12, 12, 12],
+                md_bg_color=get_color_from_hex('#F8FAFC'),
+                elevation=0,
+                padding=['16dp', '0dp', '16dp', '0dp']
+            )
+            
+            box = BoxLayout(orientation='horizontal')
+            
+            name_lbl = MDLabel(
+                text=f"{name} (x{qty})", 
+                font_style='Subtitle2', 
+                theme_text_color='Custom', 
+                text_color=get_color_from_hex('#334155'),
+                valign='center'
+            )
+            price_lbl = MDLabel(
+                text=f"฿{price:,.2f}", 
+                halign='right', 
+                valign='center',
+                font_style='Subtitle2',
+                bold=True, 
+                theme_text_color='Custom', 
+                text_color=get_color_from_hex('#065F46')
+            )
+            
+            box.add_widget(name_lbl)
+            box.add_widget(price_lbl)
+            card.add_widget(box)
+            container.add_widget(card)
 
     def _populate_participants(self):
         participants_list = self.ids.participants_list
@@ -338,7 +401,7 @@ class ResultScreen(Screen):
         from kivy.core.clipboard import Clipboard
         from kivymd.toast import toast
         
-        text = format_result_text(self.bill_title, self.total, self.breakdown)
+        text = format_result_text(self.bill_title, self.total, self._participants_data, self._items_data)
         Clipboard.copy(text)
         print('[Result] Copied to clipboard')
         toast("คัดลอกสรุปรายการแล้ว นำไปวางในแชทได้เลย!")

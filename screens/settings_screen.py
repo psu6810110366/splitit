@@ -1,7 +1,6 @@
 from kivy.uix.screenmanager import Screen
 from kivy.storage.jsonstore import JsonStore
 from kivymd.toast import toast
-import os
 
 class SettingsScreen(Screen):
     def on_enter(self, *args):
