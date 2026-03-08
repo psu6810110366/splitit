@@ -29,6 +29,22 @@ def test_split_equally_edge_cases():
     assert split_equally(100, []) == {}
 
 
+def test_split_equally_rejects_negative_total():
+    """split_equally() ต้อง raise ValueError ถ้า total ติดลบ"""
+    import pytest
+
+    with pytest.raises(ValueError):
+        split_equally(-50, ["A", "B"])
+
+
+def test_split_equally_rejects_non_list():
+    """split_equally() ต้อง raise TypeError ถ้า participants ไม่ใช่ list"""
+    import pytest
+
+    with pytest.raises(TypeError):
+        split_equally(100, "Alice")
+
+
 def test_split_custom_logic():
     items = [{"name": "Beer", "price": 120}, {"name": "Water", "price": 20}]
     # A กินเบียร์คนเดียว, B กินน้ำ, แต่แชร์เบียร์ด้วยกัน (สมมติแชร์)
