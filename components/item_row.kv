@@ -12,16 +12,21 @@
         orientation: 'horizontal'
         spacing: "10dp"
 
-        MDIcon:
-            icon: "food-outline"
-            theme_text_color: "Custom"
-            text_color: get_color_from_hex('#4E9773')
+        AnchorLayout:
             size_hint_x: None
             width: "24dp"
+            anchor_x: "center"
+            anchor_y: "center"
+            MDIcon:
+                icon: "food-outline"
+                theme_text_color: "Custom"
+                text_color: get_color_from_hex('#4E9773')
+                adaptive_size: True
 
         MDBoxLayout:
             orientation: 'vertical'
             spacing: "2dp"
+            pos_hint: {"center_y": .5}
 
             MDLabel:
                 text: root.item_name
@@ -35,13 +40,17 @@
                 spacing: "4dp"
                 adaptive_height: True
 
-                MDIcon:
-                    icon: "account-group-outline"
-                    theme_text_color: "Custom"
-                    text_color: get_color_from_hex('#4E9773')
+                AnchorLayout:
                     size_hint_x: None
                     width: "16dp"
-                    font_size: "14sp"
+                    anchor_x: "center"
+                    anchor_y: "center"
+                    MDIcon:
+                        icon: "account-group-outline"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#4E9773')
+                        font_size: "14sp"
+                        adaptive_size: True
 
                 MDLabel:
                     text: root.assigned_text
@@ -61,6 +70,7 @@
             halign: "right"
             size_hint_x: None
             width: "80dp"
+            pos_hint: {"center_y": .5}
 
         MDIconButton:
             icon: "account-edit-outline"
@@ -69,6 +79,7 @@
             on_release: root.do_assign()
             size_hint: None, None
             size: "36dp", "36dp"
+            pos_hint: {"center_y": .5}
 
         MDIconButton:
             icon: "close"
@@ -77,3 +88,4 @@
             on_release: root.do_delete()
             size_hint: None, None
             size: "36dp", "36dp"
+            pos_hint: {"center_y": .5}

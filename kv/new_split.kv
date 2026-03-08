@@ -35,6 +35,8 @@
                             theme_text_color: "Custom"
                             text_color: get_color_from_hex('#0E1B14')
                             halign: "center"
+                            valign: "center"
+                            pos_hint: {"center_x": .5, "center_y": .5}
 
                     Widget:
 
@@ -75,12 +77,16 @@
                         orientation: 'horizontal'
                         spacing: "12dp"
 
-                        MDIcon:
-                            icon: "pencil-outline"
-                            theme_text_color: "Custom"
-                            text_color: get_color_from_hex('#4E9773')
+                        AnchorLayout:
                             size_hint_x: None
                             width: "24dp"
+                            anchor_x: "center"
+                            anchor_y: "center"
+                            MDIcon:
+                                icon: "pencil-outline"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#4E9773')
+                                adaptive_size: True
 
                         MDTextField:
                             id: bill_name_input
@@ -109,12 +115,16 @@
 
                     Widget:
 
-                    MDIcon:
-                        icon: "currency-usd"
-                        theme_text_color: "Custom"
-                        text_color: get_color_from_hex('#4E9773')
+                    AnchorLayout:
                         size_hint_x: None
                         width: "28dp"
+                        anchor_x: "center"
+                        anchor_y: "center"
+                        MDIcon:
+                            icon: "currency-usd"
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex('#4E9773')
+                            adaptive_size: True
 
                     MDTextField:
                         id: total_amount_label
@@ -189,12 +199,16 @@
                         spacing: "8dp"
                         padding: ["20dp", "0dp", "20dp", "0dp"]
 
-                        MDIcon:
-                            icon: "plus-circle-outline"
-                            theme_text_color: "Custom"
-                            text_color: get_color_from_hex('#4E9773')
+                        AnchorLayout:
                             size_hint_x: None
                             width: "24dp"
+                            anchor_x: "center"
+                            anchor_y: "center"
+                            MDIcon:
+                                icon: "plus-circle-outline"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#4E9773')
+                                adaptive_size: True
 
                         MDLabel:
                             text: "Add Item"
@@ -352,12 +366,16 @@
                         spacing: "8dp"
                         padding: ["20dp", "0dp", "20dp", "0dp"]
 
-                        MDIcon:
-                            icon: "plus"
-                            theme_text_color: "Custom"
-                            text_color: get_color_from_hex('#4E9773')
+                        AnchorLayout:
                             size_hint_x: None
                             width: "24dp"
+                            anchor_x: "center"
+                            anchor_y: "center"
+                            MDIcon:
+                                icon: "plus"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex('#4E9773')
+                                adaptive_size: True
 
                         MDLabel:
                             text: "Add Friend"
@@ -371,7 +389,7 @@
         MDCard:
             size_hint: 1, None
             height: "80dp"
-            pos_hint: {"bottom": 1, "x": 0}
+            pos_hint: {"y": 0, "x": 0}
             md_bg_color: get_color_from_hex('#F6F8F7')
             elevation: 0
             padding: ["20dp", "12dp", "20dp", "12dp"]

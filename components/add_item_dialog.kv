@@ -41,12 +41,16 @@
                 orientation: 'horizontal'
                 spacing: "10dp"
 
-                MDIcon:
-                    icon: "food-outline"
-                    theme_text_color: "Custom"
-                    text_color: get_color_from_hex('#4E9773')
+                AnchorLayout:
                     size_hint_x: None
                     width: "24dp"
+                    anchor_x: "center"
+                    anchor_y: "center"
+                    MDIcon:
+                        icon: "food-outline"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#4E9773')
+                        adaptive_size: True
 
                 MDTextField:
                     id: item_name_input
@@ -71,12 +75,16 @@
                 orientation: 'horizontal'
                 spacing: "10dp"
 
-                MDIcon:
-                    icon: "currency-usd"
-                    theme_text_color: "Custom"
-                    text_color: get_color_from_hex('#4E9773')
+                AnchorLayout:
                     size_hint_x: None
                     width: "24dp"
+                    anchor_x: "center"
+                    anchor_y: "center"
+                    MDIcon:
+                        icon: "currency-usd"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#4E9773')
+                        adaptive_size: True
 
                 MDTextField:
                     id: item_price_input
@@ -104,12 +112,16 @@
                 spacing: "8dp"
                 padding: ["16dp", "0dp", "16dp", "0dp"]
 
-                MDIcon:
-                    icon: "plus-circle"
-                    theme_text_color: "Custom"
-                    text_color: get_color_from_hex('#FFFFFF')
+                AnchorLayout:
                     size_hint_x: None
                     width: "24dp"
+                    anchor_x: "center"
+                    anchor_y: "center"
+                    MDIcon:
+                        icon: "plus-circle"
+                        theme_text_color: "Custom"
+                        text_color: get_color_from_hex('#FFFFFF')
+                        adaptive_size: True
 
                 MDLabel:
                     text: "Add Item"
