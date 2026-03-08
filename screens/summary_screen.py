@@ -8,18 +8,31 @@ from kivy.core.clipboard import Clipboard
 
 
 class SummaryScreen(Screen):
-    bill_name = StringProperty('Bill')
+    """
+    หน้าสรุปยอดก่อนบันทึกบิล — แสดงยอดแต่ละคนและยอดรวมทั้งสิ้น
+    Data-flow: NewSplitScreen → inject properties → on_enter → _populate_summary() → widgets
+
+    Properties:
+        bill_name: ชื่อบิล
+        total: ยอดรวมประเภท float
+        breakdown: ผลลัพธ์การหาร {name: amount}
+        bill_items: รายการอาหาร [{'name': str, 'price': float}]
+    """
+
+    bill_name = StringProperty("Bill")
     total = NumericProperty(0.0)
-    breakdown = DictProperty({})   # {name: amount}
+    breakdown = DictProperty({})  # {name: amount}
     bill_items = ListProperty([])  # [{'name': str, 'price': float}]
 
     def on_enter(self, *args):
+        """เรียก _populate_summary() เมื่อเข้าหน้านี้"""
         self._populate_summary()
 
     def _populate_summary(self):
+        """สร้าง widget สรุปยอดจาก properties ปัจจุบัน"""
         self.ids.bill_title_label.text = self.bill_name
-        self.ids.bill_total_label.text = 'Total: ' + '{:,.2f}'.format(self.total)
-        self.ids.people_count_label.text = '{} People'.format(len(self.breakdown))
+        self.ids.bill_total_label.text = "Total: " + "{:,.2f}".format(self.total)
+        self.ids.people_count_label.text = "{} People".format(len(self.breakdown))
 
         breakdown_list = self.ids.breakdown_list
         breakdown_list.clear_widgets()
@@ -31,77 +44,80 @@ class SummaryScreen(Screen):
         """สร้าง card แสดงชื่อ + ยอดที่ต้องจ่าย"""
         card = MDCard(
             size_hint_y=None,
-            height='60dp',
+            height="60dp",
             radius=[16, 16, 16, 16],
-            md_bg_color=get_color_from_hex('#FFFFFF'),
+            md_bg_color=get_color_from_hex("#FFFFFF"),
             elevation=0,
-            padding=['16dp', '0dp', '16dp', '0dp'],
+            padding=["16dp", "0dp", "16dp", "0dp"],
         )
-        box = BoxLayout(orientation='horizontal', spacing='12dp')
+        box = BoxLayout(orientation="horizontal", spacing="12dp")
 
         avatar = MDCard(
             size_hint=(None, None),
-            size=('36dp', '36dp'),
+            size=("36dp", "36dp"),
             radius=[18, 18, 18, 18],
-            md_bg_color=get_color_from_hex('#50C878'),
+            md_bg_color=get_color_from_hex("#50C878"),
             elevation=0,
         )
         ltr = MDLabel(
-            text=name[:1].upper() if name else '?',
-            halign='center',
-            valign='center',
+            text=name[:1].upper() if name else "?",
+            halign="center",
+            valign="center",
             bold=True,
-            theme_text_color='Custom',
-            text_color=get_color_from_hex('#FFFFFF'),
+            theme_text_color="Custom",
+            text_color=get_color_from_hex("#FFFFFF"),
         )
         avatar.add_widget(ltr)
         box.add_widget(avatar)
 
         name_label = MDLabel(
             text=name,
-            font_style='Body1',
-            theme_text_color='Custom',
-            text_color=get_color_from_hex('#0E1B14'),
+            font_style="Body1",
+            theme_text_color="Custom",
+            text_color=get_color_from_hex("#0E1B14"),
         )
         box.add_widget(name_label)
 
         from kivy.uix.widget import Widget
+
         box.add_widget(Widget())
 
         amount_label = MDLabel(
-            text='฿' + '{:,.2f}'.format(amount),
-            font_style='Subtitle1',
+            text="฿" + "{:,.2f}".format(amount),
+            font_style="Subtitle1",
             bold=True,
-            halign='right',
+            halign="right",
             size_hint_x=None,
-            width='100dp',
-            theme_text_color='Custom',
-            text_color=get_color_from_hex('#0E1B14'),
+            width="100dp",
+            theme_text_color="Custom",
+            text_color=get_color_from_hex("#0E1B14"),
         )
         box.add_widget(amount_label)
         card.add_widget(box)
         return card
 
     def go_back(self):
-        self.manager.current = 'new_split_screen'
+        """ย้อนกลับไปหน้า NewSplitScreen"""
+        self.manager.current = "new_split_screen"
 
     def on_copy_clipboard(self):
         """คัดลอกสรุปยอดไปยัง clipboard เพื่อแชร์ใน LINE/Messenger"""
         from core.split_engine import format_result_text
+
         text = format_result_text(self.bill_name, self.total, self.breakdown)
         Clipboard.copy(text)
-        print('[Summary] Copied to clipboard')
+        print("[Summary] Copied to clipboard")
 
     def on_save_and_finish(self):
         """บันทึกบิลลง SQLite แล้วไปหน้า Result"""
         from core.storage import save_bill
-        bill_id = save_bill(self.bill_name, self.total, self.bill_items, self.breakdown)
-        print('[Summary] Saved bill id:', bill_id)
 
-        result = self.manager.get_screen('result_screen')
+        bill_id = save_bill(self.bill_name, self.total, self.bill_items, self.breakdown)
+        print("[Summary] Saved bill id:", bill_id)
+
+        result = self.manager.get_screen("result_screen")
         result.bill_id = bill_id
         result.bill_title = self.bill_name
         result.total = self.total
         result.breakdown = dict(self.breakdown)
-        self.manager.current = 'result_screen'
-
+        self.manager.current = "result_screen"
