@@ -43,7 +43,7 @@ class FriendsScreen(Screen):
                     BillParticipant.select(fn.SUM(BillParticipant.amount_owed))
                     .where(
                         (BillParticipant.display_name == f.name)
-                        & (BillParticipant.is_paid == False)
+                        & (BillParticipant.is_paid == False)  # noqa: E712
                     )
                     .scalar()
                     or 0.0

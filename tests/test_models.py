@@ -20,7 +20,7 @@ def setup_test_db():
 
 def test_create_friend():
     # ทดสอบสร้างเพื่อนและเช็คว่าเซฟลง DB จริงไหม
-    f = Friend.create(name="Somchai", nickname="Chai")
+    Friend.create(name="Somchai", nickname="Chai")
     saved = Friend.get(Friend.name == "Somchai")
     assert saved.nickname == "Chai"
     assert saved.avatar_color.startswith("#")
