@@ -60,7 +60,10 @@ graph TD
 ```json
 {
   "title": "Starbucks Coffee",
-  "items": [{"name": "Latte", "price": 125.0}, {"name": "Cake", "price": 150.0}],
+  "items": [
+    { "name": "Latte", "price": 125.0 },
+    { "name": "Cake", "price": 150.0 }
+  ],
   "subtotal": 275.0,
   "tax_or_service_charge": 20.0,
   "total": 295.0
@@ -106,11 +109,11 @@ splitit/
 
 ใช้ **SQLite** ผ่าน **Peewee ORM** เพื่อความรวดเร็วและไม่ต้องเชื่อมต่อ Server:
 
-| Table | Description |
-|:---|:---|
-| `Friend` | เก็บรายชื่อ ชื่อเล่น และสี Avatar ของเพื่อน |
-| `Bill` | เก็บชื่อร้าน ยอดรวม วันที่ และสถานะการชำระเงินโดยรวม |
-| `BillItem` | เก็บรายการสินค้าและราคาในแต่ละบิล |
+| Table             | Description                                                              |
+| :---------------- | :----------------------------------------------------------------------- |
+| `Friend`          | เก็บรายชื่อ ชื่อเล่น และสี Avatar ของเพื่อน                              |
+| `Bill`            | เก็บชื่อร้าน ยอดรวม วันที่ และสถานะการชำระเงินโดยรวม                     |
+| `BillItem`        | เก็บรายการสินค้าและราคาในแต่ละบิล                                        |
 | `BillParticipant` | เก็บความสัมพันธ์ว่าใครอยู่ในบิลบ้าง ยอดที่ต้องจ่าย และสถานะจ่ายเงินรายคน |
 
 ---
@@ -210,7 +213,7 @@ pip install -r requirements.txt
 ### 3. การกำหนดค่า AI (API Key)
 
 สร้างไฟล์ `.env` ไว้ที่ Root ของโปรเจกต์ และเพิ่มข้อความดังนี้:
-*(สามารถรับ Key ได้ที่ [Google AI Studio](https://aistudio.google.com/apikey))*
+_(สามารถรับ Key ได้ที่ [Google AI Studio](https://aistudio.google.com/apikey))_
 
 ```env
 GEMINI_API_KEY=YOUR_API_KEY_HERE
@@ -219,6 +222,8 @@ GEMINI_API_KEY=YOUR_API_KEY_HERE
 ### 4. รันแอปพลิเคชัน
 
 ```bash
+source .venv/bin/activate
+
 python main.py
 ```
 
